@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "playground.h"
 #include "mlx.h"
 
@@ -85,6 +86,16 @@ int	main(void)
 	
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
+	for (int x = 0; x < WIN_WIDTH; x++)
+	{
+		for (int y = 0; y < 100; y++)
+		{
+			put_pixel(e.screen->img, x, y, 127);
+		}
+	}
+	//memset(e.screen->img->data, 127, 400 * 100);
+	mlx_put_image_to_window(e.mlx_ptr, e.screen->win_ptr,
+		e.screen->img->ptr, 0, 0);
 	mlx_loop(e.mlx_ptr);
 	return (0);
 }
