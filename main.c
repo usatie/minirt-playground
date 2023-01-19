@@ -86,13 +86,53 @@ int	main(void)
 	
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
+	pvector *camera;
+	pvector *center;
+
+	float diamiter = 1.0;
+
+	camera = pvector_new(0, 0, -5);
+	center = pvector_new(0, 0, 5);
+	pvector *x_dir = pvector_new(1, 0, 0);
+	pvector *y_dir = pvector_new(0, -1, 0);
+
 	for (int x = 0; x < WIN_WIDTH; x++)
+	{
+		float u = map(x, 0, WIN_WIDTH - 1, -1, 1);
+		for (int y = 0; y < WIN_HEIGHT; y++)
+		{
+			
+			float v = map(y, 0, WIN_WIDTH - 1, 1, -1);
+			pvector *ray = pvector_sub(pvector_add(pvector_mul(x_dir, u), pvector_mul(y_dir, v)), camera);
+			pvector *d = ray;
+			pvector *s = camera;
+			pvector *pc = center;
+			
+			float a = pvector_dot(ray, ray);
+			float b = 2.0 * pvector_dot(pvector_sub(s, pc), d);
+			float c = pvector_magsq(pvector_sub(s, pc)) - diamiter * diamiter;
+			float D = b * b - 4.0 * a * c;
+			if (D > 0)
+			{
+				float t1, t2;
+				t1 = (-b - sqrt(D))/ (2.0 * a);
+				t2 = (-b + sqrt(D))/ (2.0 * a);
+				
+				put_pixel(e.screen->img, x, y, 0xff0000);
+			}
+			else
+				put_pixel(e.screen->img, x, y, 0x0);
+		}
+	}
+
+	
+	/*for (int x = 0; x < WIN_WIDTH; x++)
 	{
 		for (int y = 0; y < 100; y++)
 		{
 			put_pixel(e.screen->img, x, y, 127);
 		}
-	}
+	}*/
 	//memset(e.screen->img->data, 127, 400 * 100);
 	mlx_put_image_to_window(e.mlx_ptr, e.screen->win_ptr,
 		e.screen->img->ptr, 0, 0);
