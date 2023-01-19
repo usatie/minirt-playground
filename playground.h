@@ -2,6 +2,9 @@
 # define PLAYGROUND_H
 typedef struct point	point;
 typedef struct pvector	pvector;
+typedef struct s_img	t_img;
+typedef struct s_screen	t_screen;
+typedef struct s_env	t_env;
 
 struct point {
 	int	x;
@@ -12,6 +15,26 @@ struct pvector {
 	float	x;
 	float	y;
 	float	z;
+};
+
+struct s_img {
+	void	*mlx_ptr;
+	void	*ptr;
+	char	*data;
+	int		bits_per_pixel;
+	int		bytes_per_pixel;
+	int		bytes_per_line;
+	int		endian;
+};
+
+struct s_screen {
+	void			*win_ptr;
+	t_img			*img;
+};
+
+struct s_env {
+	void		*mlx_ptr;
+	t_screen	*screen;
 };
 
 float constrain(float v, float vmin, float vmax); // 値の制限
