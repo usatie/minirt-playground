@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <math.h>
 #include "playground.h"
 #include "mlx.h"
 
@@ -80,6 +81,138 @@ t_screen	*init_screen(void *mlx_ptr)
 	return (screen);
 }
 
+typedef struct s_sphere	t_sphere;
+typedef struct s_ray	t_ray;
+
+struct s_sphere {
+	pvector *center;
+	float	diameter;
+};
+
+/*
+typedef struct s_obj	t_obj;
+struct s_obj {
+	enum e_obj_kind	kind; // OBJ_SPHERE, OBJ_PLANE, OBJ_CYLINDER
+
+	// SPHERE
+	pvector *center;
+	float	diameter;
+
+	// PLANE
+	pvector *n;
+	float	start;
+
+	// CYLINDER
+	pvector *n;
+	float	diameter;
+
+	t_obj	*next;
+};
+*/
+
+struct s_ray {
+	pvector	*start;
+	pvector	*direction;
+};
+
+t_sphere	*sphere_new(pvector *center, float diameter)
+{
+	t_sphere	*sp;
+
+	sp = calloc(1, sizeof(*sp));
+	sp->center = center;
+	sp->diameter = diameter;
+	return (sp);
+}
+
+t_ray	*ray_new(pvector *start, pvector *direction)
+{
+	t_ray	*ray;
+
+	ray = calloc(1, sizeof(*ray));
+	ray->start = start;
+	ray->direction = direction;
+	return (ray);
+}
+
+int	sphere_intersect(t_sphere *sp, t_ray *ray, float *t1, float *t2)
+{
+	pvector *d = ray->direction;
+	pvector *s = ray->start;
+	pvector *pc = sp->center;
+	float	r = sp->diameter;
+	float	a = pvector_dot(d, d);
+	float	b = 2.0 * pvector_dot(pvector_sub(s, pc), d);
+	float	c = pvector_magsq(pvector_sub(s, pc)) - r * r;
+	float	D = b * b - 4.0 * a * c;
+
+	if (D > 0)
+	{
+		*t1 = (-b - sqrt(D)) / (2.0 * a);
+		*t2 = (-b + sqrt(D)) / (2.0 * a);
+		return (2);
+	}
+	else if (D == 0)
+	{
+		*t1 = *t2 = (-b) / (2.0 * a);
+		return (1);
+	}
+	else
+		return (0);
+}
+
+#define BG_COLOR 0x64aaee
+
+/*
+int	main()
+{
+	l1 = ambient_light();
+	l2 = diffuse_light();
+	l3 = specular_light();
+	light = l1 + l2 + l3;
+}
+*/
+
+int	ambient_light(int x, int y, pvector *camera, t_sphere *sphere)
+{
+	pvector *x_dir = pvector_new(1, 0, 0);
+	pvector *y_dir = pvector_new(0, -1, 0);
+	float u = map(x, 0, WIN_WIDTH - 1, -1, 1);
+	float v = map(y, 0, WIN_WIDTH - 1, 1, -1);
+
+	pvector *ray_dir = pvector_sub(pvector_add(pvector_mul(x_dir, u), pvector_mul(y_dir, v)), camera);
+	t_ray	*ray = ray_new(camera, ray_dir);
+	float t1, t2;
+	if (sphere_intersect(sphere, ray, &t1, &t2) > 0)
+	{
+		if (t1 > 0 || t2 > 0)
+			return(0xff0000);
+	}
+	return (0);
+}
+
+typedef struct s_color	t_color;
+struct s_color {
+	int	alpha;
+	int	r;
+	int	g;
+	int b;
+};
+
+t_color	color_add(t_color col1, t_color col2)
+{
+	col1.r += col2.r;
+	col1.g += col2.g;
+	col1.b += col2.b;
+	if (col1.r > 255)
+		col1.r = 255;
+	if (col1.g > 255)
+		col1.g = 255;
+	if (col1.b > 255)
+		col1.b = 255;
+	return (col1);
+}
+
 int	main(void)
 {
 	t_env	e;
@@ -87,53 +220,29 @@ int	main(void)
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 	pvector *camera;
-	pvector *center;
+	t_sphere	*sphere;
 
-	float diamiter = 1.0;
-
+	sphere = sphere_new(pvector_new(0, 0, 5), 1.0);
 	camera = pvector_new(0, 0, -5);
-	center = pvector_new(0, 0, 5);
-	pvector *x_dir = pvector_new(1, 0, 0);
-	pvector *y_dir = pvector_new(0, -1, 0);
 
 	for (int x = 0; x < WIN_WIDTH; x++)
 	{
-		float u = map(x, 0, WIN_WIDTH - 1, -1, 1);
 		for (int y = 0; y < WIN_HEIGHT; y++)
 		{
-			
-			float v = map(y, 0, WIN_WIDTH - 1, 1, -1);
-			pvector *ray = pvector_sub(pvector_add(pvector_mul(x_dir, u), pvector_mul(y_dir, v)), camera);
-			pvector *d = ray;
-			pvector *s = camera;
-			pvector *pc = center;
-			
-			float a = pvector_dot(ray, ray);
-			float b = 2.0 * pvector_dot(pvector_sub(s, pc), d);
-			float c = pvector_magsq(pvector_sub(s, pc)) - diamiter * diamiter;
-			float D = b * b - 4.0 * a * c;
-			if (D > 0)
+			bool	intersection;
+			int		color = BG_COLOR;
+			intersection = has_intersection(ray, sphere);
+			if (intersection)
 			{
-				float t1, t2;
-				t1 = (-b - sqrt(D))/ (2.0 * a);
-				t2 = (-b + sqrt(D))/ (2.0 * a);
-				
-				put_pixel(e.screen->img, x, y, 0xff0000);
+				float	R;
+				//R += ambient_light(x, y, camera, sphere);
+				R += diffuse_light(x, y, camera, sphere);
+				//R += specular_light(x, y, camera, sphere);
+				color = obj_color * R;
 			}
-			else
-				put_pixel(e.screen->img, x, y, 0x0);
+			put_pixel(e.screen->img, x, y, color);
 		}
 	}
-
-	
-	/*for (int x = 0; x < WIN_WIDTH; x++)
-	{
-		for (int y = 0; y < 100; y++)
-		{
-			put_pixel(e.screen->img, x, y, 127);
-		}
-	}*/
-	//memset(e.screen->img->data, 127, 400 * 100);
 	mlx_put_image_to_window(e.mlx_ptr, e.screen->win_ptr,
 		e.screen->img->ptr, 0, 0);
 	mlx_loop(e.mlx_ptr);
