@@ -13,9 +13,12 @@ typedef struct s_screen	t_screen;
 typedef struct s_env	t_env;
 typedef struct s_ray	t_ray;
 typedef struct s_shape	t_shape;
+typedef struct s_light_source	t_light_source;
+typedef struct s_lighting	t_lighting;
 typedef struct s_shape	t_sphere;
+typedef enum   e_light_kind	t_light_kind;
 typedef struct pvector t_fcolor;
-typedef enum e_shape_kind t_shape_kind;
+typedef enum   e_shape_kind t_shape_kind;
 typedef struct s_intersection_point t_intersection_point;
 
 struct point {
@@ -75,7 +78,22 @@ struct s_intersection_point {
 
 t_intersection_point	*test_intersection(t_shape *shape, t_ray *ray);
 
+enum e_light_kind {
+	POINT,
+	DIRECTIONAL,
+};
+
 struct s_light_source {
+	t_light_kind	kind;
+	t_fcolor		*intencity;
+	//point light
+	pvector			*position;
+	//directional light
+	pvector			*direction;
+
+};
+
+struct s_lighting {
 	pvector 	*position;
 	t_fcolor	intencity;
 	float		distance;

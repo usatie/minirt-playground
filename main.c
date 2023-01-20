@@ -145,6 +145,16 @@ t_shape	*shape_new(t_shape_kind kind)
 	return (sp);
 }
 
+t_light_source *light_source_new(t_light_kind kind)
+{
+	t_light_source *src;
+
+	src = calloc(1, sizeof(*src));
+	src->kind = kind;
+	return (src);
+}
+
+
 int	main(void)
 {
 	t_env	e;
@@ -152,14 +162,16 @@ int	main(void)
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 	pvector *camera;
-	pvector *light;
+	t_light_source *light_source;
 	t_shape	*shape;
 
 	shape = shape_new(SPHERE);
 	shape->center = pvector_new(0, 0, 5);
 	shape->radius = 1.0;
 	camera = pvector_new(0, 0, -5);
-	light = pvector_new(-5, 5, -5);
+	light_source = light_source_new(POINT);
+	light_source->position = pvector_new(-5, 5, -5);
+	light_source->intencity = pvector_new(1.0, 1.0, 1.0);
 
 	for (int x = 0; x < WIN_WIDTH; x++)
 	{
