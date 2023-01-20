@@ -38,6 +38,11 @@ struct s_screen {
 	t_img			*img;
 };
 
+// struct s_scene {
+// 	float	ambient_intesity;
+// 	float	light_intensity
+// }
+
 struct s_env {
 	void		*mlx_ptr;
 	t_screen	*screen;
@@ -46,6 +51,7 @@ struct s_env {
 struct s_sphere {
 	pvector *center;
 	float	diameter;
+	float	k_amb;
 };
 
 struct s_ray {
@@ -67,6 +73,7 @@ float	pvector_mag(pvector *v);
 void	pvector_normalize(pvector *v);
 void	pvector_print(pvector *v);
 
+t_screen	*init_screen(void *mlx_ptr);
 void	*init_img(void *mlx_ptr, int width, int height);
 void	put_pixel(const t_img *img, int x, int y, int mlx_color);
 #endif

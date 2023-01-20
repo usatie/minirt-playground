@@ -2,6 +2,16 @@
 #include "playground.h"
 #include "mlx.h"
 
+t_screen	*init_screen(void *mlx_ptr)
+{
+	t_screen	*screen;
+
+	screen = calloc(1, sizeof(*screen));
+	screen->win_ptr = mlx_new_window(mlx_ptr, WIN_WIDTH, WIN_HEIGHT, "screen");
+	screen->img = init_img(mlx_ptr, WIN_WIDTH, WIN_HEIGHT);
+	return (screen);
+}
+
 void	*init_img(void *mlx_ptr, int width, int height)
 {
 	t_img	*img;

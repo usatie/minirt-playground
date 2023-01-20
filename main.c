@@ -6,23 +6,14 @@
 #include "color.h"
 #include "mlx.h"
 
-t_screen	*init_screen(void *mlx_ptr)
-{
-	t_screen	*screen;
-
-	screen = calloc(1, sizeof(*screen));
-	screen->win_ptr = mlx_new_window(mlx_ptr, WIN_WIDTH, WIN_HEIGHT, "screen");
-	screen->img = init_img(mlx_ptr, WIN_WIDTH, WIN_HEIGHT);
-	return (screen);
-}
-
-t_sphere	*sphere_new(pvector *center, float diameter)
+t_sphere	*sphere_new(pvector *center, float diameter, float amb)
 {
 	t_sphere	*sp;
 
 	sp = calloc(1, sizeof(*sp));
 	sp->center = center;
 	sp->diameter = diameter;
+	sp->k_amb = amb;
 	return (sp);
 }
 
@@ -67,7 +58,7 @@ int	sphere_intersect(t_sphere *sp, t_ray *ray, float *t1, float *t2)
 t_ray *get_ray(int x, int y, pvector *camera)
 {
 	pvector *x_dir = pvector_new(1, 0, 0);
-	pvector *y_dir = pvector_new(0, -1, 0);
+	pvector *y_dir = pvector_new(0, 1, 0);
 	float u = map(x, 0, WIN_WIDTH - 1, -1, 1);
 	float v = map(y, 0, WIN_WIDTH - 1, 1, -1);
 
@@ -75,18 +66,13 @@ t_ray *get_ray(int x, int y, pvector *camera)
 	return (ray_new(camera, ray_dir));
 }
 
-int	ambient_light(int x, int y, t_ray *ray, t_sphere *sphere)
+#define AMB_L 0.01
+
+int	ambient_light(t_ray *ray, t_sphere *sphere)
 {
-	float t1, t2;
-	(void)x;
-	(void)y;
+	(void)ray;
 	
-	if (sphere_intersect(sphere, ray, &t1, &t2) > 0)
-	{
-		if (t1 > 0 || t2 > 0)
-			return(0xff0000);
-	}
-	return (0);
+	return (AMB_L * sphere->k_amb);
 }
 
 float	diffuse_light(t_ray *ray, t_sphere *sphere, float t, pvector *light)
@@ -101,6 +87,27 @@ float	diffuse_light(t_ray *ray, t_sphere *sphere, float t, pvector *light)
 	ray_light = pvector_sub(light, intersection);
 	pvector_normalize(ray_light);
 	return (constrain(pvector_dot(ray_light, n), 0 , 1));
+}
+
+float	specular_light(t_ray *ray, t_sphere *sphere, float t, pvector *light)
+{
+	pvector	*intersection;
+	pvector	*n;
+	pvector	*incident_light;
+	pvector	*reflection;
+	pvector *b;
+	pvector	*view;
+
+	intersection = pvector_add(ray->start, pvector_mul(ray->direction, t));
+	n = pvector_sub(intersection, sphere->center);
+	pvector_normalize(n);
+	incident_light = pvector_sub(light, intersection);
+	pvector_normalize(incident_light);
+	b = pvector_mul(n, pvector_dot(incident_light, n) * 2);
+	reflection = pvector_sub(b, incident_light);
+	view = pvector_mul(ray->direction, -1);
+	pvector_normalize(view);
+	return (pow(pvector_dot(view, reflection), 8));
 }
 
 float	has_intersection(t_ray *ray, t_sphere *sp)
@@ -139,7 +146,7 @@ int	main(void)
 	pvector *light;
 	t_sphere	*sphere;
 
-	sphere = sphere_new(pvector_new(0, 0, 5), 1.0);
+	sphere = sphere_new(pvector_new(0, 0, 5), 1.0, 0.1);
 	camera = pvector_new(0, 0, -5);
 	light = pvector_new(-5, 5, -5);
 
@@ -156,9 +163,9 @@ int	main(void)
 			if (t > 0)
 			{
 				float	R = 0;
-				//R += ambient_light(x, y, camera, sphere);
+				R += ambient_light(ray, sphere);
 				R += diffuse_light(ray, sphere, t, light);
-				//R += specular_light(x, y, camera, sphere);
+				R += specular_light(ray, sphere, t, light);
 				color = red();
 				color = rgb_mul(color, R);
 			}
