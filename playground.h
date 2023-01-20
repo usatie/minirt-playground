@@ -11,11 +11,12 @@ typedef struct pvector	pvector;
 typedef struct s_img	t_img;
 typedef struct s_screen	t_screen;
 typedef struct s_env	t_env;
-typedef struct s_sphere	t_sphere;
 typedef struct s_ray	t_ray;
-typedef struct s_shape t_shape;
+typedef struct s_shape	t_shape;
+typedef struct s_shape	t_sphere;
 typedef struct pvector t_fcolor;
 typedef enum e_shape_kind t_shape_kind;
+typedef struct s_intersection_point t_intersection_point;
 
 struct point {
 	int	x;
@@ -66,23 +67,32 @@ struct s_shape {
 
 };
 
+struct s_intersection_point {
+	float	distance;
+	pvector	*position;
+	pvector	*normal;
+};
+
+t_intersection_point	*test_intersection(t_shape *shape, t_ray *ray);
+
 struct s_light_source {
 	pvector 	*position;
 	t_fcolor	intencity;
 	float		distance;
 };
 
-
 struct s_env {
 	void		*mlx_ptr;
 	t_screen	*screen;
 };
 
+/*
 struct s_sphere {
 	pvector *center;
 	float	diameter;
 	float	k_amb;
 };
+*/
 
 struct s_ray {
 	pvector	*start;

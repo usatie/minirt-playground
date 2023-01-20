@@ -6,17 +6,6 @@
 #include "color.h"
 #include "mlx.h"
 
-t_sphere	*sphere_new(pvector *center, float diameter, float amb)
-{
-	t_sphere	*sp;
-
-	sp = calloc(1, sizeof(*sp));
-	sp->center = center;
-	sp->diameter = diameter;
-	sp->k_amb = amb;
-	return (sp);
-}
-
 t_ray	*ray_new(pvector *start, pvector *direction)
 {
 	t_ray	*ray;
@@ -27,33 +16,56 @@ t_ray	*ray_new(pvector *start, pvector *direction)
 	return (ray);
 }
 
-int	sphere_intersect(t_sphere *sp, t_ray *ray, float *t1, float *t2)
+t_intersection_point	*sphere_get_intersection(float t, t_ray *ray, t_sphere *sphere)
+{
+	pvector					*position;
+	t_intersection_point	*intersection;
+
+	position = pvector_add(ray->start, pvector_mul(ray->direction, t));
+	intersection = calloc(1, sizeof(*intersection));
+	intersection->distance = t;
+	intersection->position = position;
+	intersection->normal = pvector_sub(position, sphere->center);
+	pvector_normalize(intersection->normal);
+	return (intersection);
+}
+
+t_intersection_point	*sphere_test_intersection(t_sphere *sp, t_ray *ray)
 {
 	pvector *d = ray->direction;
 	pvector *s = ray->start;
 	pvector *pc = sp->center;
-	float	r = sp->diameter;
+	float	r = sp->radius;
 	float	a = pvector_dot(d, d);
 	float	b = 2.0 * pvector_dot(pvector_sub(s, pc), d);
 	float	c = pvector_magsq(pvector_sub(s, pc)) - r * r;
 	float	D = b * b - 4.0 * a * c;
+	float	t1, t2;
 
 	if (D > 0)
 	{
-		*t1 = (-b - sqrt(D)) / (2.0 * a);
-		*t2 = (-b + sqrt(D)) / (2.0 * a);
-		return (2);
+		t1 = (-b - sqrt(D)) / (2.0 * a);
+		t2 = (-b + sqrt(D)) / (2.0 * a);
+		if (t1 > 0)
+			return (sphere_get_intersection(t1, ray, sp));
+		else if (t2 > 0)
+			return (sphere_get_intersection(t2, ray, sp));
 	}
 	else if (D == 0)
 	{
-		*t1 = *t2 = (-b) / (2.0 * a);
-		return (1);
+		t1 = (-b) / (2.0 * a);
+		if (t1 > 0)
+			return (sphere_get_intersection(t1, ray, sp));
 	}
-	else
-		return (0);
+	return (NULL);
 }
-
-#define BG_COLOR 0x64aaee
+t_intersection_point	*test_intersection(t_shape *shape, t_ray *ray)
+{
+	if (shape->kind == SPHERE)
+		return (sphere_test_intersection(shape, ray));
+	else
+		exit(1);
+}
 
 t_ray *get_ray(int x, int y, pvector *camera)
 {
@@ -63,16 +75,19 @@ t_ray *get_ray(int x, int y, pvector *camera)
 	float v = map(y, 0, WIN_WIDTH - 1, 1, -1);
 
 	pvector *ray_dir = pvector_sub(pvector_add(pvector_mul(x_dir, u), pvector_mul(y_dir, v)), camera);
+	pvector_normalize(ray_dir);
 	return (ray_new(camera, ray_dir));
 }
 
 #define AMB_L 0.01
 
-int	ambient_light(t_ray *ray, t_sphere *sphere)
+int	ambient_light(t_ray *ray, t_shape *shape)
 {
 	(void)ray;
+	(void)shape;
+	float	k_amb = 0.1;
 	
-	return (AMB_L * sphere->k_amb);
+	return (AMB_L * k_amb);
 }
 
 float	diffuse_light(t_ray *ray, t_sphere *sphere, float t, pvector *light)
@@ -121,33 +136,6 @@ float	specular_light(t_ray *ray, t_sphere *sphere, float t, pvector *light)
 	return (k_spec * light_intensity * pow(vrdot, shineness));
 }
 
-float	has_intersection(t_ray *ray, t_sphere *sp)
-{
-	pvector *d = ray->direction;
-	pvector *s = ray->start;
-	pvector *pc = sp->center;
-	float	r = sp->diameter;
-	float	a = pvector_dot(d, d);
-	float	b = 2.0 * pvector_dot(pvector_sub(s, pc), d);
-	float	c = pvector_magsq(pvector_sub(s, pc)) - r * r;
-	float	D = b * b - 4.0 * a * c;
-
-	if (D > 0)
-	{
-		float t1 = (-b - sqrt(D)) / (2.0 * a);
-		float t2 = (-b + sqrt(D)) / (2.0 * a);
-		if (t1 > 0)
-			return (t1);
-		return (t2);
-	}
-	else if (D == 0)
-	{
-		float t1 = (-b) / (2.0 * a);
-		return (t1);
-	}
-	return (-1);
-}
-
 t_shape	*shape_new(t_shape_kind kind)
 {
 	t_shape	*sp;
@@ -165,9 +153,11 @@ int	main(void)
 	e.screen = init_screen(e.mlx_ptr);
 	pvector *camera;
 	pvector *light;
-	t_sphere	*sphere;
+	t_shape	*shape;
 
-	sphere = sphere_new(pvector_new(0, 0, 5), 1.0, 0.1);
+	shape = shape_new(SPHERE);
+	shape->center = pvector_new(0, 0, 5);
+	shape->radius = 1.0;
 	camera = pvector_new(0, 0, -5);
 	light = pvector_new(-5, 5, -5);
 
@@ -175,18 +165,16 @@ int	main(void)
 	{
 		for (int y = 0; y < WIN_HEIGHT; y++)
 		{
-			//bool	intersection;
 			t_rgb	color = blue();
-			//int		color = BG_COLOR;
-			float t;
+			t_intersection_point	*intersection;
 			t_ray *ray = get_ray(x, y, camera);
-			t = has_intersection(ray, sphere);
-			if (t > 0)
+			intersection = test_intersection(shape, ray);
+			if (intersection)
 			{
 				float	R = 0;
-				R += ambient_light(ray, sphere);
-				R += diffuse_light(ray, sphere, t, light);
-				R += specular_light(ray, sphere, t, light);
+				R += ambient_light(ray, shape);
+				R += diffuse_light(ray, shape, intersection->distance, light);
+				R += specular_light(ray, shape, intersection->distance, light);
 				color = red();
 				color = rgb_mul(color, R);
 			}
