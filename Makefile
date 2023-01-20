@@ -15,8 +15,8 @@ CFLAGS		=	-Wall -Werror -Wextra
 
 FRAMEWORK = -framework OpenGL -framework AppKit
 
-$(NAME): main.c vector.c $(MLX)
-	$(CC) main.c vector.c $(INCLUDES) $(CFLAGS) $(LIBS) $(LIBPATH) $(FRAMEWORK) -o $(NAME)
+$(NAME): main.c vector.c img.c $(MLX)
+	$(CC) main.c vector.c img.c $(INCLUDES) $(CFLAGS) $(LIBS) $(LIBPATH) $(FRAMEWORK) -o $(NAME)
 
 $(MLX):
 	$(MAKE) -C $(MLX_DIR)
