@@ -206,9 +206,7 @@ int	main(void)
 				R = fcolor_add(R, specular_light(ray, shape, intersection, lighting));
 				fcolor = fcolor_new(1.0, 0.0, 0.0);
 				fcolor = fcolor_mul(fcolor, R);
-				printf("fcolor [%f %f %f]\n", R->red, R->green, R->blue);
 				color = fcolor2rgb(fcolor);
-				printf("color [%d %d %d]\n", color.rgb.r, color.rgb.g, color.rgb.b);
 			}
 			put_pixel(e.screen->img, x, y, color.mlx_color);
 		}
