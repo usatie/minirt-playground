@@ -80,13 +80,15 @@ float	diffuse_light(t_ray *ray, t_sphere *sphere, float t, pvector *light)
 	pvector	*intersection;
 	pvector	*n;
 	pvector	*ray_light;
+	float	light_intensity = 1.0;
+	float	k_diffuse = 0.69;
 
 	intersection = pvector_add(ray->start, pvector_mul(ray->direction, t));
 	n = pvector_sub(intersection, sphere->center);
 	pvector_normalize(n);
 	ray_light = pvector_sub(light, intersection);
 	pvector_normalize(ray_light);
-	return (constrain(pvector_dot(ray_light, n), 0 , 1));
+	return (light_intensity * k_diffuse * constrain(pvector_dot(ray_light, n), 0 , 1));
 }
 
 float	specular_light(t_ray *ray, t_sphere *sphere, float t, pvector *light)
@@ -97,17 +99,26 @@ float	specular_light(t_ray *ray, t_sphere *sphere, float t, pvector *light)
 	pvector	*reflection;
 	pvector *b;
 	pvector	*view;
+	float	shineness = 128.0;
+	float	k_spec = 0.3;
+	float	light_intensity = 1.0;
+	float	nldot;
+	float	vrdot;
 
 	intersection = pvector_add(ray->start, pvector_mul(ray->direction, t));
 	n = pvector_sub(intersection, sphere->center);
 	pvector_normalize(n);
 	incident_light = pvector_sub(light, intersection);
 	pvector_normalize(incident_light);
-	b = pvector_mul(n, pvector_dot(incident_light, n) * 2);
+	nldot = pvector_dot(n, incident_light);
+	b = pvector_mul(n, nldot * 2);
 	reflection = pvector_sub(b, incident_light);
 	view = pvector_mul(ray->direction, -1);
 	pvector_normalize(view);
-	return (pow(pvector_dot(view, reflection), 8));
+	vrdot = pvector_dot(view, reflection);
+	if (nldot <= 0 || vrdot <= 0)
+		return (0);
+	return (k_spec * light_intensity * pow(vrdot, shineness));
 }
 
 float	has_intersection(t_ray *ray, t_sphere *sp)
