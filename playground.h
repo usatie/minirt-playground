@@ -17,7 +17,7 @@ typedef struct s_light_source	t_light_source;
 typedef struct s_lighting	t_lighting;
 typedef struct s_shape	t_sphere;
 typedef enum   e_light_kind	t_light_kind;
-typedef struct pvector t_fcolor;
+typedef struct s_fcolor t_fcolor;
 typedef enum   e_shape_kind t_shape_kind;
 typedef struct s_intersection_point t_intersection_point;
 
@@ -30,6 +30,12 @@ struct pvector {
 	float	x;
 	float	y;
 	float	z;
+};
+
+struct s_fcolor {
+	float	red;
+	float	green;
+	float	blue;
 };
 
 struct s_img {
@@ -130,6 +136,13 @@ float	pvector_magsq(pvector *v);
 float	pvector_mag(pvector *v);
 void	pvector_normalize(pvector *v);
 void	pvector_print(pvector *v);
+
+// fcolor.c
+t_fcolor	*fcolor_new(float red, float green, float blue);
+void		fcolor_set(t_fcolor *c, float red, float green, float blue);
+t_fcolor	*fcolor_copy(t_fcolor *c);
+t_fcolor	*fcolor_add(t_fcolor *c1, t_fcolor *c2);
+t_fcolor	*fcolor_mul(t_fcolor *c1, t_fcolor *c2);
 
 t_screen	*init_screen(void *mlx_ptr);
 void	*init_img(void *mlx_ptr, int width, int height);

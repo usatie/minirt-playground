@@ -90,20 +90,21 @@ int	ambient_light(t_ray *ray, t_shape *shape)
 	return (AMB_L * k_amb);
 }
 
-float	diffuse_light(t_ray *ray, t_sphere *sphere, float t, pvector *light)
+t_fcolor	*diffuse_light(t_sphere *sphere, t_intersection_point *intersection, t_lighting *lighting)
 {
-	pvector	*intersection;
+	t_fcolor	*color;
 	pvector	*n;
-	pvector	*ray_light;
-	float	light_intensity = 1.0;
-	float	k_diffuse = 0.69;
+	pvector	*l;
+	t_fcolor	*k_diffuse = fcolor_new(0.69, 0, 0);
+	float	nldot;
 
-	intersection = pvector_add(ray->start, pvector_mul(ray->direction, t));
-	n = pvector_sub(intersection, sphere->center);
-	pvector_normalize(n);
-	ray_light = pvector_sub(light, intersection);
-	pvector_normalize(ray_light);
-	return (light_intensity * k_diffuse * constrain(pvector_dot(ray_light, n), 0 , 1));
+	(void)sphere;
+	n = intersection->normal;
+	l = lighting->direction;
+	nldot = constrain(pvector_dot(l, n), 0 , 1);
+	color = fcolor_mul(lighting->intencity, k_diffuse);
+	color = fcolor_mul(color, fcolor_new(nldot, nldot, nldot));
+	return (color);
 }
 
 float	specular_light(t_ray *ray, t_sphere *sphere, float t, pvector *light)
@@ -170,12 +171,13 @@ t_lighting *lighting_at(pvector *pos, t_light_source *light_source)
 int	main(void)
 {
 	t_env	e;
+	pvector 		*camera;
+	t_light_source	*light_source;
+	t_lighting		*lighting;
+	t_shape			*shape;
 	
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
-	pvector *camera;
-	t_light_source *light_source;
-	t_shape	*shape;
 
 	shape = shape_new(SPHERE);
 	shape->center = pvector_new(0, 0, 5);
@@ -189,16 +191,21 @@ int	main(void)
 	{
 		for (int y = 0; y < WIN_HEIGHT; y++)
 		{
-			t_rgb	color = blue();
+			t_rgb					color;
 			t_intersection_point	*intersection;
-			t_ray *ray = get_ray(x, y, camera);
+			t_ray 					*ray;
+
+			color = blue();
+			ray = get_ray(x, y, camera);
 			intersection = test_intersection(shape, ray);
 			if (intersection)
 			{
 				float	R = 0;
+
+				lighting = lighting_at(intersection->position, light_source);
 				R += ambient_light(ray, shape);
-				R += diffuse_light(ray, shape, intersection->distance, light);
-				R += specular_light(ray, shape, intersection->distance, light);
+				R += diffuse_light(shape, intersection, lighting);
+				R += specular_light(ray, shape, intersection->distance, lighting);
 				color = red();
 				color = rgb_mul(color, R);
 			}
