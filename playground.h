@@ -94,8 +94,8 @@ struct s_light_source {
 };
 
 struct s_lighting {
-	pvector 	*position;
-	t_fcolor	intencity;
+	pvector 	*direction;
+	t_fcolor	*intencity;
 	float		distance;
 };
 
