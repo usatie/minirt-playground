@@ -42,11 +42,12 @@ static char	get_n_th_byte(int x, int n)
 // Else write from tail.
 void	put_pixel(const t_img *img, int x, int y, int mlx_color)
 {
-	int	x_color;
+	unsigned int	x_color;
 	int	head;
 	int	i;
 	int	index;
 
+	x_color = mlx_color;
 	x_color = mlx_get_color_value(img->mlx_ptr, mlx_color);
 	head = (x * img->bytes_per_pixel) + (y * img->bytes_per_line);
 	i = 0;

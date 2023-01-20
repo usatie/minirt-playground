@@ -3,6 +3,7 @@
 #include <string.h>
 #include <math.h>
 #include "playground.h"
+#include "color.h"
 #include "mlx.h"
 
 t_screen	*init_screen(void *mlx_ptr)
@@ -147,7 +148,8 @@ int	main(void)
 		for (int y = 0; y < WIN_HEIGHT; y++)
 		{
 			//bool	intersection;
-			int		color = BG_COLOR;
+			t_rgb	color = blue();
+			//int		color = BG_COLOR;
 			float t;
 			t_ray *ray = get_ray(x, y, camera);
 			t = has_intersection(ray, sphere);
@@ -157,9 +159,10 @@ int	main(void)
 				//R += ambient_light(x, y, camera, sphere);
 				R += diffuse_light(ray, sphere, t, light);
 				//R += specular_light(x, y, camera, sphere);
-				color = 255 * R;
+				color = red();
+				color = rgb_mul(color, R);
 			}
-			put_pixel(e.screen->img, x, y, color);
+			put_pixel(e.screen->img, x, y, color.mlx_color);
 		}
 	}
 	mlx_put_image_to_window(e.mlx_ptr, e.screen->win_ptr,
