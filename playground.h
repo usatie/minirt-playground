@@ -143,6 +143,7 @@ void		fcolor_set(t_fcolor *c, float red, float green, float blue);
 t_fcolor	*fcolor_copy(t_fcolor *c);
 t_fcolor	*fcolor_add(t_fcolor *c1, t_fcolor *c2);
 t_fcolor	*fcolor_mul(t_fcolor *c1, t_fcolor *c2);
+t_rgb	fcolor2rgb(t_fcolor *fcolor);
 
 t_screen	*init_screen(void *mlx_ptr);
 void	*init_img(void *mlx_ptr, int width, int height);

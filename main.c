@@ -81,13 +81,15 @@ t_ray *get_ray(int x, int y, pvector *camera)
 
 #define AMB_L 0.01
 
-int	ambient_light(t_ray *ray, t_shape *shape)
+t_fcolor	*ambient_light(t_ray *ray, t_shape *shape)
 {
 	(void)ray;
 	(void)shape;
-	float	k_amb = 0.1;
+	float	R;
 	
-	return (AMB_L * k_amb);
+	float	k_amb = 0.1;
+	R = k_amb * AMB_L;
+	return (fcolor_new(R, R, R));
 }
 
 t_fcolor	*diffuse_light(t_sphere *sphere, t_intersection_point *intersection, t_lighting *lighting)
@@ -107,34 +109,28 @@ t_fcolor	*diffuse_light(t_sphere *sphere, t_intersection_point *intersection, t_
 	return (color);
 }
 
-float	specular_light(t_ray *ray, t_sphere *sphere, float t, pvector *light)
+t_fcolor	*specular_light(t_ray *ray, t_sphere *sphere, t_intersection_point *intersection, t_lighting *lighting)
 {
-	pvector	*intersection;
-	pvector	*n;
-	pvector	*incident_light;
 	pvector	*reflection;
 	pvector *b;
 	pvector	*view;
+	t_fcolor	*fcolor;
 	float	shineness = 128.0;
-	float	k_spec = 0.3;
-	float	light_intensity = 1.0;
+	t_fcolor	*k_spec = fcolor_new(0.3, 0.3, 0.3);
 	float	nldot;
 	float	vrdot;
 
-	intersection = pvector_add(ray->start, pvector_mul(ray->direction, t));
-	n = pvector_sub(intersection, sphere->center);
-	pvector_normalize(n);
-	incident_light = pvector_sub(light, intersection);
-	pvector_normalize(incident_light);
-	nldot = pvector_dot(n, incident_light);
-	b = pvector_mul(n, nldot * 2);
-	reflection = pvector_sub(b, incident_light);
+	nldot = pvector_dot(intersection->normal, lighting->direction);
+	b = pvector_mul(intersection->normal, nldot * 2);
+	reflection = pvector_sub(b, lighting->direction);
 	view = pvector_mul(ray->direction, -1);
 	pvector_normalize(view);
 	vrdot = pvector_dot(view, reflection);
 	if (nldot <= 0 || vrdot <= 0)
-		return (0);
-	return (k_spec * light_intensity * pow(vrdot, shineness));
+		return (fcolor_new(0, 0, 0));
+	float R = pow(vrdot, shineness);
+
+	return (fcolor_mul(k_spec, fcolor_mul(lighting->intencity, fcolor_new(R, R, R))));
 }
 
 t_shape	*shape_new(t_shape_kind kind)
@@ -185,7 +181,7 @@ int	main(void)
 	camera = pvector_new(0, 0, -5);
 	light_source = light_source_new(POINT);
 	light_source->position = pvector_new(-5, 5, -5);
-	light_source->intencity = pvector_new(1.0, 1.0, 1.0);
+	light_source->intencity = fcolor_new(1.0, 1.0, 1.0);
 
 	for (int x = 0; x < WIN_WIDTH; x++)
 	{
@@ -200,14 +196,19 @@ int	main(void)
 			intersection = test_intersection(shape, ray);
 			if (intersection)
 			{
-				float	R = 0;
+				t_fcolor	*R;
+				t_fcolor	*fcolor;
 
+				R = fcolor_new(0, 0, 0);
 				lighting = lighting_at(intersection->position, light_source);
-				R += ambient_light(ray, shape);
-				R += diffuse_light(shape, intersection, lighting);
-				R += specular_light(ray, shape, intersection->distance, lighting);
-				color = red();
-				color = rgb_mul(color, R);
+				R = fcolor_add(R, ambient_light(ray, shape));
+				R = fcolor_add(R, diffuse_light(shape, intersection, lighting));
+				R = fcolor_add(R, specular_light(ray, shape, intersection, lighting));
+				fcolor = fcolor_new(1.0, 0.0, 0.0);
+				fcolor = fcolor_mul(fcolor, R);
+				printf("fcolor [%f %f %f]\n", R->red, R->green, R->blue);
+				color = fcolor2rgb(fcolor);
+				printf("color [%d %d %d]\n", color.rgb.r, color.rgb.g, color.rgb.b);
 			}
 			put_pixel(e.screen->img, x, y, color.mlx_color);
 		}

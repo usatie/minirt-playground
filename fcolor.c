@@ -45,3 +45,8 @@ t_fcolor	*fcolor_mul(t_fcolor *c1, t_fcolor *c2)
 	color->blue *= c2->blue;
 	return (color);
 }
+
+t_rgb	fcolor2rgb(t_fcolor *fcolor)
+{
+	return (rgb(fcolor->red * 255, fcolor->green * 255, fcolor->blue *255, 0));
+}
