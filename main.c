@@ -145,7 +145,17 @@ float	has_intersection(t_ray *ray, t_sphere *sp)
 		float t1 = (-b) / (2.0 * a);
 		return (t1);
 	}
-	return (-1);}
+	return (-1);
+}
+
+t_shape	*shape_new(t_shape_kind kind)
+{
+	t_shape	*sp;
+
+	sp = calloc(1, sizeof(*sp));
+	sp->kind = kind;
+	return (sp);
+}
 
 int	main(void)
 {

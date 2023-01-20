@@ -4,6 +4,8 @@
 # define WIN_WIDTH 400
 # define WIN_HEIGHT 400
 
+#include "color.h"
+
 typedef struct point	point;
 typedef struct pvector	pvector;
 typedef struct s_img	t_img;
@@ -11,6 +13,9 @@ typedef struct s_screen	t_screen;
 typedef struct s_env	t_env;
 typedef struct s_sphere	t_sphere;
 typedef struct s_ray	t_ray;
+typedef struct s_shape t_shape;
+typedef struct pvector t_fcolor;
+typedef enum e_shape_kind t_shape_kind;
 
 struct point {
 	int	x;
@@ -42,6 +47,31 @@ struct s_screen {
 // 	float	ambient_intesity;
 // 	float	light_intensity
 // }
+
+enum e_shape_kind {
+	SPHERE,
+	PLANE,
+	CYLINDER,
+};
+
+struct s_shape {
+	t_shape_kind	kind;
+	t_rgb			color;
+	//sphere
+	pvector			*center;
+	float			radius;
+	//plane
+	pvector			*normal;
+	pvector			*position;
+
+};
+
+struct s_light_source {
+	pvector 	*position;
+	t_fcolor	intencity;
+	float		distance;
+};
+
 
 struct s_env {
 	void		*mlx_ptr;
