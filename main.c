@@ -83,42 +83,37 @@ t_ray *get_ray(int x, int y, pvector *camera)
 
 t_fcolor	*ambient_light(t_ray *ray, t_shape *shape)
 {
-	(void)ray;
-	(void)shape;
-	float	R;
+	t_fcolor	*ambient_intensity;
 	
-	float	k_amb = 0.1;
-	R = k_amb * AMB_L;
-	return (fcolor_new(R, R, R));
+	(void)ray;
+	ambient_intensity = fcolor_new(0.1, 0.1, 0.1);
+	return (fcolor_mul(ambient_intensity, shape->material->amibient_factor));
 }
 
-t_fcolor	*diffuse_light(t_sphere *sphere, t_intersection_point *intersection, t_lighting *lighting)
+t_fcolor	*diffuse_light(t_shape *shape, t_intersection_point *intersection, t_lighting *lighting)
 {
 	t_fcolor	*color;
 	pvector	*n;
 	pvector	*l;
-	t_fcolor	*k_diffuse = fcolor_new(0.69, 0, 0);
 	float	nldot;
 
-	(void)sphere;
 	n = intersection->normal;
 	l = lighting->direction;
 	nldot = constrain(pvector_dot(l, n), 0 , 1);
-	color = fcolor_mul(lighting->intencity, k_diffuse);
+	color = fcolor_mul(lighting->intencity, shape->material->diffuse_factor);
 	color = fcolor_mul(color, fcolor_new(nldot, nldot, nldot));
 	return (color);
 }
 
-t_fcolor	*specular_light(t_ray *ray, t_sphere *sphere, t_intersection_point *intersection, t_lighting *lighting)
+t_fcolor	*specular_light(t_ray *ray, t_shape *shape, t_intersection_point *intersection, t_lighting *lighting)
 {
 	pvector	*reflection;
 	pvector *b;
 	pvector	*view;
-	t_fcolor	*fcolor;
-	float	shineness = 128.0;
-	t_fcolor	*k_spec = fcolor_new(0.3, 0.3, 0.3);
 	float	nldot;
 	float	vrdot;
+	float	vrdot_pow_alpha;
+	t_fcolor	*ki;
 
 	nldot = pvector_dot(intersection->normal, lighting->direction);
 	b = pvector_mul(intersection->normal, nldot * 2);
@@ -128,9 +123,9 @@ t_fcolor	*specular_light(t_ray *ray, t_sphere *sphere, t_intersection_point *int
 	vrdot = pvector_dot(view, reflection);
 	if (nldot <= 0 || vrdot <= 0)
 		return (fcolor_new(0, 0, 0));
-	float R = pow(vrdot, shineness);
-
-	return (fcolor_mul(k_spec, fcolor_mul(lighting->intencity, fcolor_new(R, R, R))));
+	vrdot_pow_alpha = pow(vrdot, shape->material->shineness);
+	ki = fcolor_mul(shape->material->specular_factor, lighting->intencity);
+	return (fcolor_mul(ki, fcolor_new(vrdot_pow_alpha, vrdot_pow_alpha, vrdot_pow_alpha)));
 }
 
 t_shape	*shape_new(t_shape_kind kind)
@@ -178,6 +173,11 @@ int	main(void)
 	shape = shape_new(SPHERE);
 	shape->center = pvector_new(0, 0, 5);
 	shape->radius = 1.0;
+	shape->material = material_new();
+	shape->material->amibient_factor = fcolor_new(0.01, 0.01, 0.01);
+	shape->material->diffuse_factor = fcolor_new(0.69, 0.00, 0.0);
+	shape->material->specular_factor = fcolor_new(0.30, 0.30, 0.30);
+	shape->material->shineness = 8.0;
 	camera = pvector_new(0, 0, -5);
 	light_source = light_source_new(POINT);
 	light_source->position = pvector_new(-5, 5, -5);
@@ -197,16 +197,12 @@ int	main(void)
 			if (intersection)
 			{
 				t_fcolor	*R;
-				t_fcolor	*fcolor;
 
-				R = fcolor_new(0, 0, 0);
 				lighting = lighting_at(intersection->position, light_source);
-				R = fcolor_add(R, ambient_light(ray, shape));
+				R = ambient_light(ray, shape);
 				R = fcolor_add(R, diffuse_light(shape, intersection, lighting));
 				R = fcolor_add(R, specular_light(ray, shape, intersection, lighting));
-				fcolor = fcolor_new(1.0, 0.0, 0.0);
-				fcolor = fcolor_mul(fcolor, R);
-				color = fcolor2rgb(fcolor);
+				color = fcolor2rgb(R);
 			}
 			put_pixel(e.screen->img, x, y, color.mlx_color);
 		}

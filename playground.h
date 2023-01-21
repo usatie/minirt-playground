@@ -20,6 +20,7 @@ typedef enum   e_light_kind	t_light_kind;
 typedef struct s_fcolor t_fcolor;
 typedef enum   e_shape_kind t_shape_kind;
 typedef struct s_intersection_point t_intersection_point;
+typedef struct s_material t_material;
 
 struct point {
 	int	x;
@@ -64,9 +65,18 @@ enum e_shape_kind {
 	CYLINDER,
 };
 
+struct s_material {
+	t_fcolor	*amibient_factor;
+	t_fcolor	*diffuse_factor;
+	t_fcolor	*specular_factor;
+	float		shineness;
+};
+
 struct s_shape {
 	t_shape_kind	kind;
-	t_rgb			color;
+	t_material		*material;
+	//t_rgb			color;
+
 	//sphere
 	pvector			*center;
 	float			radius;
@@ -144,6 +154,9 @@ t_fcolor	*fcolor_copy(t_fcolor *c);
 t_fcolor	*fcolor_add(t_fcolor *c1, t_fcolor *c2);
 t_fcolor	*fcolor_mul(t_fcolor *c1, t_fcolor *c2);
 t_rgb	fcolor2rgb(t_fcolor *fcolor);
+
+// material.c
+t_material	*material_new(void);
 
 t_screen	*init_screen(void *mlx_ptr);
 void	*init_img(void *mlx_ptr, int width, int height);
