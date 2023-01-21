@@ -22,6 +22,14 @@ typedef struct s_fcolor t_fcolor;
 typedef enum   e_shape_kind t_shape_kind;
 typedef struct s_intersection_point t_intersection_point;
 typedef struct s_material t_material;
+typedef struct s_scene	t_scene;
+typedef struct s_intersection_test_result t_intersection_test_result;
+
+struct s_scene {
+	t_shape			*shapes;
+	t_light_source	*light_sources;
+	t_fcolor		*ambient_intesity;
+};
 
 struct point {
 	int	x;
@@ -76,7 +84,7 @@ struct s_material {
 struct s_shape {
 	t_shape_kind	kind;
 	t_material		*material;
-	//t_rgb			color;
+	t_shape			*next;
 
 	//sphere
 	pvector			*center;
@@ -84,7 +92,6 @@ struct s_shape {
 	//plane
 	pvector			*normal;
 	pvector			*position;
-
 };
 
 struct s_intersection_point {
@@ -93,7 +100,13 @@ struct s_intersection_point {
 	pvector	*normal;
 };
 
+struct s_intersection_test_result {
+	t_shape					*shape;
+	t_intersection_point	*intersection_point;
+};
+
 t_intersection_point	*test_intersection(t_shape *shape, t_ray *ray);
+t_intersection_test_result	*test_intersection_with_all(t_scene *scene, t_ray *ray);
 
 enum e_light_kind {
 	POINT,

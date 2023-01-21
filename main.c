@@ -94,12 +94,41 @@ t_intersection_point	*plane_test_intersection(t_plane *plane, t_ray *ray)
 
 t_intersection_point	*test_intersection(t_shape *shape, t_ray *ray)
 {
+	t_intersection_point	*intersection;
+
 	if (shape->kind == SPHERE)
-		return (sphere_test_intersection(shape, ray));
+		intersection = sphere_test_intersection(shape, ray);
 	else if (shape->kind == PLANE)
-		return (plane_test_intersection(shape, ray));
+		intersection = plane_test_intersection(shape, ray);
 	else
 		exit(1);
+	return (intersection);
+}
+
+t_intersection_test_result	*test_intersection_with_all(t_scene *scene, t_ray *ray)
+{
+	t_intersection_test_result	*res;
+
+	res = calloc(1, sizeof(*res));
+	for (t_shape *shape = scene->shapes; shape; shape = shape->next)
+	{
+		t_intersection_point	*intersection;
+
+		intersection = test_intersection(shape, ray);
+		if (intersection == NULL)
+			continue ;
+		if (res->intersection_point == NULL)
+		{
+			res->intersection_point = intersection;
+			res->shape = shape;
+		}
+		else if (intersection->distance < res->intersection_point->distance)
+		{
+			res->intersection_point = intersection;
+			res->shape = shape;
+		}
+	}
+	return (res);
 }
 
 t_ray *get_ray(int x, int y, pvector *camera)
@@ -203,66 +232,72 @@ t_material	*get_default_material(t_fcolor	*color)
 	return (material);
 }
 
-t_shape	**get_shapes(void)
+t_shape	*get_shapes(void)
 {
-	t_shape			**shapes;
-
-	shapes = calloc(6, sizeof(*shapes));
+	t_shape		head;
+	t_shape		*shape;
+	
+	head.next = NULL;
+	shape = &head;
 	{
-		t_shape	*shape;
-
-		shape = shape_new(SPHERE);
+		shape = shape->next = shape_new(SPHERE);
 		shape->center = pvector_new(3, 0, 25);
 		shape->radius = 1.0;
 		shape->material = get_default_material(fcolor_new(0.69, 0, 0));
-		shapes[0] = shape;
 	}
 	{
-		t_shape	*shape;
-
-		shape = shape_new(SPHERE);
+		shape = shape->next = shape_new(SPHERE);
 		shape->center = pvector_new(2, 0, 20);
 		shape->radius = 1.0;
 		shape->material = get_default_material(fcolor_new(0, 0.69, 0));
-		shapes[1] = shape;
 	}
 	{
-		t_shape	*shape;
-
-		shape = shape_new(SPHERE);
+		shape = shape->next = shape_new(SPHERE);
 		shape->center = pvector_new(1, 0, 15);
 		shape->radius = 1.0;
 		shape->material = get_default_material(fcolor_new(0, 0, 0.69));
-		shapes[2] = shape;
 	}
 	{
-		t_shape	*shape;
-
-		shape = shape_new(SPHERE);
+		shape = shape->next = shape_new(SPHERE);
 		shape->center = pvector_new(0, 0, 10);
 		shape->radius = 1.0;
 		shape->material = get_default_material(fcolor_new(0, 0.69, 0.69));
-		shapes[3] = shape;
 	}
 	{
-		t_shape	*shape;
-
-		shape = shape_new(SPHERE);
+		shape = shape->next = shape_new(SPHERE);
 		shape->center = pvector_new(-1, 0, 5);
 		shape->radius = 1.0;
 		shape->material = get_default_material(fcolor_new(0.69, 0, 0.69));
-		shapes[4] = shape;
 	}
 	{
-		t_shape	*shape;
-
-		shape = shape_new(PLANE);
+		shape = shape->next = shape_new(PLANE);
 		shape->center = pvector_new(0, -1, 0);
 		shape->normal = pvector_new(0, 1, 0);
 		shape->material = get_default_material(fcolor_new(0.69, 0.69, 0.69));
-		shapes[5] = shape;
 	}
-	return (shapes);
+	return (head.next);
+}
+
+t_fcolor	*ray_trace(t_scene *scene, t_ray *ray)
+{
+	t_fcolor	*R;
+	t_intersection_test_result	*res;
+	t_lighting		*lighting;
+
+	R = fcolor_new(0, 0, 1.0);
+	res = test_intersection_with_all(scene, ray);
+	if (res->intersection_point)
+	{
+		R = fcolor_new(0, 0, 0);
+		for (t_light_source *ls = scene->light_sources; ls; ls = ls->next)
+		{
+			lighting = lighting_at(res->intersection_point->position, ls);
+			R = fcolor_add(R, ambient_light(ray, res->shape));
+			R = fcolor_add(R, diffuse_light(res->shape, res->intersection_point, lighting));
+			R = fcolor_add(R, specular_light(ray, res->shape,res->intersection_point, lighting));
+		}
+	}
+	return (R);
 }
 
 t_light_source	*get_light_sources(void)
@@ -290,58 +325,36 @@ t_light_source	*get_light_sources(void)
 	return (head.next);
 }
 
+t_scene	*get_scene(void)
+{
+	t_scene	*scene;
+
+	scene = calloc(1, sizeof(*scene));
+	scene->shapes = get_shapes();
+	scene->light_sources = get_light_sources();
+	return (scene);
+}
+
 int	main(void)
 {
 	t_env	e;
-	pvector 		*camera;
-	t_light_source	*light_sources;
-	t_lighting		*lighting;
-	t_shape			**shapes;
+	pvector *camera;
+	t_scene	*scene;
+
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
-
-	shapes = get_shapes();
-	light_sources = get_light_sources();
+	scene = get_scene();
 	camera = pvector_new(0, 0, -5);
 	for (int x = 0; x < WIN_WIDTH; x++)
 	{
 		for (int y = 0; y < WIN_HEIGHT; y++)
 		{
-			t_rgb	color;
-			t_ray 					*ray;
-			t_shape					*nearest_shape;
-			t_intersection_point	*nearest_intersection = NULL;
+			t_fcolor	*R;
+			t_ray 		*ray;
 
-			color = blue();
 			ray = get_ray(x, y, camera);
-			for (int i = 0; i < 6; i++)
-			{
-				t_intersection_point	*intersection;
-				t_shape					*shape;
-
-				shape = shapes[i];
-				intersection = test_intersection(shape, ray);
-				if ((intersection) && (nearest_intersection == NULL || intersection->distance < nearest_intersection->distance))
-				{
-					nearest_intersection = intersection;
-					nearest_shape = shape;
-				}
-			}
-			if (nearest_intersection)
-			{
-				t_fcolor	*R;
-
-				R = fcolor_new(0, 0, 0);
-				for (t_light_source *ls = light_sources; ls; ls = ls->next)
-				{
-					lighting = lighting_at(nearest_intersection->position, ls);
-					R = fcolor_add(R, ambient_light(ray, nearest_shape));
-					R = fcolor_add(R, diffuse_light(nearest_shape, nearest_intersection, lighting));
-					R = fcolor_add(R, specular_light(ray, nearest_shape, nearest_intersection, lighting));
-				}
-				color = fcolor2rgb(R);
-			}
-			put_pixel(e.screen->img, x, y, color.mlx_color);
+			R = ray_trace(scene, ray);
+			put_pixel(e.screen->img, x, y, fcolor2rgb(R).mlx_color);
 		}
 	}
 	mlx_put_image_to_window(e.mlx_ptr, e.screen->win_ptr,
