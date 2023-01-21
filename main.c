@@ -79,8 +79,6 @@ t_ray *get_ray(int x, int y, pvector *camera)
 	return (ray_new(camera, ray_dir));
 }
 
-#define AMB_L 0.01
-
 t_fcolor	*ambient_light(t_ray *ray, t_shape *shape)
 {
 	t_fcolor	*ambient_intensity;
@@ -158,6 +156,66 @@ t_lighting *lighting_at(pvector *pos, t_light_source *light_source)
 	return (lighting);
 }
 
+t_shape	**get_shapes(void)
+{
+	t_shape			**shapes;
+	t_material		*material;
+	
+	{
+		material = material_new();
+		material->amibient_factor = fcolor_new(0.01, 0.01, 0.01);
+		material->diffuse_factor = fcolor_new(0.69, 0.00, 0.0);
+		material->specular_factor = fcolor_new(0.30, 0.30, 0.30);
+		material->shineness = 8.0;
+	}
+	shapes = calloc(5, sizeof(*shapes));
+	{
+		t_shape	*shape;
+
+		shape = shape_new(SPHERE);
+		shape->center = pvector_new(3, 0, 25);
+		shape->radius = 1.0;
+		shape->material = material;
+		shapes[0] = shape;
+	}
+	{
+		t_shape	*shape;
+
+		shape = shape_new(SPHERE);
+		shape->center = pvector_new(2, 0, 20);
+		shape->radius = 1.0;
+		shape->material = material;
+		shapes[1] = shape;
+	}
+	{
+		t_shape	*shape;
+
+		shape = shape_new(SPHERE);
+		shape->center = pvector_new(1, 0, 15);
+		shape->radius = 1.0;
+		shape->material = material;
+		shapes[2] = shape;
+	}
+	{
+		t_shape	*shape;
+
+		shape = shape_new(SPHERE);
+		shape->center = pvector_new(0, 0, 10);
+		shape->radius = 1.0;
+		shape->material = material;
+		shapes[3] = shape;
+	}
+	{
+		t_shape	*shape;
+
+		shape = shape_new(SPHERE);
+		shape->center = pvector_new(-1, 0, 5);
+		shape->radius = 1.0;
+		shape->material = material;
+		shapes[4] = shape;
+	}
+	return (shapes);
+}
 
 int	main(void)
 {
@@ -165,44 +223,40 @@ int	main(void)
 	pvector 		*camera;
 	t_light_source	*light_source;
 	t_lighting		*lighting;
-	t_shape			*shape;
-	
+	t_shape			**shapes;
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 
-	shape = shape_new(SPHERE);
-	shape->center = pvector_new(0, 0, 5);
-	shape->radius = 1.0;
-	shape->material = material_new();
-	shape->material->amibient_factor = fcolor_new(0.01, 0.01, 0.01);
-	shape->material->diffuse_factor = fcolor_new(0.69, 0.00, 0.0);
-	shape->material->specular_factor = fcolor_new(0.30, 0.30, 0.30);
-	shape->material->shineness = 8.0;
+	shapes = get_shapes();
 	camera = pvector_new(0, 0, -5);
 	light_source = light_source_new(POINT);
 	light_source->position = pvector_new(-5, 5, -5);
 	light_source->intencity = fcolor_new(1.0, 1.0, 1.0);
-
 	for (int x = 0; x < WIN_WIDTH; x++)
 	{
 		for (int y = 0; y < WIN_HEIGHT; y++)
 		{
 			t_rgb					color;
-			t_intersection_point	*intersection;
-			t_ray 					*ray;
-
 			color = blue();
-			ray = get_ray(x, y, camera);
-			intersection = test_intersection(shape, ray);
-			if (intersection)
+			for (int i = 0; i < 5; i++)
 			{
-				t_fcolor	*R;
+				t_intersection_point	*intersection;
+				t_ray 					*ray;
+				t_shape					*shape;
 
-				lighting = lighting_at(intersection->position, light_source);
-				R = ambient_light(ray, shape);
-				R = fcolor_add(R, diffuse_light(shape, intersection, lighting));
-				R = fcolor_add(R, specular_light(ray, shape, intersection, lighting));
-				color = fcolor2rgb(R);
+				ray = get_ray(x, y, camera);
+				shape = shapes[i];
+				intersection = test_intersection(shape, ray);
+				if (intersection)
+				{
+					t_fcolor	*R;
+
+					lighting = lighting_at(intersection->position, light_source);
+					R = ambient_light(ray, shape);
+					R = fcolor_add(R, diffuse_light(shape, intersection, lighting));
+					R = fcolor_add(R, specular_light(ray, shape, intersection, lighting));
+					color = fcolor2rgb(R);
+				}
 			}
 			put_pixel(e.screen->img, x, y, color.mlx_color);
 		}
