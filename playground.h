@@ -16,6 +16,7 @@ typedef struct s_shape	t_shape;
 typedef struct s_light_source	t_light_source;
 typedef struct s_lighting	t_lighting;
 typedef struct s_shape	t_sphere;
+typedef struct s_shape	t_plane;
 typedef enum   e_light_kind	t_light_kind;
 typedef struct s_fcolor t_fcolor;
 typedef enum   e_shape_kind t_shape_kind;
