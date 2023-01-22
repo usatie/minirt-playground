@@ -265,21 +265,44 @@ t_shape	**get_shapes(void)
 	return (shapes);
 }
 
+t_light_source	*get_light_sources(void)
+{
+	t_light_source	head;
+	t_light_source	*ls;
+
+	head.next = NULL;
+	ls = &head;
+	{
+		ls = ls->next = light_source_new(POINT);
+		ls->position = pvector_new(-5, 5, -5);
+		ls->intencity = fcolor_new(0.5, 0.5, 0.5);
+	}
+	{
+		ls = ls->next = light_source_new(POINT);
+		ls->position = pvector_new(5, 0, -5);
+		ls->intencity = fcolor_new(0.5, 0.5, 0.5);
+	}
+	{
+		ls = ls->next = light_source_new(POINT);
+		ls->position = pvector_new(5, 20, -5);
+		ls->intencity = fcolor_new(0.5, 0.5, 0.5);
+	}
+	return (head.next);
+}
+
 int	main(void)
 {
 	t_env	e;
 	pvector 		*camera;
-	t_light_source	*light_source;
+	t_light_source	*light_sources;
 	t_lighting		*lighting;
 	t_shape			**shapes;
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 
 	shapes = get_shapes();
+	light_sources = get_light_sources();
 	camera = pvector_new(0, 0, -5);
-	light_source = light_source_new(POINT);
-	light_source->position = pvector_new(-5, 5, -5);
-	light_source->intencity = fcolor_new(1.0, 1.0, 1.0);
 	for (int x = 0; x < WIN_WIDTH; x++)
 	{
 		for (int y = 0; y < WIN_HEIGHT; y++)
@@ -308,10 +331,14 @@ int	main(void)
 			{
 				t_fcolor	*R;
 
-				lighting = lighting_at(nearest_intersection->position, light_source);
-				R = ambient_light(ray, nearest_shape);
-				R = fcolor_add(R, diffuse_light(nearest_shape, nearest_intersection, lighting));
-				R = fcolor_add(R, specular_light(ray, nearest_shape, nearest_intersection, lighting));
+				R = fcolor_new(0, 0, 0);
+				for (t_light_source *ls = light_sources; ls; ls = ls->next)
+				{
+					lighting = lighting_at(nearest_intersection->position, ls);
+					R = fcolor_add(R, ambient_light(ray, nearest_shape));
+					R = fcolor_add(R, diffuse_light(nearest_shape, nearest_intersection, lighting));
+					R = fcolor_add(R, specular_light(ray, nearest_shape, nearest_intersection, lighting));
+				}
 				color = fcolor2rgb(R);
 			}
 			put_pixel(e.screen->img, x, y, color.mlx_color);

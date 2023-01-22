@@ -103,11 +103,12 @@ enum e_light_kind {
 struct s_light_source {
 	t_light_kind	kind;
 	t_fcolor		*intencity;
+	t_light_source	*next;
+
 	//point light
 	pvector			*position;
 	//directional light
 	pvector			*direction;
-
 };
 
 struct s_lighting {
