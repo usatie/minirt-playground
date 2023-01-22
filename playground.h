@@ -1,8 +1,8 @@
 #ifndef PLAYGROUND_H
 # define PLAYGROUND_H
 
-# define WIN_WIDTH 400
-# define WIN_HEIGHT 400
+# define WIN_WIDTH 512
+# define WIN_HEIGHT 512
 
 # include <stdbool.h>
 # include "color.h"
@@ -80,6 +80,8 @@ struct s_material {
 	t_fcolor	*diffuse_factor;
 	t_fcolor	*specular_factor;
 	float		shineness;
+	bool		use_perfect_reflectance; // computing perfect reflectance is very costy
+	t_fcolor	*catadioptric_factor;
 };
 
 struct s_shape {

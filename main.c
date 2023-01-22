@@ -254,6 +254,8 @@ t_material	*get_default_material(t_fcolor	*color)
 	material->diffuse_factor = color;
 	material->specular_factor = fcolor_new(0.30, 0.30, 0.30);
 	material->shineness = 8.0;
+	material->use_perfect_reflectance = false;
+	material->catadioptric_factor = fcolor_new(0, 0, 0);
 	return (material);
 }
 
@@ -303,12 +305,16 @@ t_shape	*get_shapes(void)
 	return (head.next);
 }
 
-t_fcolor	*ray_trace(t_scene *scene, t_ray *ray)
-{
-	t_fcolor	*R;
-	t_intersection_test_result	*res;
-	t_lighting		*lighting;
+#define MAX_RECURSION 8
 
+t_fcolor	*ray_trace_recursive(t_scene *scene, t_ray *ray, int recursion_level)
+{
+	t_fcolor					*R;
+	t_intersection_test_result	*res;
+	t_lighting					*lighting;
+
+	if (recursion_level > MAX_RECURSION)
+		return (NULL);
 	res = test_intersection_with_all(scene, ray);
 	if (res)
 	{
@@ -325,11 +331,39 @@ t_fcolor	*ray_trace(t_scene *scene, t_ray *ray)
 			R = fcolor_add(R, diffuse_light(res->shape, res->intersection_point, lighting));
 			R = fcolor_add(R, specular_light(ray, res->shape,res->intersection_point, lighting));
 		}
+		if (res->shape->material->use_perfect_reflectance)
+		{
+			t_fcolor	*R_re, *R_mirror;
+			t_ray						*re_ray;
+			pvector	*p, *n, *v, *re, *re_ray_start;
+			float	vndot;
+
+			p = res->intersection_point->position;
+			n = res->intersection_point->normal;
+			v = pvector_mul(ray->direction, -1);
+			pvector_normalize(v);
+			vndot = pvector_dot(v, n);
+			re = pvector_sub(pvector_mul(n, 2 * vndot), v);
+			pvector_normalize(re);
+			re_ray_start = pvector_add(p, pvector_mul(re, C_EPSILON));
+			re_ray = ray_new(re_ray_start, re);
+			R_re = ray_trace_recursive(scene, re_ray, recursion_level + 1);
+			if (R_re)
+			{
+				R_mirror = fcolor_mul(res->shape->material->catadioptric_factor, R_re);
+				R = fcolor_add(R, R_mirror);
+			}
+		}
 		return (R);
 	}
 	else
 		return (fcolor_new(100.0 / 255.0, 149.0 / 255.0, 237.0 / 255.0)); // background color
 	return (R);
+}
+
+t_fcolor	*ray_trace(t_scene *scene, t_ray *ray)
+{
+	return (ray_trace_recursive(scene, ray, 0));
 }
 
 t_light_source	*get_light_sources(void)
@@ -367,6 +401,83 @@ t_scene	*get_scene(void)
 	return (scene);
 }
 
+t_shape	*get_shapes2(void)
+{
+	t_shape		head;
+	t_shape		*shape;
+	
+	head.next = NULL;
+	shape = &head;
+	{
+		shape = shape->next = shape_new(SPHERE);
+		shape->center = pvector_new(-0.25, -0.5, 3.0);
+		shape->radius = 0.5;
+		shape->material = get_default_material(fcolor_new(0, 0, 0));
+		shape->material->amibient_factor = fcolor_new(0, 0, 0);
+		shape->material->diffuse_factor = fcolor_new(0, 0, 0);
+		shape->material->specular_factor = fcolor_new(0, 0, 0);
+		shape->material->shineness = 0;
+		shape->material->use_perfect_reflectance = true;
+		shape->material->catadioptric_factor = fcolor_new(1.0, 1.0, 1.0);
+	}
+	{
+		shape = shape->next = shape_new(PLANE);
+		shape->normal = pvector_new(0, 1, 0);
+		shape->center = pvector_new(0, -1, 0);
+		shape->material = get_default_material(fcolor_new(1, 1, 1));
+	}
+	{
+		shape = shape->next = shape_new(PLANE);
+		shape->normal = pvector_new(0, -1, 0);
+		shape->center = pvector_new(0, 1, 0);
+		shape->material = get_default_material(fcolor_new(1, 1, 1));
+	}
+	{
+		shape = shape->next = shape_new(PLANE);
+		shape->normal = pvector_new(-1, 0, 0);
+		shape->center = pvector_new(1, 0, 0);
+		shape->material = get_default_material(fcolor_new(0, 1, 0));
+	}
+	{
+		shape = shape->next = shape_new(PLANE);
+		shape->normal = pvector_new(1, 0, 0);
+		shape->center = pvector_new(-1, 0, 0);
+		shape->material = get_default_material(fcolor_new(1, 0, 0));
+	}
+	{
+		shape = shape->next = shape_new(PLANE);
+		shape->normal = pvector_new(0, 0, -1);
+		shape->center = pvector_new(0, 0, 5);
+		shape->material = get_default_material(fcolor_new(1, 1, 1));
+	}
+	return (head.next);
+}
+
+t_light_source	*get_light_sources2(void)
+{
+	t_light_source	head;
+	t_light_source	*ls;
+
+	head.next = NULL;
+	ls = &head;
+	{
+		ls = ls->next = light_source_new(POINT);
+		ls->position = pvector_new(0, 0.9, 2.5);
+		ls->intencity = fcolor_new(1.0, 1.0, 1.0);
+	}
+	return (head.next);
+}
+
+t_scene	*get_scene2(void)
+{
+	t_scene	*scene;
+
+	scene = calloc(1, sizeof(*scene));
+	scene->shapes = get_shapes2();
+	scene->light_sources = get_light_sources2();
+	return (scene);
+}
+
 int	main(void)
 {
 	t_env	e;
@@ -375,7 +486,7 @@ int	main(void)
 
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
-	scene = get_scene();
+	scene = get_scene2();
 	camera = pvector_new(0, 0, -5);
 	for (int x = 0; x < WIN_WIDTH; x++)
 	{
