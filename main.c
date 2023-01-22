@@ -191,18 +191,22 @@ t_lighting *lighting_at(pvector *pos, t_light_source *light_source)
 	return (lighting);
 }
 
+t_material	*get_default_material(t_fcolor	*color)
+{
+	t_material		*material;
+
+	material = material_new();
+	material->amibient_factor = fcolor_new(0.01, 0.01, 0.01);
+	material->diffuse_factor = color;
+	material->specular_factor = fcolor_new(0.30, 0.30, 0.30);
+	material->shineness = 8.0;
+	return (material);
+}
+
 t_shape	**get_shapes(void)
 {
 	t_shape			**shapes;
-	t_material		*material;
-	
-	{
-		material = material_new();
-		material->amibient_factor = fcolor_new(0.01, 0.01, 0.01);
-		material->diffuse_factor = fcolor_new(0.69, 0.00, 0.0);
-		material->specular_factor = fcolor_new(0.30, 0.30, 0.30);
-		material->shineness = 8.0;
-	}
+
 	shapes = calloc(6, sizeof(*shapes));
 	{
 		t_shape	*shape;
@@ -210,7 +214,7 @@ t_shape	**get_shapes(void)
 		shape = shape_new(SPHERE);
 		shape->center = pvector_new(3, 0, 25);
 		shape->radius = 1.0;
-		shape->material = material;
+		shape->material = get_default_material(fcolor_new(0.69, 0, 0));
 		shapes[0] = shape;
 	}
 	{
@@ -219,7 +223,7 @@ t_shape	**get_shapes(void)
 		shape = shape_new(SPHERE);
 		shape->center = pvector_new(2, 0, 20);
 		shape->radius = 1.0;
-		shape->material = material;
+		shape->material = get_default_material(fcolor_new(0, 0.69, 0));
 		shapes[1] = shape;
 	}
 	{
@@ -228,7 +232,7 @@ t_shape	**get_shapes(void)
 		shape = shape_new(SPHERE);
 		shape->center = pvector_new(1, 0, 15);
 		shape->radius = 1.0;
-		shape->material = material;
+		shape->material = get_default_material(fcolor_new(0, 0, 0.69));
 		shapes[2] = shape;
 	}
 	{
@@ -237,7 +241,7 @@ t_shape	**get_shapes(void)
 		shape = shape_new(SPHERE);
 		shape->center = pvector_new(0, 0, 10);
 		shape->radius = 1.0;
-		shape->material = material;
+		shape->material = get_default_material(fcolor_new(0, 0.69, 0.69));
 		shapes[3] = shape;
 	}
 	{
@@ -246,7 +250,7 @@ t_shape	**get_shapes(void)
 		shape = shape_new(SPHERE);
 		shape->center = pvector_new(-1, 0, 5);
 		shape->radius = 1.0;
-		shape->material = material;
+		shape->material = get_default_material(fcolor_new(0.69, 0, 0.69));
 		shapes[4] = shape;
 	}
 	{
@@ -255,7 +259,7 @@ t_shape	**get_shapes(void)
 		shape = shape_new(PLANE);
 		shape->center = pvector_new(0, -1, 0);
 		shape->normal = pvector_new(0, 1, 0);
-		shape->material = material;
+		shape->material = get_default_material(fcolor_new(0.69, 0.69, 0.69));
 		shapes[5] = shape;
 	}
 	return (shapes);
