@@ -48,5 +48,10 @@ t_fcolor	*fcolor_mul(t_fcolor *c1, t_fcolor *c2)
 
 t_rgb	fcolor2rgb(t_fcolor *fcolor)
 {
-	return (rgb(fcolor->red * 255, fcolor->green * 255, fcolor->blue *255, 0));
+	float	red, green, blue;
+
+	red = constrain(fcolor->red, 0, 1);
+	green = constrain(fcolor->green, 0, 1);
+	blue = constrain(fcolor->blue, 0, 1);
+	return (rgb(red * 255, green * 255, blue *255, 0));
 }
