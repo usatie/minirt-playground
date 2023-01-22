@@ -108,10 +108,6 @@ struct s_intersection_test_result {
 	t_intersection_point	*intersection_point;
 };
 
-t_intersection_point	*test_intersection(t_shape *shape, t_ray *ray);
-t_intersection_test_result	*test_intersection_with_all(t_scene *scene, t_ray *ray);
-t_intersection_test_result	*test_intersection_with_all_overload(t_scene *scene, t_ray *ray, float max_dist, bool exit_once_found);
-
 enum e_light_kind {
 	POINT,
 	DIRECTIONAL,
@@ -152,8 +148,9 @@ struct s_ray {
 	pvector	*direction;
 };
 
-float constrain(float v, float vmin, float vmax); // 値の制限
-float map(float v, float vmin, float vmax, float tmin, float tmax); // 値のマッピング
+// vector.c
+float 	constrain(float v, float vmin, float vmax); // 値の制限
+float 	map(float v, float vmin, float vmax, float tmin, float tmax); // 値のマッピング
 pvector	*pvector_new(float x, float y, float z);
 void	pvector_set(pvector *v, float x, float y, float z);
 pvector	*pvector_copy(pvector *v);
@@ -172,12 +169,40 @@ void		fcolor_set(t_fcolor *c, float red, float green, float blue);
 t_fcolor	*fcolor_copy(t_fcolor *c);
 t_fcolor	*fcolor_add(t_fcolor *c1, t_fcolor *c2);
 t_fcolor	*fcolor_mul(t_fcolor *c1, t_fcolor *c2);
-t_rgb	fcolor2rgb(t_fcolor *fcolor);
+t_rgb		fcolor2rgb(t_fcolor *fcolor);
 
 // material.c
 t_material	*material_new(void);
 
+// shape.c
+t_shape	*shape_new(t_shape_kind kind);
+
+// ray.c
+t_ray	*ray_new(pvector *start, pvector *direction);
+
+// light_source.c
+t_light_source	*light_source_new(t_light_kind kind);
+t_lighting		*lighting_at(pvector *pos, t_light_source *light_source);
+
+// scene.c
+t_scene	*get_scene(void);
+t_scene	*get_scene2(void);
+
+// intersection.c
+t_intersection_point		*test_intersection(t_shape *shape, t_ray *ray);
+t_intersection_test_result	*test_intersection_with_all(t_scene *scene, t_ray *ray);
+t_intersection_test_result	*test_intersection_with_all_overload(t_scene *scene, t_ray *ray, float max_dist, bool exit_once_found);
+
+// reflect.c
+t_fcolor	*ambient_light(t_ray *ray, t_shape *shape);
+t_fcolor	*diffuse_light(t_shape *shape, t_intersection_point *intersection, t_lighting *lighting);
+t_fcolor	*specular_light(t_ray *ray, t_shape *shape, t_intersection_point *intersection, t_lighting *lighting);
+
+// ray_trace.c
+t_fcolor	*ray_trace(t_scene *scene, t_ray *ray);
+
+// mlx_utils.c
 t_screen	*init_screen(void *mlx_ptr);
-void	*init_img(void *mlx_ptr, int width, int height);
-void	put_pixel(const t_img *img, int x, int y, int mlx_color);
+void		*init_img(void *mlx_ptr, int width, int height);
+void		put_pixel(const t_img *img, int x, int y, int mlx_color);
 #endif

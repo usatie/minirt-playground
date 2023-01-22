@@ -12,7 +12,7 @@ LIBPATH		=	-L$(MLX_DIR) -L/usr/X11R6/lib
 INCLUDE_DIR	=	include
 INCLUDES	=	-I $(INCLUDE_DIR) -I $(MLX_DIR) -I /usr/X11R6/include
 #CFLAGS		=	-Wall -Werror -Wextra
-SRCS		=	main.c vector.c mlx_utils.c color.c fcolor.c material.c
+SRCS		=	main.c vector.c mlx_utils.c color.c fcolor.c material.c light_source.c ray.c shape.c intersection.c scene.c ray_trace.c reflect.c
 FRAMEWORK = -framework OpenGL -framework AppKit
 
 $(NAME): $(SRCS) $(MLX)
