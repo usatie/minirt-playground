@@ -4,7 +4,8 @@
 # define WIN_WIDTH 400
 # define WIN_HEIGHT 400
 
-#include "color.h"
+# include <stdbool.h>
+# include "color.h"
 
 typedef struct point	point;
 typedef struct pvector	pvector;
@@ -107,6 +108,7 @@ struct s_intersection_test_result {
 
 t_intersection_point	*test_intersection(t_shape *shape, t_ray *ray);
 t_intersection_test_result	*test_intersection_with_all(t_scene *scene, t_ray *ray);
+t_intersection_test_result	*test_intersection_with_all_overload(t_scene *scene, t_ray *ray, float max_dist, bool exit_once_found);
 
 enum e_light_kind {
 	POINT,

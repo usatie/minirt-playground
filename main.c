@@ -105,11 +105,17 @@ t_intersection_point	*test_intersection(t_shape *shape, t_ray *ray)
 	return (intersection);
 }
 
+#include <float.h>
 t_intersection_test_result	*test_intersection_with_all(t_scene *scene, t_ray *ray)
+{
+	return (test_intersection_with_all_overload(scene, ray, FLT_MAX, false));
+}
+
+t_intersection_test_result	*test_intersection_with_all_overload(t_scene *scene, t_ray *ray, float max_dist, bool exit_once_found)
 {
 	t_intersection_test_result	*res;
 
-	res = calloc(1, sizeof(*res));
+	res = NULL;
 	for (t_shape *shape = scene->shapes; shape; shape = shape->next)
 	{
 		t_intersection_point	*intersection;
@@ -117,6 +123,10 @@ t_intersection_test_result	*test_intersection_with_all(t_scene *scene, t_ray *ra
 		intersection = test_intersection(shape, ray);
 		if (intersection == NULL)
 			continue ;
+		if (intersection->distance >= max_dist)
+			continue ;
+		if (res == NULL)
+			res = calloc(1, sizeof(*res));
 		if (res->intersection_point == NULL)
 		{
 			res->intersection_point = intersection;
@@ -127,6 +137,8 @@ t_intersection_test_result	*test_intersection_with_all(t_scene *scene, t_ray *ra
 			res->intersection_point = intersection;
 			res->shape = shape;
 		}
+		if (exit_once_found && res->intersection_point->distance < max_dist)
+			return (res);
 	}
 	return (res);
 }
@@ -141,6 +153,19 @@ t_ray *get_ray(int x, int y, pvector *camera)
 	pvector *ray_dir = pvector_sub(pvector_add(pvector_mul(x_dir, u), pvector_mul(y_dir, v)), camera);
 	pvector_normalize(ray_dir);
 	return (ray_new(camera, ray_dir));
+}
+
+#define C_EPSILON (1.0 / 512.0)
+t_ray	*get_shadow_ray(t_intersection_point *intersection, t_light_source *ls, float *distance_to_ls_loc)
+{
+	pvector	*ray_start;
+	pvector	*ray_dir;
+
+	ray_dir = pvector_sub(ls->position, intersection->position);
+	*distance_to_ls_loc = pvector_mag(ray_dir) - C_EPSILON;
+	pvector_normalize(ray_dir);
+	ray_start = pvector_add(intersection->position, pvector_mul(ray_dir, C_EPSILON));
+	return (ray_new(ray_start, ray_dir));
 }
 
 t_fcolor	*ambient_light(t_ray *ray, t_shape *shape)
@@ -284,19 +309,26 @@ t_fcolor	*ray_trace(t_scene *scene, t_ray *ray)
 	t_intersection_test_result	*res;
 	t_lighting		*lighting;
 
-	R = fcolor_new(0, 0, 1.0);
 	res = test_intersection_with_all(scene, ray);
-	if (res->intersection_point)
+	if (res)
 	{
-		R = fcolor_new(0, 0, 0);
+		R = ambient_light(ray, res->shape);
 		for (t_light_source *ls = scene->light_sources; ls; ls = ls->next)
 		{
+			t_ray	*shadow_ray;
+			float	distance_to_ls;
+
+			shadow_ray = get_shadow_ray(res->intersection_point, ls, &distance_to_ls);
+			if (test_intersection_with_all_overload(scene, shadow_ray, distance_to_ls, true))
+				continue ;
 			lighting = lighting_at(res->intersection_point->position, ls);
-			R = fcolor_add(R, ambient_light(ray, res->shape));
 			R = fcolor_add(R, diffuse_light(res->shape, res->intersection_point, lighting));
 			R = fcolor_add(R, specular_light(ray, res->shape,res->intersection_point, lighting));
 		}
+		return (R);
 	}
+	else
+		return (fcolor_new(100.0 / 255.0, 149.0 / 255.0, 237.0 / 255.0)); // background color
 	return (R);
 }
 
