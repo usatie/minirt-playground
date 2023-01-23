@@ -132,7 +132,6 @@ t_shape	*get_shapes2(void)
 		shape->material->shineness = 0;
 		shape->material->use_refraction = true;
 		shape->material->refraction = 1.51;
-		shape->material->use_perfect_reflectance = true;
 		shape->material->catadioptric_factor = fcolor_new(1.0, 1.0, 1.0);
 	}
 	{
