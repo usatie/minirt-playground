@@ -203,6 +203,7 @@ t_fcolor	*specular_light(t_ray *ray, t_shape *shape, t_intersection_point *inter
 
 // ray_trace.c
 t_fcolor	*ray_trace(t_scene *scene, t_ray *ray);
+t_fcolor	*ray_trace_recursive(t_scene *scene, t_ray *ray, int recursion_level);
 
 // mlx_utils.c
 t_screen	*init_screen(void *mlx_ptr);
