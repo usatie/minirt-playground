@@ -100,7 +100,7 @@ t_intersection_point	*cylinder_get_intersection(float t, t_ray *ray, t_cylinder 
 
 t_intersection_point	*cylinder_test_intersection(t_cylinder *cylinder, t_ray *ray)
 {
-	pvector *d = ray->direction;
+	pvector *v = ray->direction;
 	pvector *s = ray->start;
 	pvector *pc = cylinder->center;
 	float	radius = cylinder->radius;
@@ -116,22 +116,35 @@ t_intersection_point	*cylinder_test_intersection(t_cylinder *cylinder, t_ray *ra
 	//
 	//// |(s_x + t*d_x) - pc_x|^2 + |(s_z + t*d_z) - pc_z|^2 = r^2;
 
-	d->y = 0;
-	pvector	*s_sub_pc = pvector_sub(s, pc);
-	s_sub_pc->y = 0;
-	float	A = pvector_magsq(d);
-	float	B = 2 * pvector_dot(s_sub_pc, d);
-	float	C = pvector_magsq(s_sub_pc) - pow(radius, 2);
+	pvector *w = pvector_sub(s, pc);
+	pvector	*h = pvector_mul(cylinder->orientation, cylinder->height);
+	float	A = pvector_magsq(v) - pow(pvector_dot(v, cylinder->orientation), 2);
+	float	B = 2 * (pvector_dot(v, w) - pvector_dot(v, cylinder->orientation) * pvector_dot(w, cylinder->orientation));
+	float	C = pvector_magsq(w) - pow(pvector_dot(w, cylinder->orientation) , 2) - pow(radius, 2);
 	float	D = pow(B, 2) - 4 * A * C;
 	float	t1, t2;
+	
+
+	// d->y = 0;
+	// pvector	*s_sub_pc = pvector_sub(s, pc);
+	// s_sub_pc->y = 0;
+	// float	A = pvector_magsq(d);
+	// float	B = 2 * pvector_dot(s_sub_pc, d);
+	// float	C = pvector_magsq(s_sub_pc) - pow(radius, 2);
+	// float	D = pow(B, 2) - 4 * A * C;
+	// float	t1, t2;
 
 	if (D > 0)
 	{
 		t1 = (-B - sqrt(D)) / (2.0 * A);
 		t2 = (-B + sqrt(D)) / (2.0 * A);
-		if (t1 > 0)
+		pvector *L1 = pvector_add(s, pvector_mul(v, t1));
+		pvector *L2 = pvector_add(s, pvector_mul(v, t2));
+		pvector *L1_sub_pc = pvector_sub(L1, pc);
+		pvector *L2_sub_pc = pvector_sub(L2, pc);
+		if (t1 > 0 && fabsf(pvector_dot(L1_sub_pc, h)) <= pvector_mag(h))
 			return (cylinder_get_intersection(t1, ray, cylinder));
-		else if (t2 > 0)
+		else if (t2 > 0 && fabsf(pvector_dot(L2_sub_pc, h)) <= pvector_mag(h))
 			return (cylinder_get_intersection(t2, ray, cylinder));
 	}
 	else if (D == 0)
