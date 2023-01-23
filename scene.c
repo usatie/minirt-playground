@@ -51,10 +51,19 @@ t_shape	*get_shapes(void)
 		shape->radius = 1.0;
 		shape->material = get_default_material(fcolor_new(0, 0.69, 0.69));
 	}
+	/*
 	{
 		shape = shape->next = shape_new(SPHERE);
 		shape->center = pvector_new(-1, 0, 5);
 		shape->radius = 1.0;
+		shape->material = get_default_material(fcolor_new(0.69, 0, 0.69));
+	}
+	*/
+	{
+		shape = shape->next = shape_new(CYLINDER);
+		shape->center = pvector_new(-1, 0, 5);
+		shape->radius = 1.0;
+		shape->orientation = pvector_new(0, 1, 0);
 		shape->material = get_default_material(fcolor_new(0.69, 0, 0.69));
 	}
 	{

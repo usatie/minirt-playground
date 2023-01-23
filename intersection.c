@@ -78,6 +78,71 @@ t_intersection_point	*plane_test_intersection(t_plane *plane, t_ray *ray)
 	return (NULL);
 }
 
+t_intersection_point	*cylinder_get_intersection(float t, t_ray *ray, t_cylinder *cylinder)
+{
+	pvector					*position;
+	t_intersection_point	*intersection;
+	float					tmp;
+
+	position = pvector_add(ray->start, pvector_mul(ray->direction, t));
+	intersection = calloc(1, sizeof(*intersection));
+	intersection->distance = t;
+	intersection->position = position;
+
+	tmp = pvector_dot(pvector_sub(position, cylinder->center), cylinder->orientation);
+	intersection->normal = pvector_sub(
+			position, 
+			pvector_add(cylinder->center, pvector_mul(cylinder->orientation, tmp))
+			);
+	pvector_normalize(intersection->normal);
+	return (intersection);
+}
+
+t_intersection_point	*cylinder_test_intersection(t_cylinder *cylinder, t_ray *ray)
+{
+	pvector *d = ray->direction;
+	pvector *s = ray->start;
+	pvector *pc = cylinder->center;
+	float	radius = cylinder->radius;
+	//float	height = cylinder->height;
+	// p = s + td;
+	// |p_xz - pc_xz|^2 = r * r
+	// |(s + td)_xz - pc_xz|^2 = r * r
+	// |(s - pc) + td|_xz ^ 2 = r*r
+	// At^2 + Bt - C = 0
+	// A = |d|^2
+	// B = 2 * dot(s-pc, d)
+	// C = |s-pc|^2 - r*r
+	//
+	//// |(s_x + t*d_x) - pc_x|^2 + |(s_z + t*d_z) - pc_z|^2 = r^2;
+
+	d->y = 0;
+	pvector	*s_sub_pc = pvector_sub(s, pc);
+	s_sub_pc->y = 0;
+	float	A = pvector_magsq(d);
+	float	B = 2 * pvector_dot(s_sub_pc, d);
+	float	C = pvector_magsq(s_sub_pc) - pow(radius, 2);
+	float	D = pow(B, 2) - 4 * A * C;
+	float	t1, t2;
+
+	if (D > 0)
+	{
+		t1 = (-B - sqrt(D)) / (2.0 * A);
+		t2 = (-B + sqrt(D)) / (2.0 * A);
+		if (t1 > 0)
+			return (cylinder_get_intersection(t1, ray, cylinder));
+		else if (t2 > 0)
+			return (cylinder_get_intersection(t2, ray, cylinder));
+	}
+	else if (D == 0)
+	{
+		t1 = (-B) / (2.0 * A);
+		if (t1 > 0)
+			return (cylinder_get_intersection(t1, ray, cylinder));
+	}
+	return (NULL);
+}
+
 t_intersection_point	*test_intersection(t_shape *shape, t_ray *ray)
 {
 	t_intersection_point	*intersection;
@@ -86,6 +151,8 @@ t_intersection_point	*test_intersection(t_shape *shape, t_ray *ray)
 		intersection = sphere_test_intersection(shape, ray);
 	else if (shape->kind == PLANE)
 		intersection = plane_test_intersection(shape, ray);
+	else if (shape->kind == CYLINDER)
+		intersection = cylinder_test_intersection(shape, ray);
 	else
 		exit(1);
 	return (intersection);

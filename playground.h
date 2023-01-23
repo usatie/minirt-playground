@@ -18,6 +18,7 @@ typedef struct s_light_source	t_light_source;
 typedef struct s_lighting	t_lighting;
 typedef struct s_shape	t_sphere;
 typedef struct s_shape	t_plane;
+typedef struct s_shape	t_cylinder;
 typedef enum   e_light_kind	t_light_kind;
 typedef struct s_fcolor t_fcolor;
 typedef enum   e_shape_kind t_shape_kind;
@@ -96,9 +97,12 @@ struct s_shape {
 	t_material		*material;
 	t_shape			*next;
 
-	//sphere
+	//sphere, cylinder
 	pvector			*center;
 	float			radius;
+	//cylinder
+	float			height;
+	pvector		*orientation; // (0, 1, 0)
 	//plane
 	pvector			*normal;
 	pvector			*position;

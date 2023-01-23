@@ -60,7 +60,7 @@ int	main(void)
 
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
-	scene = get_scene2();
+	scene = get_scene();
 	for (int x = 0; x < WIN_WIDTH; x++)
 	{
 		for (int y = 0; y < WIN_HEIGHT; y++)
@@ -68,7 +68,7 @@ int	main(void)
 			t_fcolor	*R;
 			t_ray 		*ray;
 
-			ray = get_ray_FOV(x, y, scene);
+			ray = get_ray(x, y, scene);
 			R = ray_trace(scene, ray);
 			put_pixel(e.screen->img, x, y, fcolor2rgb(R).mlx_color);
 		}
