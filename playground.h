@@ -34,6 +34,7 @@ struct s_scene {
 	pvector			*eye_position;
 	pvector			*look_at;
 	float			screen_distance;
+	float			HFOV;
 };
 
 struct point {

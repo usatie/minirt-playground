@@ -27,6 +27,29 @@ t_ray *get_ray(int x, int y, t_scene *scene)
 	return (ray_new(scene->eye_position, ray_dir));
 }
 
+t_ray *get_ray_FOV(int x, int y, t_scene *scene)
+{
+	pvector *dx, *dy;
+	pvector *ey = pvector_new(0, 1, 0);
+	pvector	*df = pvector_sub(scene->look_at, scene->eye_position);
+	float	h;
+	scene->screen_distance = 2 / ( 2 * tan(scene->HFOV));
+	pvector_normalize(df);
+	dx = pvector_cross(ey, df);
+	dy = pvector_cross(df, dx);
+	float u = map(x, 0, WIN_WIDTH - 1, -1, 1);
+	float v = map(y, 0, WIN_WIDTH - 1, 1, -1);
+
+	pvector	*pm = pvector_add(scene->eye_position, pvector_mul(df, scene->screen_distance));
+
+	pvector *ray_dir = pvector_sub(
+			pvector_add(pm, pvector_add(pvector_mul(dx, u), pvector_mul(dy, v))),
+			scene->eye_position);
+	pvector_normalize(ray_dir);
+	return (ray_new(scene->eye_position, ray_dir));
+}
+
+
 int	main(void)
 {
 	t_env	e;
@@ -42,7 +65,7 @@ int	main(void)
 			t_fcolor	*R;
 			t_ray 		*ray;
 
-			ray = get_ray(x, y, scene);
+			ray = get_ray_FOV(x, y, scene);
 			R = ray_trace(scene, ray);
 			put_pixel(e.screen->img, x, y, fcolor2rgb(R).mlx_color);
 		}
