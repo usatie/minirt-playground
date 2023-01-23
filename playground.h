@@ -1,7 +1,7 @@
 #ifndef PLAYGROUND_H
 # define PLAYGROUND_H
 
-# define WIN_WIDTH 512
+# define WIN_WIDTH 800
 # define WIN_HEIGHT 512
 
 # include <stdbool.h>

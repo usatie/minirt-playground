@@ -10,13 +10,14 @@ t_ray *get_ray(int x, int y, t_scene *scene)
 {
 	pvector *dx, *dy;
 	float	theta = M_PI_2;
+	float	aspect_r = (float)WIN_WIDTH / WIN_HEIGHT;
 	pvector *ey = pvector_new(cos(theta), sin(theta), 0);
 	pvector	*df = pvector_sub(scene->look_at, scene->eye_position);
 	pvector_normalize(df);
 	dx = pvector_cross(ey, df);
 	dy = pvector_cross(df, dx);
-	float u = map(x, 0, WIN_WIDTH - 1, -1, 1);
-	float v = map(y, 0, WIN_WIDTH - 1, 1, -1);
+	float u = map(x, 0, WIN_WIDTH - 1, -1, 1) * aspect_r;
+	float v = map(y, 0, WIN_HEIGHT - 1, 1, -1);
 
 	pvector	*pm = pvector_add(scene->eye_position, pvector_mul(df, scene->screen_distance));
 
@@ -27,18 +28,20 @@ t_ray *get_ray(int x, int y, t_scene *scene)
 	return (ray_new(scene->eye_position, ray_dir));
 }
 
+#define	SCREEN_WIDTH 2.0
+
 t_ray *get_ray_FOV(int x, int y, t_scene *scene)
 {
 	pvector *dx, *dy;
 	pvector *ey = pvector_new(0, 1, 0);
 	pvector	*df = pvector_sub(scene->look_at, scene->eye_position);
-	float	h;
-	scene->screen_distance = 2 / ( 2 * tan(scene->HFOV));
+	float	aspect_r = (float)WIN_WIDTH / WIN_HEIGHT;
+	scene->screen_distance = SCREEN_WIDTH * aspect_r / ( 2 * tan(scene->HFOV));
 	pvector_normalize(df);
 	dx = pvector_cross(ey, df);
 	dy = pvector_cross(df, dx);
-	float u = map(x, 0, WIN_WIDTH - 1, -1, 1);
-	float v = map(y, 0, WIN_WIDTH - 1, 1, -1);
+	float u = map(x, 0, WIN_WIDTH - 1, -1, 1) * aspect_r;
+	float v = map(y, 0, WIN_HEIGHT - 1, 1, -1);
 
 	pvector	*pm = pvector_add(scene->eye_position, pvector_mul(df, scene->screen_distance));
 

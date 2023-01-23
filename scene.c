@@ -195,7 +195,7 @@ t_scene	*get_scene2(void)
 	scene->light_sources = get_light_sources2();
 	scene->eye_position = pvector_new(0, 0, -5);
 	scene->look_at = pvector_new(0, 0, 0);
-	//scene->screen_distance = 0;
-	scene->HFOV = M_PI_4 / 5;
+	//scene->screen_distance = 5;
+	scene->HFOV = M_PI_4 / 2;
 	return (scene);
 }
