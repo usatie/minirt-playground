@@ -98,6 +98,9 @@ t_scene	*get_scene(void)
 	scene = calloc(1, sizeof(*scene));
 	scene->shapes = get_shapes();
 	scene->light_sources = get_light_sources();
+	scene->eye_position = pvector_new(0, 0, -5);
+	scene->look_at = pvector_new(0, 0, 0);
+	scene->screen_distance = 5.0;
 	return (scene);
 }
 
@@ -190,5 +193,8 @@ t_scene	*get_scene2(void)
 	scene->air_refraction = 1.0;
 	scene->shapes = get_shapes2();
 	scene->light_sources = get_light_sources2();
+	scene->eye_position = pvector_new(0, 0, -25);
+	scene->look_at = pvector_new(0, 0, 0);
+	scene->screen_distance = 20.0;
 	return (scene);
 }

@@ -6,28 +6,35 @@
 #include "color.h"
 #include "mlx.h"
 
-t_ray *get_ray(int x, int y, pvector *camera)
+t_ray *get_ray(int x, int y, t_scene *scene)
 {
-	pvector *x_dir = pvector_new(1, 0, 0);
-	pvector *y_dir = pvector_new(0, 1, 0);
+	pvector *dx, *dy;
+	float	theta = M_PI_2;
+	pvector *ey = pvector_new(cos(theta), sin(theta), 0);
+	pvector	*df = pvector_sub(scene->look_at, scene->eye_position);
+	pvector_normalize(df);
+	dx = pvector_cross(ey, df);
+	dy = pvector_cross(df, dx);
 	float u = map(x, 0, WIN_WIDTH - 1, -1, 1);
 	float v = map(y, 0, WIN_WIDTH - 1, 1, -1);
 
-	pvector *ray_dir = pvector_sub(pvector_add(pvector_mul(x_dir, u), pvector_mul(y_dir, v)), camera);
+	pvector	*pm = pvector_add(scene->eye_position, pvector_mul(df, scene->screen_distance));
+
+	pvector *ray_dir = pvector_sub(
+			pvector_add(pm, pvector_add(pvector_mul(dx, u), pvector_mul(dy, v))),
+			scene->eye_position);
 	pvector_normalize(ray_dir);
-	return (ray_new(camera, ray_dir));
+	return (ray_new(scene->eye_position, ray_dir));
 }
 
 int	main(void)
 {
 	t_env	e;
-	pvector *camera;
 	t_scene	*scene;
 
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 	scene = get_scene2();
-	camera = pvector_new(0, 0, -5);
 	for (int x = 0; x < WIN_WIDTH; x++)
 	{
 		for (int y = 0; y < WIN_HEIGHT; y++)
@@ -35,7 +42,7 @@ int	main(void)
 			t_fcolor	*R;
 			t_ray 		*ray;
 
-			ray = get_ray(x, y, camera);
+			ray = get_ray(x, y, scene);
 			R = ray_trace(scene, ray);
 			put_pixel(e.screen->img, x, y, fcolor2rgb(R).mlx_color);
 		}

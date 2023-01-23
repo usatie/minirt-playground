@@ -72,6 +72,18 @@ pvector	*pvector_mul(pvector *v, float k)
 	return (newv);
 }
 
+pvector	*pvector_cross(pvector *a, pvector *b)
+{
+	pvector	*newv;
+
+	newv = pvector_new(
+			a->y * b->z - a->z * b->y,
+			a->z * b->x - a->x * b->z,
+			a->x * b->y - a->y * b->x
+			);
+	return (newv);
+}
+
 float	pvector_dot(pvector *v1, pvector *v2)
 {
 	return (v1->x * v2->x + v1->y * v2->y + v1->z * v2->z);

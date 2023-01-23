@@ -31,6 +31,9 @@ struct s_scene {
 	t_light_source	*light_sources;
 	t_fcolor		*ambient_intesity;
 	float			air_refraction;
+	pvector			*eye_position;
+	pvector			*look_at;
+	float			screen_distance;
 };
 
 struct point {
@@ -161,6 +164,7 @@ pvector	*pvector_add(pvector *v1, pvector *v2);
 pvector	*pvector_sub(pvector *v1, pvector *v2);
 pvector	*pvector_mul(pvector *v, float k);
 float	pvector_dot(pvector *v1, pvector *v2);
+pvector	*pvector_cross(pvector *a, pvector *b);
 float	pvector_magsq(pvector *v);
 float	pvector_mag(pvector *v);
 void	pvector_normalize(pvector *v);
