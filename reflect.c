@@ -19,7 +19,7 @@ t_fcolor	*diffuse_light(t_shape *shape, t_intersection_point *intersection, t_li
 
 	n = intersection->normal;
 	l = lighting->direction;
-	nldot = constrain(pvector_dot(l, n), 0 , 1);
+	nldot = fabsf(pvector_dot(l, n));//constrain(pvector_dot(l, n), 0 , 1);
 	color = fcolor_mul(lighting->intencity, shape->material->diffuse_factor);
 	color = fcolor_mul(color, fcolor_new(nldot, nldot, nldot));
 	return (color);
@@ -35,7 +35,7 @@ t_fcolor	*specular_light(t_ray *ray, t_shape *shape, t_intersection_point *inter
 	float	vrdot_pow_alpha;
 	t_fcolor	*ki;
 
-	nldot = pvector_dot(intersection->normal, lighting->direction);
+	nldot = fabsf(pvector_dot(intersection->normal, lighting->direction));
 	b = pvector_mul(intersection->normal, nldot * 2);
 	reflection = pvector_sub(b, lighting->direction);
 	view = pvector_mul(ray->direction, -1);
