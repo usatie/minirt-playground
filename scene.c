@@ -110,13 +110,28 @@ t_shape	*get_shapes2(void)
 	shape = &head;
 	{
 		shape = shape->next = shape_new(SPHERE);
-		shape->center = pvector_new(-0.25, -0.5, 3.0);
-		shape->radius = 0.5;
+		shape->center = pvector_new(-0.4, -0.65, 3.0);
+		shape->radius = 0.35;
 		shape->material = get_default_material(fcolor_new(0, 0, 0));
 		shape->material->amibient_factor = fcolor_new(0, 0, 0);
 		shape->material->diffuse_factor = fcolor_new(0, 0, 0);
 		shape->material->specular_factor = fcolor_new(0, 0, 0);
 		shape->material->shineness = 0;
+		shape->material->use_perfect_reflectance = true;
+		shape->material->catadioptric_factor = fcolor_new(1.0, 1.0, 1.0);
+		
+	}
+	{
+		shape = shape->next = shape_new(SPHERE);
+		shape->center = pvector_new(0.5, -0.65, 2.0);
+		shape->radius = 0.35;
+		shape->material = get_default_material(fcolor_new(0, 0, 0));
+		shape->material->amibient_factor = fcolor_new(0, 0, 0);
+		shape->material->diffuse_factor = fcolor_new(0, 0, 0);
+		shape->material->specular_factor = fcolor_new(0, 0, 0);
+		shape->material->shineness = 0;
+		shape->material->use_refraction = true;
+		shape->material->refraction = 1.51;
 		shape->material->use_perfect_reflectance = true;
 		shape->material->catadioptric_factor = fcolor_new(1.0, 1.0, 1.0);
 	}
@@ -173,6 +188,7 @@ t_scene	*get_scene2(void)
 	t_scene	*scene;
 
 	scene = calloc(1, sizeof(*scene));
+	scene->air_refraction = 1.0;
 	scene->shapes = get_shapes2();
 	scene->light_sources = get_light_sources2();
 	return (scene);

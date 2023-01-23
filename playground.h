@@ -30,6 +30,7 @@ struct s_scene {
 	t_shape			*shapes;
 	t_light_source	*light_sources;
 	t_fcolor		*ambient_intesity;
+	float			air_refraction;
 };
 
 struct point {
@@ -82,6 +83,8 @@ struct s_material {
 	float		shineness;
 	bool		use_perfect_reflectance; // computing perfect reflectance is very costy
 	t_fcolor	*catadioptric_factor;
+	bool		use_refraction;
+	float		refraction;
 };
 
 struct s_shape {
