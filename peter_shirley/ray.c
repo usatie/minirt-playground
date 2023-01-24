@@ -43,12 +43,12 @@ double	hit_sphere(t_point	center, double radius, t_ray r)
 {
 	t_vec3	oc = sub_vec3(r.origin, center);
 	double a  =length_squared_vec3(r.direction);
-	double	b = 2.0 * dot_vec3(oc, r.direction);
+	double	half_b = dot_vec3(oc, r.direction);
 	double c = length_squared_vec3(oc) - radius * radius;
-	double discriminant = b * b - 4 * a * c;
+	double discriminant = half_b * half_b - a * c;
 	if (discriminant < 0)
 		return (-1.0);
-	return ((-b - sqrt(discriminant)) / (2.0 * a));
+	return ((-half_b - sqrt(discriminant)) / a);
 
 }
 
