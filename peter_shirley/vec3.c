@@ -50,6 +50,16 @@ t_vec3	scalar_mul_vec3(double t, t_vec3 a)
 	return (ret);
 }
 
+t_vec3	scalar_div_vec3(t_vec3 a, double t)
+{
+	t_vec3	ret;
+
+	ret.x = a.x / t;
+	ret.y = a.y / t;
+	ret.z = a.z / t;
+	return (ret);
+}
+
 double	dot_vec3(t_vec3 a, t_vec3 b)
 {
 	double	ret;
@@ -93,4 +103,14 @@ t_vec3	unit_vec3(t_vec3 a)
 void	print_vec3(t_vec3 a)
 {
 	printf("vec3 [%lf %lf %lf]\n", a.x, a.y, a.z);
+}
+
+int		to_mlxcolor(t_color col)
+{
+	t_rgb	rgbcol;
+
+	rgbcol.rgb.r = (uint8_t)(255.999 * col.x);
+	rgbcol.rgb.g = (uint8_t)(255.999 * col.y);
+	rgbcol.rgb.b = (uint8_t)(255.999 * col.z);
+	return (rgbcol.mlx_color);
 }

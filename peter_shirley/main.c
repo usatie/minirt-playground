@@ -26,6 +26,17 @@ void	test_vec(void)
 int	main(void)
 {
 	t_env	e;
+	double	viewport_height = 2.0;
+	double	viewport_width = ASPECT_RATIO * viewport_height;
+	double	focal_length = 1.0;
+
+	t_point	origin = {0, 0, 0};
+	t_vec3	horizontal = new_vec3(viewport_width, 0, 0);
+	t_vec3	vertical = new_vec3(0, viewport_height, 0);
+	t_vec3	mean_horizontal_vertical = scalar_div_vec3(add_vec3(horizontal, vertical), 2.0);
+	// auto lower_left_corner =
+  origin - horizontal/2 - vertical/2 - vec3(0, 0, focal_length);
+	t_vec3	lower_left_corner = sub_vec3(sub_vec3(origin, mean_horizontal_vertical), new_vec3(0, 0, focal_length));
 
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
@@ -35,15 +46,15 @@ int	main(void)
 		dprintf(STDERR_FILENO, "\rscanlines remainings: %d", j);
 		for (int i = 0; i < WIN_WIDTH; ++i)
 		{
+			double	u = (double)i / (WIN_WIDTH - 1);
+			double	v = (double)j / (WIN_HEIGHT - 1);
+			// ray r(origin, lower_left_corner + u*horizontal + v*vertical - origin);
+			t_vec3	uv = add_vec3(scalar_mul_vec3(u, horizontal), scalar_mul_vec3(v, vertical));
+			t_vec3	uv_minus_origin = sub_vec3(uv, origin);
+			t_ray	r = new_ray(origin, add_vec3(lower_left_corner,uv_minus_origin));
 			int x = i;
-			t_rgb	color;
-			double r = (double)i / (WIN_WIDTH - 1);
-			double g = (double)j / (WIN_HEIGHT - 1);
-			double b = 0.25;
-			color.rgb.r = (int)(r * 255.999);
-			color.rgb.g = (int)(g * 255.999);
-			color.rgb.b = (int)(b * 255.999);
-			put_pixel(e.screen->img, x,  y, color.mlx_color);
+			t_color	pixel_color = ray_color(r);
+			put_pixel(e.screen->img, x,  y, to_mlxcolor(pixel_color));
 		}
 
 	}
