@@ -31,20 +31,20 @@ t_ray	new_ray(t_point p, t_vec3 dir)
 	return (ret);
 }
 
-t_point	ray_at(t_ray ray, double t)
+t_point	ray_at(const t_ray *ray, double t)
 {
 	t_point	at;
 
-	at = add_vec3(ray.origin, scalar_mul_vec3(t, ray.direction));
+	at = add_vec3(ray->origin, scalar_mul_vec3(t, ray->direction));
 	return (at);
 }
 
 
-double	hit_sphere(t_point	center, double radius, t_ray r)
+double	hit_sphere(t_point	center, double radius, t_ray *r)
 {
-	t_vec3	oc = sub_vec3(r.origin, center);
-	double a  =length_squared_vec3(r.direction);
-	double	half_b = dot_vec3(oc, r.direction);
+	t_vec3	oc = sub_vec3(r->origin, center);
+	double a  =length_squared_vec3(r->direction);
+	double	half_b = dot_vec3(oc, r->direction);
 	double c = length_squared_vec3(oc) - radius * radius;
 	double discriminant = half_b * half_b - a * c;
 	if (discriminant < 0)
@@ -53,10 +53,9 @@ double	hit_sphere(t_point	center, double radius, t_ray r)
 
 }
 
-
-t_color	ray_color(t_ray r)
+t_color	ray_color(t_ray *r)
 {
-	t_vec3 unit_dir = unit_vec3(r.direction);
+	t_vec3 unit_dir = unit_vec3(r->direction);
 	double	t = hit_sphere(new_point(0, 0, -1), 0.5, r);
 	if (t > 0.0)
 	{

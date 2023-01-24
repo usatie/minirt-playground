@@ -37,7 +37,7 @@ int	main(void)
 			t_vec3	uv_minus_origin = sub_vec3(uv, origin);
 			t_ray	r = new_ray(origin, add_vec3(lower_left_corner,uv_minus_origin));
 			int x = i;
-			t_color	pixel_color = ray_color(r);
+			t_color	pixel_color = ray_color(&r);
 			put_pixel(e.screen->img, x,  y, to_mlxcolor(pixel_color));
 		}
 

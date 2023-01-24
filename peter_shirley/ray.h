@@ -12,7 +12,7 @@ struct s_ray {
 
 // ray.c
 t_ray	new_ray(t_point p, t_vec3 dir);
-t_point	ray_at(t_ray ray, double t);
-t_color	ray_color(t_ray ray);
+t_point	ray_at(const t_ray *ray, double t);
+t_color	ray_color(t_ray *r);
 
 #endif
