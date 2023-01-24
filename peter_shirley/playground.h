@@ -14,6 +14,7 @@ typedef struct s_env	t_env;
 typedef struct s_vec3	t_vec3;
 typedef struct s_vec3	t_point;
 typedef struct s_vec3	t_color;
+typedef struct s_ray	t_ray;
 
 struct s_env {
 	void		*mlx_ptr;
@@ -26,6 +27,10 @@ struct s_vec3 {
 	double	z;
 };
 
+struct s_ray {
+	t_point	origin;
+	t_vec3	direction;
+};
 //vec3.c
 t_vec3	new_vec3(double x, double y, double z);
 t_vec3	add_vec3(t_vec3 a, t_vec3 b);
