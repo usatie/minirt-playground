@@ -31,6 +31,7 @@ struct s_ray {
 	t_point	origin;
 	t_vec3	direction;
 };
+
 //vec3.c
 t_vec3	new_vec3(double x, double y, double z);
 t_vec3	add_vec3(t_vec3 a, t_vec3 b);
@@ -43,5 +44,10 @@ double	length_squared_vec3(t_vec3 a);
 double	length_vec3(t_vec3 a);
 t_vec3	unit_vec3(t_vec3 a);
 void	print_vec3(t_vec3 a);
+int		to_mlxcolor(t_color col);
+
+// ray.c
+t_point	ray_at(t_ray ray, double t);
+t_color	ray_color(t_ray ray);
 
 #endif

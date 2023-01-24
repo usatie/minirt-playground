@@ -19,7 +19,7 @@ t_ray	new_ray(t_point p, t_vec3 dir)
 	return (ret);
 }
 
-t_point	ray_at(double t, t_ray ray)
+t_point	ray_at(t_ray ray, double t)
 {
 	t_point	at;
 

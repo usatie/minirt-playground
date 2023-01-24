@@ -36,14 +36,12 @@ int	main(void)
 		for (int i = 0; i < WIN_WIDTH; ++i)
 		{
 			int x = i;
-			t_rgb	color;
-			double r = (double)i / (WIN_WIDTH - 1);
-			double g = (double)j / (WIN_HEIGHT - 1);
-			double b = 0.25;
-			color.rgb.r = (int)(r * 255.999);
-			color.rgb.g = (int)(g * 255.999);
-			color.rgb.b = (int)(b * 255.999);
-			put_pixel(e.screen->img, x,  y, color.mlx_color);
+			t_color	color = {
+				(double)i / (WIN_WIDTH - 1),
+				(double)j / (WIN_HEIGHT - 1),
+				0.25
+			};
+			put_pixel(e.screen->img, x,  y, to_mlxcolor(color));
 		}
 
 	}

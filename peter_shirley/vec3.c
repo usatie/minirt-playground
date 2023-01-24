@@ -94,3 +94,13 @@ void	print_vec3(t_vec3 a)
 {
 	printf("vec3 [%lf %lf %lf]\n", a.x, a.y, a.z);
 }
+
+int		to_mlxcolor(t_color col)
+{
+	t_rgb	rgbcol;
+
+	rgbcol.rgb.r = (uint8_t)(255.999 * col.x);
+	rgbcol.rgb.g = (uint8_t)(255.999 * col.y);
+	rgbcol.rgb.b = (uint8_t)(255.999 * col.z);
+	return (rgbcol.mlx_color);
+}
