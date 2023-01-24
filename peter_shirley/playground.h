@@ -1,8 +1,8 @@
 #ifndef PLAYGROUND_H
 # define PLAYGROUND_H
 
-# define WIN_WIDTH 800
-# define WIN_HEIGHT 512
+# define WIN_WIDTH 256
+# define WIN_HEIGHT 256
 
 # include <stdbool.h>
 # include "mlx_utils.h"
