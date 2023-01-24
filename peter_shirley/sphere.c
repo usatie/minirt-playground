@@ -24,7 +24,8 @@ bool	hit(const t_sphere *self, const t_ray *r, double t_min, double t_max, t_hit
 		{
 			rec->t = temp;
 			rec->p = ray_at(r, rec->t);
-			rec->normal = scalar_div_vec3(sub_vec3(rec->p, self->center), self->radius);
+			t_vec3 outward_normal = scalar_div_vec3(sub_vec3(rec->p, self->center), self->radius);
+			set_face_normal(rec, r, &outward_normal);
 			return (true);
 		}
 		temp = (-half_b + root) / a;
@@ -32,9 +33,19 @@ bool	hit(const t_sphere *self, const t_ray *r, double t_min, double t_max, t_hit
 		{
 			rec->t = temp;
 			rec->p = ray_at(r, rec->t);
-			rec->normal = scalar_div_vec3(sub_vec3(rec->p, self->center), self->radius);
+			t_vec3 outward_normal = scalar_div_vec3(sub_vec3(rec->p, self->center), self->radius);
+			set_face_normal(rec, r, &outward_normal);
 			return (true);
 		}
 	}
 	return (false);
+}
+
+void	set_face_normal(t_hit_record *self, const t_ray *r, const t_vec3 *outward_normal)
+{
+	self->front_face = dot_vec3(r->direction, *outward_normal) < 0;
+	if (self->front_face)	
+		self->normal = *outward_normal;
+	else
+		self->normal = scalar_mul_vec3(-1.0, *outward_normal);
 }
