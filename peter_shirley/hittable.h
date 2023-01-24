@@ -22,7 +22,7 @@ struct s_hittable {
 	t_hittable	*next;
 };
 
-bool	hit(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec);
+bool	hit_single(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec);
 void	set_face_normal(t_hit_record *self, const t_ray *r, const t_vec3 *outward_normal);
 
 #endif

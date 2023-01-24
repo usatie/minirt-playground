@@ -7,5 +7,6 @@
 typedef t_hittable	t_sphere;
 
 t_sphere	sphere_new(t_point cen, double r);
+bool		sphere_hit_single(const t_sphere *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec);
 
 #endif

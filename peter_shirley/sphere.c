@@ -9,7 +9,7 @@ t_sphere	sphere_new(t_point cen, double r)
 	return (sphere);
 }
 
-bool	hit(const t_sphere *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec)
+bool	sphere_hit_single(const t_sphere *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec)
 {
 	t_vec3	oc = sub_vec3(r->origin, self->center);
 	double a  =length_squared_vec3(r->direction);
