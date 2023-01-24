@@ -32,8 +32,9 @@ t_vec3	sub_vec3(t_vec3 a, t_vec3 b);
 t_vec3	mul_vec3(t_vec3 a, t_vec3 b);
 t_vec3	scalar_mul_vec3(double t, t_vec3 a);
 double	dot_vec3(t_vec3 a, t_vec3 b);
-t_vec3	t_vec3_cross(t_vec3 *a, t_vec3 *b);
-double	mag_of_vec3(t_vec3 a);
+t_vec3	cross_vec3(t_vec3 a, t_vec3 b);
+double	length_squared_vec3(t_vec3 a);
+double	length_vec3(t_vec3 a);
 t_vec3	unit_vec3(t_vec3 a);
 void	print_vec3(t_vec3 a);
 

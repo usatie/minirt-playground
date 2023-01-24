@@ -58,26 +58,32 @@ double	dot_vec3(t_vec3 a, t_vec3 b)
 	return (ret);
 }
 
-t_vec3	t_vec3_cross(t_vec3 *a, t_vec3 *b)
+t_vec3	cross_vec3(t_vec3 a, t_vec3 b)
 {
 	t_vec3	ret;
 
-	ret.x = a->y * b->z - a->z * b->y;
-	ret.y = a->z * b->x - a->x * b->z;
-	ret.z = a->x * b->y - a->y * b->x;
+	ret.x = a.y * b.z - a.z * b.y;
+	ret.y = a.z * b.x - a.x * b.z;
+	ret.z = a.x * b.y - a.y * b.x;
 	return (ret);
 }
 
-double	mag_of_vec3(t_vec3 a)
+double	length_squared_vec3(t_vec3 a)
 {
-	return (sqrt(pow(a.x, 2) + pow(a.y, 2) + pow(a.z, 2)));
+	return (pow(a.x, 2) + pow(a.y, 2) + pow(a.z, 2));
+}
+
+
+double	length_vec3(t_vec3 a)
+{
+	return (sqrt(length_squared_vec3(a)));
 }
 
 t_vec3	unit_vec3(t_vec3 a)
 {
 	double	norm;
 
-	norm = mag_of_vec3(a);
+	norm = length_vec3(a);
 	if (norm != 0)
 		return (scalar_mul_vec3(1 / norm, a));
 	return (new_vec3(0, 0, 0));
