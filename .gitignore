@@ -1,3 +1,6 @@
 *.out
 *.o
 tmp*
+test
+*.a
+*.gen

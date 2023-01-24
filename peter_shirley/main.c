@@ -8,6 +8,21 @@
 #include <unistd.h>
 #include <time.h>
 
+
+t_vec3	inter_vec(t_vec3 a, t_vec3 b)
+{
+	return (sub_vec3(a, b));
+}
+
+void	test_vec(void)
+{
+	t_vec3 ret;
+
+	ret = new_vec3(1.0, 1.0, 1.0);
+	ret = add_vec3(inter_vec(ret, new_vec3(3, 3, 3)), ret);
+	print_vec3(ret);
+}
+
 int	main(void)
 {
 	t_env	e;
