@@ -1,8 +1,9 @@
 #ifndef PLAYGROUND_H
 # define PLAYGROUND_H
 
-# define WIN_WIDTH 256
-# define WIN_HEIGHT 256
+# define ASPECT_RATIO (16.0 / 9.0)
+# define WIN_WIDTH 384
+# define WIN_HEIGHT (int)(WIN_WIDTH / ASPECT_RATIO)
 
 # include <stdbool.h>
 # include <stdio.h>

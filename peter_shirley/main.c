@@ -27,6 +27,7 @@ int	main(void)
 {
 	t_env	e;
 
+	printf("WIN_WIDTH = %d, WIN_HEIGHT %d\n", WIN_WIDTH, WIN_HEIGHT);
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
