@@ -12,7 +12,8 @@
 
 typedef struct s_env	t_env;
 typedef struct s_vec3	t_vec3;
-typedef struct t_vec3	t_color;
+typedef struct s_vec3	t_point;
+typedef struct s_vec3	t_color;
 
 struct s_env {
 	void		*mlx_ptr;
