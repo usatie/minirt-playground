@@ -18,4 +18,6 @@ struct s_env {
 	t_screen	*screen;
 };
 
+double	degrees_to_radians(double degrees);
+
 #endif

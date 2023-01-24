@@ -4,9 +4,31 @@
 
 #include "vec3.h"
 #include "ray.h"
+#include "hittable_list.h"
+#include "sphere.h"
 
 #include <unistd.h> // STDERR_FILENO
 #include <stdio.h>  // dprintf
+
+double	degrees_to_radians(double degrees)
+{
+	return (degrees * M_PI / 180);
+}
+
+t_color	ray_color(t_ray *r, const t_hittable_list *world)
+{
+	t_hit_record	rec;
+
+	if (hit(world, r, 0, 10000000000, &rec))
+	{
+		// return 0.5 * (rec.normal + color(1,1,1));
+		return (scalar_mul_vec3(0.5, add_vec3(rec.normal, new_color(1,1,1))));
+	}
+	t_vec3 unit_dir = unit_vec3(r->direction);
+	double t = 0.5* (unit_dir.y + 1.0);
+	// (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0)
+	return (add_vec3(scalar_mul_vec3((1.0 - t) , new_vec3(1, 1, 1)) , scalar_mul_vec3(t , new_vec3(0.5, 0.7, 1.0))));
+}
 
 int	main(void)
 {
@@ -24,6 +46,13 @@ int	main(void)
 
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
+
+	t_hittable_list	world = {};
+	t_sphere		sphere1 = sphere_new(new_vec3(0,0,-1), 0.5);
+	t_sphere		sphere2 = sphere_new(new_vec3(0,-100.5,-1), 100);
+	hittable_list_add(&world, &sphere1);
+	hittable_list_add(&world, &sphere2);
+
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
 	{
 		int y = WIN_HEIGHT - j;
@@ -37,7 +66,7 @@ int	main(void)
 			t_vec3	uv_minus_origin = sub_vec3(uv, origin);
 			t_ray	r = new_ray(origin, add_vec3(lower_left_corner,uv_minus_origin));
 			int x = i;
-			t_color	pixel_color = ray_color(&r);
+			t_color	pixel_color = ray_color(&r, world.next);
 			put_pixel(e.screen->img, x,  y, to_mlxcolor(pixel_color));
 		}
 

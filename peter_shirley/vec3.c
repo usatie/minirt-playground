@@ -12,6 +12,26 @@ t_vec3	new_vec3(double x, double y, double z)
 	return (ret);
 }
 
+t_point	new_point(double x, double y, double z)
+{
+	t_point	ret;
+
+	ret.x = x;
+	ret.y = y;
+	ret.z = z;
+	return (ret);
+}
+
+t_color	new_color(double x, double y, double z)
+{
+	t_color	ret;
+
+	ret.x = x;
+	ret.y = y;
+	ret.z = z;
+	return (ret);
+}
+
 t_vec3	add_vec3(t_vec3 a, t_vec3 b)
 {
 	t_vec3	ret;

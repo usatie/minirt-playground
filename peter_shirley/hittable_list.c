@@ -1,6 +1,6 @@
 #include "hittable_list.h"
 
-void	add(t_hittable_list *self, t_hittable *object)
+void	hittable_list_add(t_hittable_list *self, t_hittable *object)
 {
 	while (self->next)
 		self = self->next;

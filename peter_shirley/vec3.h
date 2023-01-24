@@ -15,6 +15,8 @@ struct s_vec3 {
 
 //vec3.c
 t_vec3	new_vec3(double x, double y, double z);
+t_point	new_point(double x, double y, double z);
+t_color	new_color(double x, double y, double z);
 t_vec3	add_vec3(t_vec3 a, t_vec3 b);
 t_vec3	sub_vec3(t_vec3 a, t_vec3 b);
 t_vec3	mul_vec3(t_vec3 a, t_vec3 b);

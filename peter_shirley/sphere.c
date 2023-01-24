@@ -16,7 +16,7 @@ bool	sphere_hit_single(const t_sphere *self, const t_ray *r, double t_min, doubl
 	double	half_b = dot_vec3(oc, r->direction);
 	double c = length_squared_vec3(oc) - self->radius * self->radius;
 	double discriminant = half_b * half_b - a * c;
-	if (discriminant < 0)
+	if (discriminant > 0)
 	{
 		double	root = sqrt(discriminant);
 		double	temp = (-half_b - root) / a;
