@@ -1,4 +1,5 @@
 #include "sphere.h"
+#include <stddef.h> //NULL
 
 t_sphere	sphere_new(t_point cen, double r)
 {
@@ -6,6 +7,7 @@ t_sphere	sphere_new(t_point cen, double r)
 
 	sphere.center = cen;
 	sphere.radius = r;
+	sphere.next = NULL;
 	return (sphere);
 }
 

@@ -10,6 +10,8 @@
 # include <math.h>
 # include "mlx_utils.h"
 # include "color.h"
+# include "vec3.h"
+# include "ray.h"
 
 typedef struct s_env	t_env;
 
@@ -19,5 +21,8 @@ struct s_env {
 };
 
 double	degrees_to_radians(double degrees);
+double	random_double(void);
+double	random_double_range(double min, double max);
+
 
 #endif

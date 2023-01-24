@@ -6,6 +6,7 @@
 #include "ray.h"
 #include "hittable_list.h"
 #include "sphere.h"
+#include "camera.h"
 
 #include <unistd.h> // STDERR_FILENO
 #include <stdio.h>  // dprintf
@@ -30,23 +31,32 @@ t_color	ray_color(t_ray *r, const t_hittable_list *world)
 	return (add_vec3(scalar_mul_vec3((1.0 - t) , new_vec3(1, 1, 1)) , scalar_mul_vec3(t , new_vec3(0.5, 0.7, 1.0))));
 }
 
+double	random_double(void)
+{
+	return (rand() / (RAND_MAX + 1.0));
+}
+
+double	random_double_range(double min, double max)
+{
+	return (min + ((max - min) * random_double()));
+}
+
 int	main(void)
 {
-	t_env	e;
-	double	viewport_height = 2.0;
-	double	viewport_width = ASPECT_RATIO * viewport_height;
-	double	focal_length = 1.0;
+	t_env		e;
+	double		viewport_height = 2.0;
+	double		viewport_width = ASPECT_RATIO * viewport_height;
+	double		focal_length = 1.0;
 
-	t_point	origin = {0, 0, 0};
-	t_vec3	horizontal = new_vec3(viewport_width, 0, 0);
-	t_vec3	vertical = new_vec3(0, viewport_height, 0);
-	t_vec3	mean_horizontal_vertical = scalar_div_vec3(add_vec3(horizontal, vertical), 2.0);
+	t_point		origin = new_point(0, 0, 0);
+	t_vec3		horizontal = new_vec3(viewport_width, 0, 0);
+	t_vec3		vertical = new_vec3(0, viewport_height, 0);
+	t_vec3		mean_horizontal_vertical = scalar_div_vec3(add_vec3(horizontal, vertical), 2.0);
 	// auto lower_left_corner = origin - horizontal/2 - vertical/2 - vec3(0, 0, focal_length);
-	t_vec3	lower_left_corner = sub_vec3(sub_vec3(origin, mean_horizontal_vertical), new_vec3(0, 0, focal_length));
-
+	t_vec3		lower_left_corner = sub_vec3(sub_vec3(origin, mean_horizontal_vertical), new_vec3(0, 0, focal_length));
+	t_camera	camera = new_camera(origin, horizontal, vertical);
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
-
 	t_hittable_list	world = {};
 	t_sphere		sphere1 = sphere_new(new_vec3(0,0,-1), 0.5);
 	t_sphere		sphere2 = sphere_new(new_vec3(0,-100.5,-1), 100);
@@ -62,9 +72,7 @@ int	main(void)
 			double	u = (double)i / (WIN_WIDTH - 1);
 			double	v = (double)j / (WIN_HEIGHT - 1);
 			// ray r(origin, lower_left_corner + u*horizontal + v*vertical - origin);
-			t_vec3	uv = add_vec3(scalar_mul_vec3(u, horizontal), scalar_mul_vec3(v, vertical));
-			t_vec3	uv_minus_origin = sub_vec3(uv, origin);
-			t_ray	r = new_ray(origin, add_vec3(lower_left_corner,uv_minus_origin));
+			t_ray	r = get_ray(&camera, u, v);
 			int x = i;
 			t_color	pixel_color = ray_color(&r, world.next);
 			put_pixel(e.screen->img, x,  y, to_mlxcolor(pixel_color));
