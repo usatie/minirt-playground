@@ -9,20 +9,6 @@
 #include <time.h>
 
 
-t_vec3	inter_vec(t_vec3 a, t_vec3 b)
-{
-	return (sub_vec3(a, b));
-}
-
-void	test_vec(void)
-{
-	t_vec3 ret;
-
-	ret = new_vec3(1.0, 1.0, 1.0);
-	ret = add_vec3(inter_vec(ret, new_vec3(3, 3, 3)), ret);
-	print_vec3(ret);
-}
-
 int	main(void)
 {
 	t_env	e;
@@ -34,8 +20,7 @@ int	main(void)
 	t_vec3	horizontal = new_vec3(viewport_width, 0, 0);
 	t_vec3	vertical = new_vec3(0, viewport_height, 0);
 	t_vec3	mean_horizontal_vertical = scalar_div_vec3(add_vec3(horizontal, vertical), 2.0);
-	// auto lower_left_corner =
-  origin - horizontal/2 - vertical/2 - vec3(0, 0, focal_length);
+	// auto lower_left_corner = origin - horizontal/2 - vertical/2 - vec3(0, 0, focal_length);
 	t_vec3	lower_left_corner = sub_vec3(sub_vec3(origin, mean_horizontal_vertical), new_vec3(0, 0, focal_length));
 
 	e.mlx_ptr = mlx_init();
