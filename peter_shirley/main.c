@@ -5,6 +5,8 @@
 #include "playground.h"
 #include "color.h"
 #include "mlx.h"
+#include <unistd.h>
+#include <time.h>
 
 int	main(void)
 {
@@ -15,6 +17,7 @@ int	main(void)
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
 	{
 		int y = WIN_HEIGHT - j;
+		dprintf(STDERR_FILENO, "\rscanlines remainings: %d", j);
 		for (int i = 0; i < WIN_WIDTH; ++i)
 		{
 			int x = i;
@@ -27,9 +30,12 @@ int	main(void)
 			color.rgb.b = (int)(b * 255.999);
 			put_pixel(e.screen->img, x,  y, color.mlx_color);
 		}
+
 	}
+	printf("\ndone\n");
 	mlx_put_image_to_window(e.mlx_ptr, e.screen->win_ptr,
 		e.screen->img->ptr, 0, 0);
+
 	mlx_loop(e.mlx_ptr);
 	return (0);
 }
