@@ -39,6 +39,7 @@ t_vec3	add_vec3(t_vec3 a, t_vec3 b);
 t_vec3	sub_vec3(t_vec3 a, t_vec3 b);
 t_vec3	mul_vec3(t_vec3 a, t_vec3 b);
 t_vec3	scalar_mul_vec3(double t, t_vec3 a);
+t_vec3	scalar_div_vec3(t_vec3 a, double t);
 double	dot_vec3(t_vec3 a, t_vec3 b);
 t_vec3	cross_vec3(t_vec3 a, t_vec3 b);
 double	length_squared_vec3(t_vec3 a);
@@ -48,6 +49,7 @@ void	print_vec3(t_vec3 a);
 int		to_mlxcolor(t_color col);
 
 // ray.c
+t_ray	new_ray(t_point p, t_vec3 dir);
 t_point	ray_at(t_ray ray, double t);
 t_color	ray_color(t_ray ray);
 

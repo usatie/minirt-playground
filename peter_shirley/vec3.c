@@ -50,6 +50,16 @@ t_vec3	scalar_mul_vec3(double t, t_vec3 a)
 	return (ret);
 }
 
+t_vec3	scalar_div_vec3(t_vec3 a, double t)
+{
+	t_vec3	ret;
+
+	ret.x = a.x / t;
+	ret.y = a.y / t;
+	ret.z = a.z / t;
+	return (ret);
+}
+
 double	dot_vec3(t_vec3 a, t_vec3 b)
 {
 	double	ret;
