@@ -1,13 +1,12 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <math.h>
 #include "playground.h"
 #include "color.h"
 #include "mlx.h"
-#include <unistd.h>
-#include <time.h>
 
+#include "vec3.h"
+#include "ray.h"
+
+#include <unistd.h> // STDERR_FILENO
+#include <stdio.h>  // dprintf
 
 int	main(void)
 {

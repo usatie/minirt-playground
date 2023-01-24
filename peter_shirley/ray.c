@@ -1,4 +1,5 @@
-#include "playground.h"
+#include "ray.h"
+#include "vec3.h"
 
 t_point	new_point(double x, double y, double z)
 {

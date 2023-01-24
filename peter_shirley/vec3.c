@@ -1,4 +1,6 @@
-#include "playground.h"
+#include "vec3.h"
+#include <stdio.h> // printf
+#include "color.h" // t_rgb
 
 t_vec3	new_vec3(double x, double y, double z)
 {
@@ -98,7 +100,6 @@ t_vec3	unit_vec3(t_vec3 a)
 		return (scalar_mul_vec3(1 / norm, a));
 	return (new_vec3(0, 0, 0));
 }
-
 
 void	print_vec3(t_vec3 a)
 {
