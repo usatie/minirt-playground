@@ -66,9 +66,10 @@ int	main(void)
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};
-	t_material	mat1 = (t_material){new_color(0.8, 0.6, 0.2), 0};
-	t_sphere		sphere1 = sphere_new(new_vec3(0,0,-1), 0.5, &mat1);
-	t_sphere		sphere2 = sphere_new(new_vec3(0,-100.5,-1), 100, &mat1);
+	t_material	diff_mat = (t_material){LAMBERTIAN, new_color(0.8, 0.6, 0.2), 0};
+	t_material	metal_mat = (t_material){METAL, new_color(0.7, 0.5, 0.2), 0};
+	t_sphere		sphere1 = sphere_new(new_vec3(0,0,-1), 0.5, &metal_mat);
+	t_sphere		sphere2 = sphere_new(new_vec3(0,-100.5,-1), 100, &diff_mat);
 	hittable_list_add(&world, &sphere1);
 	hittable_list_add(&world, &sphere2);
 

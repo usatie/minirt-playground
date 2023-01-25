@@ -7,8 +7,15 @@
 
 typedef struct s_material	t_material;
 typedef t_material	t_lambertian;
+//typedef enum e_mat_type	t_mat_type;
+
+typedef enum e_mat_type {
+	LAMBERTIAN,
+	METAL
+} t_mat_type;
 
 struct s_material {
+	t_mat_type type;
 	// lambertian
 	t_color	albedo;
 	double	fuzz;

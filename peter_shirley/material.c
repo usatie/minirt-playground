@@ -23,8 +23,9 @@ bool	metal_scatter(const t_material *self, const t_ray *r_in, const t_hit_record
 
 bool	scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered)
 {
-	// if lambertian
-	//return (lambertian_scatter(self, r_in, rec, attenuation, scattered));
-	// if metal
-	return (metal_scatter(self, r_in, rec, attenuation, scattered));
+	if (self->type == LAMBERTIAN)
+		return (lambertian_scatter(self, r_in, rec, attenuation, scattered));
+	if (self->type == METAL)
+		return (metal_scatter(self, r_in, rec, attenuation, scattered));
+	return (0);
 }
