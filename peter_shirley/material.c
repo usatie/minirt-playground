@@ -23,17 +23,25 @@ bool	metal_scatter(const t_material *self, const t_ray *r_in, const t_hit_record
 
 bool	dielectric_scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered)
 {
-	
 	double etai_over_etat;
+
+	*attenuation = new_color(1.0, 1.0, 1.0);
 	if (rec->front_face)
 		etai_over_etat = 1.0 / self->ref_idx;
 	else
 		etai_over_etat = self->ref_idx;
 	
-	t_vec3	v = unit_vec3((r_in->direction));
-	t_vec3	refracted = refract(&v, &(rec->normal), etai_over_etat);
+	t_vec3	unit_direction = unit_vec3((r_in->direction));
+	double	cos_theta = fmin(dot_vec3(scalar_mul_vec3(-1, unit_direction), rec->normal), 1.0);
+	double	sin_theta = sqrt(1 - cos_theta * cos_theta);
+	if (etai_over_etat * sin_theta > 1.0)
+	{
+		t_vec3	reflected = reflect(&unit_direction, &rec->normal);
+		*scattered = new_ray(rec->p, reflected);
+		return (true);
+	}
+	t_vec3	refracted = refract(&unit_direction, &(rec->normal), etai_over_etat);
 	*scattered = new_ray(rec->p, refracted);
-	*attenuation = new_color(1.0, 1.0, 1.0);
 	return (true);
 }
 

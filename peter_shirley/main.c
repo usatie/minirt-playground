@@ -65,8 +65,8 @@ void	setup_world(t_hittable_list *world)
 	//t_material	*metal_mat2 = calloc(1, sizeof(t_material));
 	t_material	*dielec_mat = calloc(1, sizeof(t_material));
 
+	*diff_mat2 = (t_material){LAMBERTIAN, new_color(0.1, 0.2, 0.5), 0, 0};
 	*diff_mat1 = (t_material){LAMBERTIAN, new_color(0.8, 0.8, 0.0), 0, 0};
-	*diff_mat2 = (t_material){LAMBERTIAN, new_color(0.7, 0.3, 0.3), 0, 0};
 	*metal_mat1 = (t_material){METAL, new_color(0.8, 0.6, 0.2), 0, 0};
 	//*metal_mat2 = (t_material){METAL, new_color(0.8, 0.8, 0.8), 0, 0};
 	*dielec_mat = (t_material){DIELECTRIC, new_color(1, 1, 1), 0, 1.5};
@@ -78,7 +78,7 @@ void	setup_world(t_hittable_list *world)
 	t_sphere		*sphere5 = calloc(1, sizeof(t_sphere));
 
 	*sphere1 = sphere_new(new_vec3(0,-100.5,-1), 100, diff_mat1);
-	*sphere2 = sphere_new(new_vec3(0,0,-1), 0.5, dielec_mat);
+	*sphere2 = sphere_new(new_vec3(0,0,-1), 0.5, diff_mat2);
 	*sphere3 = sphere_new(new_vec3(1,0,-1), 0.5, metal_mat1);
 	//*sphere4 = sphere_new(new_vec3(-1,0,-1), 0.5, metal_mat2);
 	*sphere5 = sphere_new(new_vec3(-1,0,-1), 0.5, dielec_mat);
