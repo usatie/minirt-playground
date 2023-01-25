@@ -1,6 +1,7 @@
 #include "vec3.h"
 #include <stdio.h> // printf
 #include "color.h" // t_rgb
+#include "rtweekend.h" // clamp
 
 t_vec3	new_vec3(double x, double y, double z)
 {
@@ -126,12 +127,21 @@ void	print_vec3(t_vec3 a)
 	printf("vec3 [%lf %lf %lf]\n", a.x, a.y, a.z);
 }
 
-int		to_mlxcolor(t_color col)
+int		to_mlxcolor(t_color pixel_color, int samples_per_pixel)
 {
-	t_rgb	rgbcol;
+	double	r = pixel_color.x;
+	double	g = pixel_color.y;
+	double	b = pixel_color.z;
 
-	rgbcol.rgb.r = (uint8_t)(255.999 * col.x);
-	rgbcol.rgb.g = (uint8_t)(255.999 * col.y);
-	rgbcol.rgb.b = (uint8_t)(255.999 * col.z);
+	// Divide color sum by num samples
+	double	scale = 1.0 / samples_per_pixel;
+	r *= scale;
+	g *= scale;
+	b *= scale;
+
+	t_rgb	rgbcol;
+	rgbcol.rgb.r = (uint8_t)(256 * clamp(r, 0.0, 0.999));
+	rgbcol.rgb.g = (uint8_t)(256 * clamp(g, 0.0, 0.999));
+	rgbcol.rgb.b = (uint8_t)(256 * clamp(b, 0.0, 0.999));
 	return (rgbcol.mlx_color);
 }

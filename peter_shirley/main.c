@@ -53,16 +53,13 @@ double	clamp(double x, double min, double max)
 int	main(void)
 {
 	t_env		e;
+	const int	samples_per_pixel = 100;
 	double		viewport_height = 2.0;
 	double		viewport_width = ASPECT_RATIO * viewport_height;
-	double		focal_length = 1.0;
 
 	t_point		origin = new_point(0, 0, 0);
 	t_vec3		horizontal = new_vec3(viewport_width, 0, 0);
 	t_vec3		vertical = new_vec3(0, viewport_height, 0);
-	t_vec3		mean_horizontal_vertical = scalar_div_vec3(add_vec3(horizontal, vertical), 2.0);
-	// auto lower_left_corner = origin - horizontal/2 - vertical/2 - vec3(0, 0, focal_length);
-	t_vec3		lower_left_corner = sub_vec3(sub_vec3(origin, mean_horizontal_vertical), new_vec3(0, 0, focal_length));
 	t_camera	camera = new_camera(origin, horizontal, vertical);
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
@@ -78,20 +75,22 @@ int	main(void)
 		dprintf(STDERR_FILENO, "\rscanlines remainings: %d", j);
 		for (int i = 0; i < WIN_WIDTH; ++i)
 		{
-			double	u = (double)i / (WIN_WIDTH - 1);
-			double	v = (double)j / (WIN_HEIGHT - 1);
-			// ray r(origin, lower_left_corner + u*horizontal + v*vertical - origin);
-			t_ray	r = get_ray(&camera, u, v);
 			int x = i;
-			t_color	pixel_color = ray_color(&r, world.next);
-			put_pixel(e.screen->img, x,  y, to_mlxcolor(pixel_color));
-		}
+			t_color	pixel_color = new_color(0, 0, 0);
+			for (int s = 0; s < samples_per_pixel; s++)
+			{
+				double	u = ((double)i + random_double()) / (WIN_WIDTH - 1);
+				double	v = ((double)j + random_double()) / (WIN_HEIGHT - 1);
+				t_ray	r = get_ray(&camera, u, v);
+				pixel_color = add_vec3(pixel_color, ray_color(&r, world.next));
 
+			}
+			put_pixel(e.screen->img, x,  y, to_mlxcolor(pixel_color, samples_per_pixel));
+		}
+		mlx_put_image_to_window(e.mlx_ptr, e.screen->win_ptr,
+			e.screen->img->ptr, 0, 0);
 	}
 	printf("\ndone\n");
-	mlx_put_image_to_window(e.mlx_ptr, e.screen->win_ptr,
-		e.screen->img->ptr, 0, 0);
-
 	mlx_loop(e.mlx_ptr);
 	return (0);
 }

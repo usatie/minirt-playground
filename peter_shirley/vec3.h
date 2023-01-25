@@ -28,6 +28,6 @@ double	length_squared_vec3(t_vec3 a);
 double	length_vec3(t_vec3 a);
 t_vec3	unit_vec3(t_vec3 a);
 void	print_vec3(t_vec3 a);
-int		to_mlxcolor(t_color col);
+int		to_mlxcolor(t_color pixel_color, int samples_per_pixel);
 
 #endif
