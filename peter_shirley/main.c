@@ -116,7 +116,12 @@ int	main(void)
 	t_env		e;
 	const int	samples_per_pixel = 100;
 	const int	max_depth = 50;
-	t_camera	camera = new_camera_default(new_point(-2, 2, 1), new_point(0, 0, -1), new_vec3(0, 1, 0), 20, ASPECT_RATIO);
+	const double	aperture = 2.0;
+	t_point	lookfrom = new_point(3, 3, 2);
+	t_point	lookat= new_point(0, 0, -1);
+	
+	t_camera	camera = new_camera_default(lookfrom, lookat, new_vec3(0, 1, 0), 20, ASPECT_RATIO, 
+													aperture, length_vec3(sub_vec3(lookfrom, lookat)));
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};

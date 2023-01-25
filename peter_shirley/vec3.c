@@ -195,6 +195,17 @@ t_vec3	random_in_hemisphere(const t_vec3 *normal)
 		return (scalar_mul_vec3(-1.0, in_unit_sphere));
 }
 
+t_vec3	random_in_unit_disk(void)
+{
+	while (1)
+	{
+		t_vec3 ret = new_vec3(random_double_range(-1, 1), random_double_range(-1, 1), 0);
+		if (length_squared_vec3(ret) >= 1)
+			continue;
+		return (ret);
+	}
+}
+
 t_vec3	reflect(const t_vec3 *v, const t_vec3 *n)
 {
 	double dot	= dot_vec3(*v, *n);
