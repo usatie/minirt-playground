@@ -76,17 +76,20 @@ void	setup_world(t_hittable_list *world)
 	t_sphere		*sphere3 = calloc(1, sizeof(t_sphere));
 	//t_sphere		*sphere4 = calloc(1, sizeof(t_sphere));
 	t_sphere		*sphere5 = calloc(1, sizeof(t_sphere));
+	t_sphere		*sphere6 = calloc(1, sizeof(t_sphere));
 
 	*sphere1 = sphere_new(new_vec3(0,-100.5,-1), 100, diff_mat1);
 	*sphere2 = sphere_new(new_vec3(0,0,-1), 0.5, diff_mat2);
 	*sphere3 = sphere_new(new_vec3(1,0,-1), 0.5, metal_mat1);
 	//*sphere4 = sphere_new(new_vec3(-1,0,-1), 0.5, metal_mat2);
 	*sphere5 = sphere_new(new_vec3(-1,0,-1), 0.5, dielec_mat);
+	*sphere6 = sphere_new(new_vec3(-1,0,-1), -0.45, dielec_mat);
 	hittable_list_add(world, sphere1);
 	hittable_list_add(world, sphere2);
 	hittable_list_add(world, sphere3);
 	// hittable_list_add(world, &sphere4);
 	hittable_list_add(world, sphere5);
+	hittable_list_add(world, sphere6);
 }
 
 int	main(void)

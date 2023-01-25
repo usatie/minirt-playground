@@ -1,3 +1,4 @@
+#include "rtweekend.h"
 #include "material.h"
 
 bool	lambertian_scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered)
@@ -21,6 +22,13 @@ bool	metal_scatter(const t_material *self, const t_ray *r_in, const t_hit_record
 	return (dot_vec3(scattered->direction, rec->normal) > 0);
 }
 
+double	schlick(double cosine, double ref_idx)
+{
+	double	r0 = (1 - ref_idx) / (1 + ref_idx);
+	r0 = r0 * r0;
+	return (r0 + (1-r0)*pow((1 - cosine), 5));
+}
+
 bool	dielectric_scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered)
 {
 	double etai_over_etat;
@@ -35,6 +43,13 @@ bool	dielectric_scatter(const t_material *self, const t_ray *r_in, const t_hit_r
 	double	cos_theta = fmin(dot_vec3(scalar_mul_vec3(-1, unit_direction), rec->normal), 1.0);
 	double	sin_theta = sqrt(1 - cos_theta * cos_theta);
 	if (etai_over_etat * sin_theta > 1.0)
+	{
+		t_vec3	reflected = reflect(&unit_direction, &rec->normal);
+		*scattered = new_ray(rec->p, reflected);
+		return (true);
+	}
+	double	reflect_prob = schlick(cos_theta, etai_over_etat);
+	if (random_double() < reflect_prob)
 	{
 		t_vec3	reflected = reflect(&unit_direction, &rec->normal);
 		*scattered = new_ray(rec->p, reflected);
