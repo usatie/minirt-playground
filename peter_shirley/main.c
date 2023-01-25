@@ -24,7 +24,7 @@ t_color	ray_color(t_ray *r, const t_hittable_list *world, int depth)
 		return (new_color(0, 0, 0));
 	if (hit(world, r, 0, INFINITY, &rec))
 	{
-		t_point	target = add_vec3(add_vec3(rec.p , rec.normal), random_unit_vector());
+		t_point	target = add_vec3(add_vec3(rec.p , rec.normal), random_in_hemisphere(&rec.normal));
 		// return 0.5 * (rec.normal + color(1,1,1));
 		t_ray	diffuse_ray = new_ray(rec.p, sub_vec3(target, rec.p));
 		return (scalar_mul_vec3(0.5, ray_color(&diffuse_ray, world, depth - 1)));

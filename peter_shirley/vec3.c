@@ -185,3 +185,12 @@ t_vec3	random_unit_vector()
 	double	r = sqrt(1 - z * z);
 	return (new_vec3(r * cos(a), r * sin(a), z));
 }
+
+t_vec3	random_in_hemisphere(const t_vec3 *normal)
+{
+	t_vec3	in_unit_sphere = random_in_unit_sphere();
+	if (dot_vec3(in_unit_sphere, *normal) > 0.0)
+		return (in_unit_sphere);
+	else
+		return (scalar_mul_vec3(-1.0, in_unit_sphere));
+}

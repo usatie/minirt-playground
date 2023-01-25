@@ -33,5 +33,6 @@ t_vec3	random_vec3(void);
 t_vec3	random_range_vec3(double min, double max);
 t_vec3	random_in_unit_sphere(void);
 t_vec3	random_unit_vector();
+t_vec3	random_in_hemisphere(const t_vec3 *normal);
 
 #endif
