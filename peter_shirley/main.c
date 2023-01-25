@@ -149,6 +149,17 @@ void	setup_world3(t_hittable_list *world)
 	hittable_list_add(world, sphere_alloc(new_point(4, 1, 0), 1.0, material3));
 }
 
+void	setup_world4(t_hittable_list *world)
+{
+	t_texture	*checker = alloc_checker_texture(
+			alloc_solid_color(0.2, 0.3, 0.1),
+			alloc_solid_color(0.9, 0.9, 0.9)
+			);
+
+	hittable_list_add(world, sphere_alloc(new_point(0, -10, 0), 10, alloc_lambertian(checker)));
+	hittable_list_add(world, sphere_alloc(new_point(0, 10, 0), 10, alloc_lambertian(checker)));
+}
+
 int	main(void)
 {
 	t_env		e;
@@ -158,7 +169,7 @@ int	main(void)
 	t_point	lookat= new_point(0, 0, 0);
 	t_vec3	vup = new_vec3(0, 1, 0);
 	double	dist_to_focus = 10.0;
-	const double	aperture = 0.1;
+	const double	aperture = 0.0;
 	
 	t_camera	camera = new_camera_default(lookfrom,
 											lookat,
@@ -171,7 +182,7 @@ int	main(void)
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};
 
-	setup_world3(&world);
+	setup_world4(&world);
 
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
 	{
