@@ -23,7 +23,7 @@ t_color	ray_color(t_ray *r, const t_hittable_list *world, int depth)
 
 	if (depth <= 0)
 		return (new_color(0, 0, 0));
-	if (hit(world, r, 0, INFINITY, &rec))
+	if (hit(world, r, 0.001, INFINITY, &rec))
 	{
 		t_ray	scattered;
 		t_color	attenuation;
@@ -66,7 +66,7 @@ int	main(void)
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};
-	t_material	mat1 = (t_material){new_color(0.7, 0.3, 0.3)};
+	t_material	mat1 = (t_material){new_color(0.8, 0.6, 0.2)};
 	t_sphere		sphere1 = sphere_new(new_vec3(0,0,-1), 0.5, &mat1);
 	t_sphere		sphere2 = sphere_new(new_vec3(0,-100.5,-1), 100, &mat1);
 	hittable_list_add(&world, &sphere1);

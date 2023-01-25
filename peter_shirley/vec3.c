@@ -194,3 +194,9 @@ t_vec3	random_in_hemisphere(const t_vec3 *normal)
 	else
 		return (scalar_mul_vec3(-1.0, in_unit_sphere));
 }
+
+t_vec3	reflect(const t_vec3 *v, const t_vec3 *n)
+{
+	double dot	= dot_vec3(*v, *n);
+	return (sub_vec3(*v, scalar_mul_vec3(2 * dot, *n)));
+}

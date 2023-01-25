@@ -11,10 +11,20 @@ bool	lambertian_scatter(const t_material *self, const t_ray *r_in, const t_hit_r
 	return (true);
 }
 
+bool	metal_scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered)
+{
+	
+	t_vec3	v = unit_vec3((r_in->direction));
+	t_vec3	reflected = reflect(&v, &(rec->normal));
+	*scattered = new_ray(rec->p, reflected);
+	*attenuation = self->albedo;
+	return (dot_vec3(scattered->direction, rec->normal) > 0);
+}
+
 bool	scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered)
 {
 	// if lambertian
-	return (lambertian_scatter(self, r_in, rec, attenuation, scattered));
+	//return (lambertian_scatter(self, r_in, rec, attenuation, scattered));
 	// if metal
-	// return (metal_scatter(self, r_in, rec, attenuation, scattered));
+	return (metal_scatter(self, r_in, rec, attenuation, scattered));
 }
