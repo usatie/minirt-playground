@@ -1,4 +1,5 @@
 #include "camera.h"
+#include "rtweekend.h"
 #include "ray.h"
 
 t_camera	new_camera(t_point origin, t_vec3 horizontal, t_vec3 vertical)
@@ -19,10 +20,12 @@ t_camera	new_camera(t_point origin, t_vec3 horizontal, t_vec3 vertical)
 	return (c);
 }
 
-t_camera	new_camera_default(void)
+t_camera	new_camera_default(double vfov, double aspect_ratio)
 {
-	double		viewport_height = 2.0;
-	double		viewport_width = ASPECT_RATIO * viewport_height;
+	double		theta = degrees_to_radians(vfov);
+	double		h = tan(theta / 2);
+	double		viewport_height = 2.0 * h;
+	double		viewport_width = aspect_ratio * viewport_height;
 
 	t_point		origin = new_point(0, 0, 0);
 	t_vec3		horizontal = new_vec3(viewport_width, 0, 0);
@@ -39,3 +42,4 @@ t_ray	get_ray(const t_camera *self, double u, double v)
 	t_vec3	uv_minus_origin = sub_vec3(uv, self->origin);
 	return (new_ray(self->origin, add_vec3(self->lower_left_corner,uv_minus_origin)));
 }
+

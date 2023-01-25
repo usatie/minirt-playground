@@ -17,6 +17,6 @@ struct s_camera {
 
 t_ray		get_ray(const t_camera *self, double u, double v);
 t_camera	new_camera(t_point origin, t_vec3 horizontal, t_vec3 vertical);
-t_camera	new_camera_default(void);
+t_camera	new_camera_default(double vfov, double aspect_ratio);
 
 #endif
