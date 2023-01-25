@@ -57,6 +57,38 @@ double	clamp(double x, double min, double max)
 	return (x);
 }
 
+void	setup_world(t_hittable_list *world)
+{
+	t_material	*diff_mat1 = calloc(1, sizeof(t_material));
+	t_material	*diff_mat2 = calloc(1, sizeof(t_material));
+	t_material	*metal_mat1 = calloc(1, sizeof(t_material));
+	//t_material	*metal_mat2 = calloc(1, sizeof(t_material));
+	t_material	*dielec_mat = calloc(1, sizeof(t_material));
+
+	*diff_mat1 = (t_material){LAMBERTIAN, new_color(0.8, 0.8, 0.0), 0, 0};
+	*diff_mat2 = (t_material){LAMBERTIAN, new_color(0.7, 0.3, 0.3), 0, 0};
+	*metal_mat1 = (t_material){METAL, new_color(0.8, 0.6, 0.2), 0, 0};
+	//*metal_mat2 = (t_material){METAL, new_color(0.8, 0.8, 0.8), 0, 0};
+	*dielec_mat = (t_material){DIELECTRIC, new_color(1, 1, 1), 0, 1.5};
+	
+	t_sphere		*sphere1 = calloc(1, sizeof(t_sphere));
+	t_sphere		*sphere2 = calloc(1, sizeof(t_sphere));
+	t_sphere		*sphere3 = calloc(1, sizeof(t_sphere));
+	//t_sphere		*sphere4 = calloc(1, sizeof(t_sphere));
+	t_sphere		*sphere5 = calloc(1, sizeof(t_sphere));
+
+	*sphere1 = sphere_new(new_vec3(0,-100.5,-1), 100, diff_mat1);
+	*sphere2 = sphere_new(new_vec3(0,0,-1), 0.5, dielec_mat);
+	*sphere3 = sphere_new(new_vec3(1,0,-1), 0.5, metal_mat1);
+	//*sphere4 = sphere_new(new_vec3(-1,0,-1), 0.5, metal_mat2);
+	*sphere5 = sphere_new(new_vec3(-1,0,-1), 0.5, dielec_mat);
+	hittable_list_add(world, sphere1);
+	hittable_list_add(world, sphere2);
+	hittable_list_add(world, sphere3);
+	// hittable_list_add(world, &sphere4);
+	hittable_list_add(world, sphere5);
+}
+
 int	main(void)
 {
 	t_env		e;
@@ -66,21 +98,8 @@ int	main(void)
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};
-	t_material	diff_mat1 = (t_material){LAMBERTIAN, new_color(0.8, 0.8, 0.0), 0, 0};
-	t_material	diff_mat2 = (t_material){LAMBERTIAN, new_color(0.7, 0.3, 0.3), 0, 0};
-	t_material	metal_mat1 = (t_material){METAL, new_color(0.8, 0.6, 0.2), 0, 0};
-	t_material	metal_mat2 = (t_material){METAL, new_color(0.8, 0.8, 0.8), 0, 0};
-	t_material	dielec_mat = (t_material){DIELECTRIC, new_color(1, 1, 1), 0, 1.5};
-	t_sphere		sphere1 = sphere_new(new_vec3(0,-100.5,-1), 100, &diff_mat1);
-	t_sphere		sphere2 = sphere_new(new_vec3(0,0,-1), 0.5, &diff_mat2);
-	t_sphere		sphere3 = sphere_new(new_vec3(1,0,-1), 0.5, &metal_mat1);
-	t_sphere		sphere4 = sphere_new(new_vec3(-1,0,-1), 0.5, &metal_mat2);
-	t_sphere		sphere5 = sphere_new(new_vec3(-1,0,-1), 0.5, &dielec_mat);
-	hittable_list_add(&world, &sphere1);
-	hittable_list_add(&world, &sphere2);
-	hittable_list_add(&world, &sphere3);
-	// hittable_list_add(&world, &sphere4);
-	hittable_list_add(&world, &sphere5);
+
+	setup_world(&world);
 
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
 	{
