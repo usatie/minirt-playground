@@ -16,16 +16,18 @@ double	degrees_to_radians(double degrees)
 	return (degrees * M_PI / 180);
 }
 
-t_color	ray_color(t_ray *r, const t_hittable_list *world)
+t_color	ray_color(t_ray *r, const t_hittable_list *world, int depth)
 {
 	t_hit_record	rec;
 
+	if (depth <= 0)
+		return (new_color(0, 0, 0));
 	if (hit(world, r, 0, INFINITY, &rec))
 	{
 		t_point	target = add_vec3(add_vec3(rec.p , rec.normal), random_in_unit_sphere());
 		// return 0.5 * (rec.normal + color(1,1,1));
 		t_ray	diffuse_ray = new_ray(rec.p, sub_vec3(target, rec.p));
-		return (scalar_mul_vec3(0.5, ray_color(&diffuse_ray, world)));
+		return (scalar_mul_vec3(0.5, ray_color(&diffuse_ray, world, depth - 1)));
 	}
 	t_vec3 unit_dir = unit_vec3(r->direction);
 	double t = 0.5* (unit_dir.y + 1.0);
@@ -56,6 +58,7 @@ int	main(void)
 {
 	t_env		e;
 	const int	samples_per_pixel = 100;
+	const int	max_depth = 50;
 	t_camera	camera = new_camera_default();
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
@@ -78,7 +81,7 @@ int	main(void)
 				double	u = ((double)i + random_double()) / (WIN_WIDTH - 1);
 				double	v = ((double)j + random_double()) / (WIN_HEIGHT - 1);
 				t_ray	r = get_ray(&camera, u, v);
-				pixel_color = add_vec3(pixel_color, ray_color(&r, world.next));
+				pixel_color = add_vec3(pixel_color, ray_color(&r, world.next, max_depth));
 
 			}
 			put_pixel(e.screen->img, x,  y, to_mlxcolor(pixel_color, samples_per_pixel));
