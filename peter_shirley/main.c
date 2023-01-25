@@ -120,8 +120,8 @@ void	setup_world3(t_hittable_list *world)
 	//t_material	*ground_material = alloc_lambertian(alloc_solid_color(0.5, 0.5, 0.5));
 	t_material	*ground_material = alloc_lambertian(checker);
 	hittable_list_add(world, sphere_alloc(new_point(0, -1000, 0), 1000, ground_material));
-	for (int a = -3; a < 3; a++) {
-		for (int b = -3; b < 3; b++) {
+	for (int a = -8; a < 8; a++) {
+		for (int b = -8; b < 8; b++) {
 			double	choose_mat = random_double();
 			t_point	center = new_point(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
 			t_point	fixed_point = new_point(4, 0.2, 0);
@@ -135,8 +135,15 @@ void	setup_world3(t_hittable_list *world)
 					hittable_list_add(world, sphere_alloc(center, 0.2, sphere_material));
 				} else if (choose_mat < 0.95) {
 					// metal
+					t_color	solid_color = new_color(random_double_range(0.5, 1), random_double_range(0.5, 1), random_double_range(0.5, 1));
+					double	fuzz = random_double_range(0, 0.5);
+					t_solid_color	*albedo = alloc_solid_color(solid_color.x, solid_color.y, solid_color.z);
+					sphere_material = alloc_metal(albedo, fuzz);
+					hittable_list_add(world, sphere_alloc(center, 0.2, sphere_material));
 				} else {
 					// glass
+					sphere_material = alloc_dielectric(1.5);
+					hittable_list_add(world, sphere_alloc(center, 0.2, sphere_material));
 				}
 			}
 		}
@@ -169,7 +176,7 @@ int	main(void)
 	t_point	lookat= new_point(0, 0, 0);
 	t_vec3	vup = new_vec3(0, 1, 0);
 	double	dist_to_focus = 10.0;
-	const double	aperture = 0.0;
+	const double	aperture = 0.05;
 	
 	t_camera	camera = new_camera_default(lookfrom,
 											lookat,
@@ -182,7 +189,7 @@ int	main(void)
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};
 
-	setup_world4(&world);
+	setup_world(&world);
 
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
 	{
