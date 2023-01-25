@@ -29,5 +29,8 @@ double	length_vec3(t_vec3 a);
 t_vec3	unit_vec3(t_vec3 a);
 void	print_vec3(t_vec3 a);
 int		to_mlxcolor(t_color pixel_color, int samples_per_pixel);
+t_vec3	random_vec3(void);
+t_vec3	random_range_vec3(double min, double max);
+t_vec3	random_in_unit_sphere(void);
 
 #endif

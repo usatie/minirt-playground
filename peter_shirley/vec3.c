@@ -145,3 +145,32 @@ int		to_mlxcolor(t_color pixel_color, int samples_per_pixel)
 	rgbcol.rgb.b = (uint8_t)(256 * clamp(b, 0.0, 0.999));
 	return (rgbcol.mlx_color);
 }
+
+t_vec3	random_vec3(void)
+{
+	t_vec3	ret;
+
+	ret = new_vec3(random_double(), random_double(), random_double());
+	return (ret);
+}
+
+t_vec3	random_range_vec3(double min, double max)
+{
+	t_vec3	ret;
+
+	ret = new_vec3(random_double_range(min, max), random_double_range(min, max), random_double_range(min, max));
+	return (ret);
+}
+
+t_vec3	random_in_unit_sphere()
+{
+	while(true)
+	{
+		t_vec3	ret;
+
+		ret = random_range_vec3(-1, 1);
+		if (length_squared_vec3(ret) >= 1)
+			continue;
+		return (ret);
+	}
+}
