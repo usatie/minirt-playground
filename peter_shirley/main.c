@@ -113,10 +113,15 @@ void	setup_world2(t_hittable_list *world)
 
 void	setup_world3(t_hittable_list *world)
 {
-	t_material	*ground_material = alloc_lambertian(alloc_solid_color(0.5, 0.5, 0.5));
+	t_texture	*checker = alloc_checker_texture(
+			alloc_solid_color(0.2, 0.3, 0.1),
+			alloc_solid_color(0.9, 0.9, 0.9)
+			);
+	//t_material	*ground_material = alloc_lambertian(alloc_solid_color(0.5, 0.5, 0.5));
+	t_material	*ground_material = alloc_lambertian(checker);
 	hittable_list_add(world, sphere_alloc(new_point(0, -1000, 0), 1000, ground_material));
-	for (int a = -11; a < 11; a++) {
-		for (int b = -11; b < 11; b++) {
+	for (int a = -3; a < 3; a++) {
+		for (int b = -3; b < 3; b++) {
 			double	choose_mat = random_double();
 			t_point	center = new_point(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
 			t_point	fixed_point = new_point(4, 0.2, 0);
@@ -166,7 +171,7 @@ int	main(void)
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};
 
-	setup_world(&world);
+	setup_world3(&world);
 
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
 	{
