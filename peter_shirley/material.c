@@ -21,11 +21,30 @@ bool	metal_scatter(const t_material *self, const t_ray *r_in, const t_hit_record
 	return (dot_vec3(scattered->direction, rec->normal) > 0);
 }
 
+bool	dielectric_scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered)
+{
+	
+	double etai_over_etat;
+	if (rec->front_face)
+		etai_over_etat = 1.0 / self->ref_idx;
+	else
+		etai_over_etat = self->ref_idx;
+	
+	t_vec3	v = unit_vec3((r_in->direction));
+	t_vec3	refracted = refract(&v, &(rec->normal), etai_over_etat);
+	*scattered = new_ray(rec->p, refracted);
+	*attenuation = new_color(1.0, 1.0, 1.0);
+	return (true);
+}
+
+
 bool	scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered)
 {
 	if (self->type == LAMBERTIAN)
 		return (lambertian_scatter(self, r_in, rec, attenuation, scattered));
-	if (self->type == METAL)
+	else if (self->type == METAL)
 		return (metal_scatter(self, r_in, rec, attenuation, scattered));
+	else if (self->type == DIELECTRIC)
+		return (dielectric_scatter(self, r_in, rec, attenuation, scattered));
 	return (0);
 }

@@ -200,3 +200,12 @@ t_vec3	reflect(const t_vec3 *v, const t_vec3 *n)
 	double dot	= dot_vec3(*v, *n);
 	return (sub_vec3(*v, scalar_mul_vec3(2 * dot, *n)));
 }
+
+t_vec3	refract(const t_vec3 *uv, const t_vec3 *n, double etai_over_etat)
+{
+	t_vec3	inverse_v = scalar_mul_vec3(-1.0, *uv);
+	double	cos_thata = dot_vec3(inverse_v, *n);
+	t_vec3	r_out_para = scalar_mul_vec3(etai_over_etat, add_vec3(*uv, scalar_mul_vec3(cos_thata, *n)));
+	t_vec3	r_out_perp = scalar_mul_vec3(-1.0 * sqrt(1.0 - length_squared_vec3(r_out_para)), *n);
+	return (add_vec3(r_out_para, r_out_perp));
+}
