@@ -1,4 +1,4 @@
-#include "playground.h"
+#include "rtweekend.h"
 #include "color.h"
 #include "mlx.h"
 
@@ -39,6 +39,15 @@ double	random_double(void)
 double	random_double_range(double min, double max)
 {
 	return (min + ((max - min) * random_double()));
+}
+
+double	clamp(double x, double min, double max)
+{
+	if (x < min)
+		return (min);
+	if (x > max)
+		return (max);
+	return (x);
 }
 
 int	main(void)

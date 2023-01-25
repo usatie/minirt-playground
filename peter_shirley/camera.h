@@ -1,6 +1,6 @@
 #ifndef CAMERA_H
 # define CAMERA_H
-# include "playground.h"
+# include "rtweekend.h"
 
 typedef struct s_camera t_camera;
 

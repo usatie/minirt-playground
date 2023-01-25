@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "playground.h"
+#include "rtweekend.h"
 #include "mlx.h"
 
 t_screen	*init_screen(void *mlx_ptr)
