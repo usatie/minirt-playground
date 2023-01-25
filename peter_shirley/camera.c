@@ -19,6 +19,19 @@ t_camera	new_camera(t_point origin, t_vec3 horizontal, t_vec3 vertical)
 	return (c);
 }
 
+t_camera	new_camera_default(void)
+{
+	double		viewport_height = 2.0;
+	double		viewport_width = ASPECT_RATIO * viewport_height;
+
+	t_point		origin = new_point(0, 0, 0);
+	t_vec3		horizontal = new_vec3(viewport_width, 0, 0);
+	t_vec3		vertical = new_vec3(0, viewport_height, 0);
+	t_camera	camera = new_camera(origin, horizontal, vertical);
+
+	return (camera);
+}
+
 t_ray	get_ray(const t_camera *self, double u, double v)
 {
 	// ray r(origin, lower_left_corner + u*horizontal + v*vertical - origin);

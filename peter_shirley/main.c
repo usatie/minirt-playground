@@ -54,13 +54,7 @@ int	main(void)
 {
 	t_env		e;
 	const int	samples_per_pixel = 100;
-	double		viewport_height = 2.0;
-	double		viewport_width = ASPECT_RATIO * viewport_height;
-
-	t_point		origin = new_point(0, 0, 0);
-	t_vec3		horizontal = new_vec3(viewport_width, 0, 0);
-	t_vec3		vertical = new_vec3(0, viewport_height, 0);
-	t_camera	camera = new_camera(origin, horizontal, vertical);
+	t_camera	camera = new_camera_default();
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};
