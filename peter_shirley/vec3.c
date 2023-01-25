@@ -139,6 +139,9 @@ int		to_mlxcolor(t_color pixel_color, int samples_per_pixel)
 	g *= scale;
 	b *= scale;
 
+	r = sqrt(r);
+	g = sqrt(g);
+	b = sqrt(b);
 	t_rgb	rgbcol;
 	rgbcol.rgb.r = (uint8_t)(256 * clamp(r, 0.0, 0.999));
 	rgbcol.rgb.g = (uint8_t)(256 * clamp(g, 0.0, 0.999));
