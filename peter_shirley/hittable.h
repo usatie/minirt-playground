@@ -13,6 +13,8 @@ struct s_hit_record {
 	t_vec3		normal;
 	t_material	*mat_ptr;
 	double		t;
+	double		u;
+	double		v;
 	bool		front_face;
 };
 

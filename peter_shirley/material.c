@@ -2,7 +2,7 @@
 #include "material.h"
 #include <stdlib.h> // calloc
 
-t_lambertian	new_lambertian(t_color albedo)
+t_lambertian	new_lambertian(t_texture *albedo)
 {
 	t_lambertian	self = {};
 
@@ -11,7 +11,7 @@ t_lambertian	new_lambertian(t_color albedo)
 	return (self);
 }
 
-t_metal			new_metal(t_color albedo, double fuzz)
+t_metal			new_metal(t_texture *albedo, double fuzz)
 {
 	t_metal	self = {};
 
@@ -30,7 +30,7 @@ t_dielectric	new_dielectric(double ref_idx)
 	return (self);
 }
 
-t_lambertian	*alloc_lambertian(t_color albedo)
+t_lambertian	*alloc_lambertian(t_texture *albedo)
 {
 	t_lambertian	*self;
 
@@ -39,7 +39,7 @@ t_lambertian	*alloc_lambertian(t_color albedo)
 	return (self);
 }
 
-t_metal			*alloc_metal(t_color albedo, double fuzz)
+t_metal			*alloc_metal(t_texture *albedo, double fuzz)
 {
 	t_metal	*self;
 
@@ -64,7 +64,7 @@ bool	lambertian_scatter(const t_material *self, const t_ray *r_in, const t_hit_r
 	(void)r_in;
 	scatter_direction = add_vec3(rec->normal, random_unit_vector());
 	*scattered = new_ray(rec->p, scatter_direction);
-	*attenuation = self->albedo;
+	*attenuation = texture_color_value(self->albedo, rec->u, rec->v, &(rec->p));
 	return (true);
 }
 
@@ -74,7 +74,7 @@ bool	metal_scatter(const t_material *self, const t_ray *r_in, const t_hit_record
 	t_vec3	v = unit_vec3((r_in->direction));
 	t_vec3	reflected = reflect(&v, &(rec->normal));
 	*scattered = new_ray(rec->p, add_vec3(reflected, scalar_mul_vec3(self->fuzz, random_in_unit_sphere())));
-	*attenuation = self->albedo;
+	*attenuation = texture_color_value(self->albedo, rec->u, rec->v, &(rec->p));
 	return (dot_vec3(scattered->direction, rec->normal) > 0);
 }
 
@@ -127,3 +127,4 @@ bool	scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec,
 		return (dielectric_scatter(self, r_in, rec, attenuation, scattered));
 	return (0);
 }
+

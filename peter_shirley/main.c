@@ -65,11 +65,11 @@ void	setup_world(t_hittable_list *world)
 	//t_material	*metal_mat2 = calloc(1, sizeof(t_material));
 	t_material	*dielec_mat = calloc(1, sizeof(t_material));
 
-	*diff_mat2 = (t_material){LAMBERTIAN, new_color(0.1, 0.2, 0.5), 0, 0};
-	*diff_mat1 = (t_material){LAMBERTIAN, new_color(0.8, 0.8, 0.0), 0, 0};
-	*metal_mat1 = (t_material){METAL, new_color(0.8, 0.6, 0.2), 0, 0};
-	//*metal_mat2 = (t_material){METAL, new_color(0.8, 0.8, 0.8), 0, 0};
-	*dielec_mat = (t_material){DIELECTRIC, new_color(1, 1, 1), 0, 1.5};
+	*diff_mat2 = (t_material){LAMBERTIAN, alloc_solid_color(0.1, 0.2, 0.5), 0, 0};
+	*diff_mat1 = (t_material){LAMBERTIAN, alloc_solid_color(0.8, 0.8, 0.0), 0, 0};
+	*metal_mat1 = (t_material){METAL, alloc_solid_color(0.8, 0.6, 0.2), 0, 0};
+	//*metal_mat2 = (t_material){METAL, alloc_solid_color(0.8, 0.8, 0.8), 0, 0};
+	*dielec_mat = (t_material){DIELECTRIC, alloc_solid_color(1, 1, 1), 0, 1.5};
 	
 	t_sphere		*sphere1 = calloc(1, sizeof(t_sphere));
 	t_sphere		*sphere2 = calloc(1, sizeof(t_sphere));
@@ -99,8 +99,8 @@ void	setup_world2(t_hittable_list *world)
 	t_material	*diff_mat1 = calloc(1, sizeof(t_material));
 	t_material	*diff_mat2 = calloc(1, sizeof(t_material));
 
-	*diff_mat2 = (t_material){LAMBERTIAN, new_color(0, 0, 1), 0, 0};
-	*diff_mat1 = (t_material){LAMBERTIAN, new_color(1, 0, 0), 0, 0};
+	*diff_mat2 = (t_material){LAMBERTIAN, alloc_solid_color(0, 0, 1), 0, 0};
+	*diff_mat1 = (t_material){LAMBERTIAN, alloc_solid_color(1, 0, 0), 0, 0};
 	
 	t_sphere		*sphere1 = calloc(1, sizeof(t_sphere));
 	t_sphere		*sphere2 = calloc(1, sizeof(t_sphere));
@@ -113,7 +113,7 @@ void	setup_world2(t_hittable_list *world)
 
 void	setup_world3(t_hittable_list *world)
 {
-	t_material	*ground_material = alloc_lambertian(new_color(0.5, 0.5, 0.5));
+	t_material	*ground_material = alloc_lambertian(alloc_solid_color(0.5, 0.5, 0.5));
 	hittable_list_add(world, sphere_alloc(new_point(0, -1000, 0), 1000, ground_material));
 	for (int a = -11; a < 11; a++) {
 		for (int b = -11; b < 11; b++) {
@@ -124,7 +124,8 @@ void	setup_world3(t_hittable_list *world)
 				t_material	*sphere_material;
 				if (choose_mat < 0.8) {
 					// diffuse
-					t_color	albedo = mul_vec3(random_color(), random_color());
+					t_color	solid_color = mul_vec3(random_color(), random_color());
+					t_solid_color	*albedo = alloc_solid_color(solid_color.x, solid_color.y, solid_color.z);
 					sphere_material = alloc_lambertian(albedo);
 					hittable_list_add(world, sphere_alloc(center, 0.2, sphere_material));
 				} else if (choose_mat < 0.95) {
@@ -137,9 +138,9 @@ void	setup_world3(t_hittable_list *world)
 	}
 	t_material	*material1 = alloc_dielectric(1.5);
 	hittable_list_add(world, sphere_alloc(new_point(0, 1, 0), 1.0, material1));
-	t_material	*material2 = alloc_lambertian(new_color(0.4, 0.2, 0.1));
+	t_material	*material2 = alloc_lambertian(alloc_solid_color(0.4, 0.2, 0.1));
 	hittable_list_add(world, sphere_alloc(new_point(-4, 1, 0), 1.0, material2));
-	t_material	*material3 = alloc_metal(new_color(0.7, 0.6, 0.5), 0);
+	t_material	*material3 = alloc_metal(alloc_solid_color(0.7, 0.6, 0.5), 0);
 	hittable_list_add(world, sphere_alloc(new_point(4, 1, 0), 1.0, material3));
 }
 
@@ -165,7 +166,7 @@ int	main(void)
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};
 
-	setup_world3(&world);
+	setup_world(&world);
 
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
 	{

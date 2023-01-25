@@ -1,6 +1,6 @@
 #include "color.h"
 
-t_rgb	rgb_mul(t_rgb col, float alpha)
+t_rgb	rgb_mul(t_rgb col, double alpha)
 {
 	col.rgb.r *= alpha;
 	col.rgb.g *= alpha;

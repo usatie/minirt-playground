@@ -64,3 +64,11 @@ void	set_face_normal(t_hit_record *self, const t_ray *r, const t_vec3 *outward_n
 	else
 		self->normal = scalar_mul_vec3(-1.0, *outward_normal);
 }
+
+void	get_sphere_uv(const t_vec3 *p, double *u, double *v)
+{
+	double	phi = atan2(p->z, p->x);
+	double	theta = asin(p->y);
+	*u = 1 - (phi + M_PI) / (2 * M_PI);
+	*v = (theta + M_PI_2) / M_PI;
+}
