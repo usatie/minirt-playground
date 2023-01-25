@@ -6,15 +6,18 @@
 
 typedef struct s_hit_record	t_hit_record;
 typedef struct s_hittable	t_hittable;
+typedef struct s_material	t_material;
 
 struct s_hit_record {
-	t_point	p;
-	t_vec3	normal;
-	double	t;
-	bool	front_face;
+	t_point		p;
+	t_vec3		normal;
+	t_material	*mat_ptr;
+	double		t;
+	bool		front_face;
 };
 
 struct s_hittable {
+	t_material	*mat_ptr;
 	// SPHERE
 	t_point		center;
 	double		radius;

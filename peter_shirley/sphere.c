@@ -1,12 +1,13 @@
 #include "sphere.h"
 #include <stddef.h> //NULL
 
-t_sphere	sphere_new(t_point cen, double r)
+t_sphere	sphere_new(t_point cen, double r, t_material *m)
 {
 	t_sphere	sphere;
 
 	sphere.center = cen;
 	sphere.radius = r;
+	sphere.mat_ptr = m;
 	sphere.next = NULL;
 	return (sphere);
 }
@@ -28,6 +29,7 @@ bool	sphere_hit_single(const t_sphere *self, const t_ray *r, double t_min, doubl
 			rec->p = ray_at(r, rec->t);
 			t_vec3 outward_normal = scalar_div_vec3(sub_vec3(rec->p, self->center), self->radius);
 			set_face_normal(rec, r, &outward_normal);
+			rec->mat_ptr = self->mat_ptr;
 			return (true);
 		}
 		temp = (-half_b + root) / a;
@@ -37,6 +39,7 @@ bool	sphere_hit_single(const t_sphere *self, const t_ray *r, double t_min, doubl
 			rec->p = ray_at(r, rec->t);
 			t_vec3 outward_normal = scalar_div_vec3(sub_vec3(rec->p, self->center), self->radius);
 			set_face_normal(rec, r, &outward_normal);
+			rec->mat_ptr = self->mat_ptr;
 			return (true);
 		}
 	}

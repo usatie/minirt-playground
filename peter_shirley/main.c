@@ -7,6 +7,7 @@
 #include "hittable_list.h"
 #include "sphere.h"
 #include "camera.h"
+#include "material.h"
 
 #include <unistd.h> // STDERR_FILENO
 #include <stdio.h>  // dprintf
@@ -24,10 +25,12 @@ t_color	ray_color(t_ray *r, const t_hittable_list *world, int depth)
 		return (new_color(0, 0, 0));
 	if (hit(world, r, 0, INFINITY, &rec))
 	{
-		t_point	target = add_vec3(add_vec3(rec.p , rec.normal), random_in_hemisphere(&rec.normal));
-		// return 0.5 * (rec.normal + color(1,1,1));
-		t_ray	diffuse_ray = new_ray(rec.p, sub_vec3(target, rec.p));
-		return (scalar_mul_vec3(0.5, ray_color(&diffuse_ray, world, depth - 1)));
+		t_ray	scattered;
+		t_color	attenuation;
+		
+		if (scatter(rec.mat_ptr, r, &rec, &attenuation, &scattered))
+			return (mul_vec3(attenuation, ray_color(&scattered, world, depth - 1)));
+		return (new_color(0, 0, 0));
 	}
 	t_vec3 unit_dir = unit_vec3(r->direction);
 	double t = 0.5* (unit_dir.y + 1.0);
@@ -63,8 +66,9 @@ int	main(void)
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};
-	t_sphere		sphere1 = sphere_new(new_vec3(0,0,-1), 0.5);
-	t_sphere		sphere2 = sphere_new(new_vec3(0,-100.5,-1), 100);
+	t_material	mat1 = (t_material){new_color(0.7, 0.3, 0.3)};
+	t_sphere		sphere1 = sphere_new(new_vec3(0,0,-1), 0.5, &mat1);
+	t_sphere		sphere2 = sphere_new(new_vec3(0,-100.5,-1), 100, &mat1);
 	hittable_list_add(&world, &sphere1);
 	hittable_list_add(&world, &sphere2);
 

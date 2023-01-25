@@ -12,8 +12,8 @@ LIBPATH		=	-L$(MLX_DIR) -L/usr/X11R6/lib
 INCLUDE_DIR	=	include
 INCLUDES	=	-I $(INCLUDE_DIR) -I $(MLX_DIR) -I /usr/X11R6/include
 #CFLAGS		=	-Wall -Werror -Wextra
-HEADERS		=	rtweekend.h color.h mlx_utils.h ray.h vec3.h sphere.h hittable.h camera.h
-SRCS		=	main.c mlx_utils.c color.c vec3.c ray.c hittable.c sphere.c hittable_list.c camera.c
+HEADERS		=	rtweekend.h color.h mlx_utils.h ray.h vec3.h sphere.h hittable.h camera.h material.h
+SRCS		=	main.c mlx_utils.c color.c vec3.c ray.c hittable.c sphere.c hittable_list.c camera.c material.c
 FRAMEWORK = -framework OpenGL -framework AppKit
 
 $(NAME): $(SRCS) $(MLX) $(HEADERS)
