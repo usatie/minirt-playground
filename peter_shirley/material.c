@@ -16,7 +16,7 @@ bool	metal_scatter(const t_material *self, const t_ray *r_in, const t_hit_record
 	
 	t_vec3	v = unit_vec3((r_in->direction));
 	t_vec3	reflected = reflect(&v, &(rec->normal));
-	*scattered = new_ray(rec->p, reflected);
+	*scattered = new_ray(rec->p, add_vec3(reflected, scalar_mul_vec3(self->fuzz, random_in_unit_sphere())));
 	*attenuation = self->albedo;
 	return (dot_vec3(scattered->direction, rec->normal) > 0);
 }

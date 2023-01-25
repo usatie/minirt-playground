@@ -11,6 +11,7 @@ typedef t_material	t_lambertian;
 struct s_material {
 	// lambertian
 	t_color	albedo;
+	double	fuzz;
 };
 
 bool	scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered);
