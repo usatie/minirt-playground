@@ -35,5 +35,6 @@ t_vec3	random_in_unit_sphere(void);
 t_vec3	random_unit_vector();
 t_vec3	random_in_hemisphere(const t_vec3 *normal);
 t_vec3	reflect(const t_vec3 *v, const t_vec3 *n);
+t_vec3	refract(const t_vec3 *v, const t_vec3 *n, double etai_over_etat);
 
 #endif
