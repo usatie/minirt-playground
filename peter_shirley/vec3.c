@@ -177,3 +177,11 @@ t_vec3	random_in_unit_sphere()
 		return (ret);
 	}
 }
+
+t_vec3	random_unit_vector()
+{
+	double	a = random_double_range(0, 2 * M_PI);
+	double	z = random_double_range(-1, 1);
+	double	r = sqrt(1 - z * z);
+	return (new_vec3(r * cos(a), r * sin(a), z));
+}
