@@ -111,22 +111,61 @@ void	setup_world2(t_hittable_list *world)
 	hittable_list_add(world, sphere2);
 }
 
+void	setup_world3(t_hittable_list *world)
+{
+	t_material	*ground_material = alloc_lambertian(new_color(0.5, 0.5, 0.5));
+	hittable_list_add(world, sphere_alloc(new_point(0, -1000, 0), 1000, ground_material));
+	for (int a = -11; a < 11; a++) {
+		for (int b = -11; b < 11; b++) {
+			double	choose_mat = random_double();
+			t_point	center = new_point(a + 0.9 * random_double(), 0.2, b + 0.9 * random_double());
+			t_point	fixed_point = new_point(4, 0.2, 0);
+			if (length_vec3(sub_vec3(center, fixed_point)) > 0.9) {
+				t_material	*sphere_material;
+				if (choose_mat < 0.8) {
+					// diffuse
+					t_color	albedo = mul_vec3(random_color(), random_color());
+					sphere_material = alloc_lambertian(albedo);
+					hittable_list_add(world, sphere_alloc(center, 0.2, sphere_material));
+				} else if (choose_mat < 0.95) {
+					// metal
+				} else {
+					// glass
+				}
+			}
+		}
+	}
+	t_material	*material1 = alloc_dielectric(1.5);
+	hittable_list_add(world, sphere_alloc(new_point(0, 1, 0), 1.0, material1));
+	t_material	*material2 = alloc_lambertian(new_color(0.4, 0.2, 0.1));
+	hittable_list_add(world, sphere_alloc(new_point(-4, 1, 0), 1.0, material2));
+	t_material	*material3 = alloc_metal(new_color(0.7, 0.6, 0.5), 0);
+	hittable_list_add(world, sphere_alloc(new_point(4, 1, 0), 1.0, material3));
+}
+
 int	main(void)
 {
 	t_env		e;
 	const int	samples_per_pixel = 100;
 	const int	max_depth = 50;
-	const double	aperture = 2.0;
-	t_point	lookfrom = new_point(3, 3, 2);
-	t_point	lookat= new_point(0, 0, -1);
+	t_point	lookfrom = new_point(13, 2, 3);
+	t_point	lookat= new_point(0, 0, 0);
+	t_vec3	vup = new_vec3(0, 1, 0);
+	double	dist_to_focus = 10.0;
+	const double	aperture = 0.1;
 	
-	t_camera	camera = new_camera_default(lookfrom, lookat, new_vec3(0, 1, 0), 20, ASPECT_RATIO, 
-													aperture, length_vec3(sub_vec3(lookfrom, lookat)));
+	t_camera	camera = new_camera_default(lookfrom,
+											lookat,
+											vup,
+											20,
+											ASPECT_RATIO, 
+											aperture,
+											dist_to_focus);
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};
 
-	setup_world(&world);
+	setup_world3(&world);
 
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
 	{

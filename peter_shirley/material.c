@@ -1,5 +1,61 @@
 #include "rtweekend.h"
 #include "material.h"
+#include <stdlib.h> // calloc
+
+t_lambertian	new_lambertian(t_color albedo)
+{
+	t_lambertian	self = {};
+
+	self.type = LAMBERTIAN;
+	self.albedo = albedo;
+	return (self);
+}
+
+t_metal			new_metal(t_color albedo, double fuzz)
+{
+	t_metal	self = {};
+
+	self.type = METAL;
+	self.albedo = albedo;
+	self.fuzz = fuzz;
+	return (self);
+}
+
+t_dielectric	new_dielectric(double ref_idx)
+{
+	t_metal	self = {};
+
+	self.type = DIELECTRIC;
+	self.ref_idx = ref_idx;
+	return (self);
+}
+
+t_lambertian	*alloc_lambertian(t_color albedo)
+{
+	t_lambertian	*self;
+
+	self = calloc(1, sizeof(*self));
+	*self = new_lambertian(albedo);
+	return (self);
+}
+
+t_metal			*alloc_metal(t_color albedo, double fuzz)
+{
+	t_metal	*self;
+
+	self = calloc(1, sizeof(*self));
+	*self = new_metal(albedo, fuzz);
+	return (self);
+}
+
+t_dielectric	*alloc_dielectric(double ref_idx)
+{
+	t_dielectric	*self;
+
+	self = calloc(1, sizeof(*self));
+	*self = new_dielectric(ref_idx);
+	return (self);
+}
 
 bool	lambertian_scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered)
 {

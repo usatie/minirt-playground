@@ -3,6 +3,8 @@
 
 # include <math.h>
 
+# define random_color random_vec3
+
 typedef struct s_vec3	t_vec3;
 typedef struct s_vec3	t_point;
 typedef struct s_vec3	t_color;

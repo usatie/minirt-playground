@@ -1,5 +1,6 @@
 #include "sphere.h"
 #include <stddef.h> //NULL
+#include <stdlib.h> // calloc
 
 t_sphere	sphere_new(t_point cen, double r, t_material *m)
 {
@@ -9,6 +10,15 @@ t_sphere	sphere_new(t_point cen, double r, t_material *m)
 	sphere.radius = r;
 	sphere.mat_ptr = m;
 	sphere.next = NULL;
+	return (sphere);
+}
+
+t_sphere	*sphere_alloc(t_point cen, double r, t_material *m)
+{
+	t_sphere	*sphere;
+
+	sphere = calloc(1, sizeof(*sphere));
+	*sphere = sphere_new(cen, r, m);
 	return (sphere);
 }
 
