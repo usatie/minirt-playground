@@ -20,10 +20,12 @@ t_color	ray_color(t_ray *r, const t_hittable_list *world)
 {
 	t_hit_record	rec;
 
-	if (hit(world, r, 0, 10000000000, &rec))
+	if (hit(world, r, 0, INFINITY, &rec))
 	{
+		t_point	target = add_vec3(add_vec3(rec.p , rec.normal), random_in_unit_sphere());
 		// return 0.5 * (rec.normal + color(1,1,1));
-		return (scalar_mul_vec3(0.5, add_vec3(rec.normal, new_color(1,1,1))));
+		t_ray	diffuse_ray = new_ray(rec.p, sub_vec3(target, rec.p));
+		return (scalar_mul_vec3(0.5, ray_color(&diffuse_ray, world)));
 	}
 	t_vec3 unit_dir = unit_vec3(r->direction);
 	double t = 0.5* (unit_dir.y + 1.0);
