@@ -2,35 +2,38 @@
 #include "rtweekend.h"
 #include "ray.h"
 
-t_camera	new_camera(t_point origin, t_vec3 horizontal, t_vec3 vertical)
+t_camera	new_camera(t_point origin, t_vec3 horizontal, t_vec3 vertical, t_vec3 w)
 {
 	t_camera	c;
 
 	c.aspect_ratio = ASPECT_RATIO;
 	c.viewport_height = 2.0;
 	c.viewport_width = c.viewport_height * c.aspect_ratio;
-	c.focal_length = 1.0;
 
 	c.origin = origin;
 	c.horizontal = horizontal;
 	c.vertical = vertical;
 	t_vec3	mean_horizontal_vertical = scalar_div_vec3(add_vec3(horizontal, vertical), 2.0);
 	// auto lower_left_corner = origin - horizontal/2 - vertical/2 - vec3(0, 0, focal_length);
-	c.lower_left_corner = sub_vec3(sub_vec3(origin, mean_horizontal_vertical), new_vec3(0, 0, c.focal_length));
+	c.lower_left_corner = sub_vec3(sub_vec3(origin, mean_horizontal_vertical), w);
 	return (c);
 }
 
-t_camera	new_camera_default(double vfov, double aspect_ratio)
+t_camera	new_camera_default(t_point lookfrom, t_point lookat, t_vec3 vup, double vfov, double aspect_ratio)
 {
 	double		theta = degrees_to_radians(vfov);
 	double		h = tan(theta / 2);
 	double		viewport_height = 2.0 * h;
 	double		viewport_width = aspect_ratio * viewport_height;
 
-	t_point		origin = new_point(0, 0, 0);
-	t_vec3		horizontal = new_vec3(viewport_width, 0, 0);
-	t_vec3		vertical = new_vec3(0, viewport_height, 0);
-	t_camera	camera = new_camera(origin, horizontal, vertical);
+	t_vec3	w = unit_vec3(sub_vec3(lookfrom, lookat));
+	t_vec3	u = unit_vec3(cross_vec3(vup, w));
+	t_vec3	v = cross_vec3(w, u);
+	
+	t_point		origin = lookfrom;
+	t_vec3		horizontal = scalar_mul_vec3(viewport_width, u);
+	t_vec3		vertical = scalar_mul_vec3(viewport_height, v);
+	t_camera	camera = new_camera(origin, horizontal, vertical, w);
 
 	return (camera);
 }

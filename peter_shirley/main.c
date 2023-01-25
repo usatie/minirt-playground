@@ -116,12 +116,12 @@ int	main(void)
 	t_env		e;
 	const int	samples_per_pixel = 100;
 	const int	max_depth = 50;
-	t_camera	camera = new_camera_default(90, ASPECT_RATIO);
+	t_camera	camera = new_camera_default(new_point(-2, 2, 1), new_point(0, 0, -1), new_vec3(0, 1, 0), 20, ASPECT_RATIO);
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};
 
-	setup_world2(&world);
+	setup_world(&world);
 
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
 	{
