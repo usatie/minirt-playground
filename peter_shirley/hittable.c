@@ -229,8 +229,6 @@ void	get_sphere_uv(const t_vec3 *p, double *u, double *v)
 	*v = (theta + M_PI_2) / M_PI;
 }
 
-bool	box_compare(t_hittable)
-
 bool	box_x_compare(t_hittable *a, t_hittable *b)
 {
 	t_aabb	box_a;
@@ -261,9 +259,79 @@ bool	box_z_compare(t_hittable *a, t_hittable *b)
 	return (box_a.min.z < box_b.min.z);
 }
 
-typedef bool	t_comparator(t_hittable *a, t_hittable *b);
+//typedef bool	t_int_comparator(int a, int b);
 
+// int	arr[3] = {3, 2, 1};
+//
+// sort(&arr[0], &arr[2], int_comparator);
+// [2, 1]
+//  ^  ^
+//  s  e
+/*
+void	swap(int *a, int *b)
+{
+	int	tmp = *a;
+	*a = *b;
+	*b = tmp;
+}
 
+typedef struct s_list {
+	int content;
+	struct s_list *next;
+}	t_list;
+*/
+
+// a->b->c
+// 5->3->2
+//
+// tmp = a->val;
+// a->val = c->val;
+// c->val = tmp;
+static void	swap_hittable_list(t_hittable_list *a, t_hittable_list *b)
+{
+	t_hittable_list	tmp = *a;
+	t_hittable_list	*next;
+
+	// a = b
+	next = a->next;
+	*a = *b;
+	a->next = next;
+
+	// b = tmp
+	next = b->next;
+	*b = tmp;
+	b->next = next;
+}
+
+void	sort_hittable_list(t_hittable_list *s, t_hittable_list *e, t_comparator *comparator)
+{
+	for (t_hittable_list *i = s; 1; i = i->next) {
+		if (i == e) break;
+		for (t_hittable_list *j = i->next; 1; j = j->next) {
+			if (!comparator(i, j))
+				swap_hittable_list(i, j);
+			if (j == e) break;
+		}
+	}
+}
+/*
+void	sort(int *s, int *e, t_int_comparator *comparator)
+{
+	for (int *i = s; 1; i++)
+	{
+		if (i == e) break;
+		for (int *j = s + 1; 1; j++)
+		{
+			if (!comparator(*i, *j))
+				swap(i, j);
+			if (j == e)
+				break;
+		}
+	}
+}
+*/
+
+/*
 void	sort_hittable_list(t_hittable_list **start, t_hittable_list **end, t_comparator *comparator)
 {
 	t_hittable_list	*s;
@@ -279,8 +347,7 @@ void	sort_hittable_list(t_hittable_list **start, t_hittable_list **end, t_compar
 		while (c != *end)
 		{
 			if (!comparator(s, c))
-
-
 		}
 	}
 }
+*/

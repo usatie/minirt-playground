@@ -13,6 +13,7 @@ typedef t_hittable	t_sphere;
 typedef t_hittable	t_xy_rect;
 typedef t_hittable t_hittable_list;
 typedef t_hittable	t_bvh_node;
+typedef bool	t_comparator(t_hittable *a, t_hittable *b);
 
 enum e_hittable_type {
 	SPHERE,
