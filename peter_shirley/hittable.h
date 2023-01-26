@@ -9,9 +9,14 @@ typedef struct s_hit_record	t_hit_record;
 typedef struct s_hittable	t_hittable;
 typedef struct s_material	t_material;
 
+typedef t_hittable t_hittable_list;
+typedef t_hittable	t_bvh_node;
+
 enum e_hittable_type {
 	SPHERE,
 	XY_RECT,
+	HITTABLE_LIST,
+	BVH_NODE,
 };
 typedef enum e_hittable_type	t_hittable_type;
 
@@ -35,10 +40,19 @@ struct s_hittable {
 	double			x0, x1, y0, y1, k;
 	//HITTABLE_LIST
 	t_hittable		*next;
+	// BVH_NODE
+	t_hittable		*left;
+	t_hittable		*right;
+	t_aabb			box;
 };
 
 bool	bounding_box(const t_hittable *self, t_aabb *output_box);
-bool	hit_single(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec);
 void	set_face_normal(t_hit_record *self, const t_ray *r, const t_vec3 *outward_normal);
+
+void	hittable_list_add(t_hittable_list *self, t_hittable *object);
+bool	hit(const t_hittable_list *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec);
+
+t_bvh_node	new_bvh_node(t_hittable_list *list);
+t_bvh_node	*alloc_bvh_node(t_hittable_list *list);
 
 #endif

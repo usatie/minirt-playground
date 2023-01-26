@@ -29,8 +29,7 @@ static void	swap(double *a, double *b)
 	*b = tmp;
 }
 
-
-bool	hit_aabb(t_aabb *self, const t_ray *r, double tmin, double tmax)
+bool	hit_aabb(const t_aabb *self, const t_ray *r, double tmin, double tmax)
 {
 	{
 		float	invD = 1.0f / r->direction.x; 

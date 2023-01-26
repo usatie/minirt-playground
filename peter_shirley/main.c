@@ -244,6 +244,7 @@ int	main(void)
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};
 
+	world.type = HITTABLE_LIST;
 	setup_world(&camera, &world);
 
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
