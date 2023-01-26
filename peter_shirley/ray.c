@@ -1,6 +1,5 @@
 #include "ray.h"
 #include "vec3.h"
-#include "hittable_list.h"
 
 t_ray	new_ray(t_point p, t_vec3 dir)
 {

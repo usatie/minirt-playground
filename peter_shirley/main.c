@@ -2,15 +2,12 @@
 #include "color.h"
 #include "mlx.h"
 
-#include "vec3.h"
-#include "ray.h"
-#include "hittable_list.h"
-#include "sphere.h"
 #include "camera.h"
 #include "material.h"
 
 #include <unistd.h> // STDERR_FILENO
 #include <stdio.h>  // dprintf
+#include <stdlib.h> // RAND_MAX, rand()
 
 double	degrees_to_radians(double degrees)
 {
@@ -244,6 +241,7 @@ int	main(void)
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};
 
+	world.type = HITTABLE_LIST;
 	setup_world(&camera, &world);
 
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
@@ -259,7 +257,7 @@ int	main(void)
 				double	u = ((double)i + random_double()) / (WIN_WIDTH - 1);
 				double	v = ((double)j + random_double()) / (WIN_HEIGHT - 1);
 				t_ray	r = get_ray(&camera, u, v);
-				pixel_color = add_vec3(pixel_color, ray_color(&r, world.next, max_depth));
+				pixel_color = add_vec3(pixel_color, ray_color(&r, &world, max_depth));
 
 			}
 			put_pixel(e.screen->img, x,  y, to_mlxcolor(pixel_color, samples_per_pixel));

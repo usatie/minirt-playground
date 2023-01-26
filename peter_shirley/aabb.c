@@ -1,5 +1,5 @@
+#include <stdlib.h>
 #include "aabb.h"
-
 
 t_aabb	new_aabb(t_point *a, t_point *b)
 {
@@ -29,8 +29,7 @@ static void	swap(double *a, double *b)
 	*b = tmp;
 }
 
-
-bool	hit_aabb(t_aabb *self, const t_ray *r, double tmin, double tmax)
+bool	hit_aabb(const t_aabb *self, const t_ray *r, double tmin, double tmax)
 {
 	{
 		float	invD = 1.0f / r->direction.x; 
@@ -66,4 +65,16 @@ bool	hit_aabb(t_aabb *self, const t_ray *r, double tmin, double tmax)
 			return (false);
 	}
 	return (true);
+}
+
+t_aabb	surrounding_box(t_aabb box0, t_aabb box1)
+{
+	t_point	small = new_point(fmin(box0.min.x, box1.min.x),
+							fmin(box0.min.y, box1.min.y),
+							fmin(box0.min.z, box1.min.z));
+	t_point	big = new_point(fmax(box0.max.x, box1.max.x),
+							fmax(box0.max.y, box1.max.y),
+							fmax(box0.max.z, box1.max.z));
+	return (new_aabb(&small, &big));
+
 }
