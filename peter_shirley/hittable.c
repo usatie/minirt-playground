@@ -1,6 +1,11 @@
 #include <stdlib.h>
 #include "hittable.h"
 
+bool	box_x_compare(t_hittable *a, t_hittable *b);
+bool	box_y_compare(t_hittable *a, t_hittable *b);
+bool	box_z_compare(t_hittable *a, t_hittable *b);
+void	sort_hittable_list(t_hittable_list *s, t_hittable_list *e, t_comparator *comparator);
+
 // new
 t_sphere	sphere_new(t_point cen, double r, t_material *m)
 {
@@ -36,12 +41,50 @@ t_hittable_list	hittable_list_new(void)
 	return (self);
 }
 
-t_bvh_node	new_bvh_node(t_hittable_list *list)
+t_bvh_node	new_bvh_node(t_hittable_list *s, t_hittable_list *e)
 {
 	t_bvh_node	self = {};
 
+	t_comparator	*comp[3] = {box_x_compare, box_y_compare, box_z_compare};
+
 	self.type = BVH_NODE;
-	self = *list;
+	int	axis = random_int_range(0, 2);
+	size_t	span = span_of_hittable_list(s, e);
+	if (span == 1)
+	{
+		self.left = s;
+		self.right = s;
+	}
+	else if (span == 2)
+	{
+		if (comp[axis](s, s->next))
+		{
+			self.left = s;
+			self.right = s->next;
+		}
+		else
+		{
+			self.left = s->next;
+			self.right = s;	
+		}
+	}
+	else
+	{
+		sort_hittable_list(s, e, comp[axis]);
+		t_hittable_list *mid = s;
+		for (size_t i = 0; i < span / 2; i++)
+			mid = mid->next;
+		self.left = alloc_bvh_node(s, mid);
+		self.left = alloc_bvh_node(mid, e);
+	}
+
+	t_aabb	box_left, box_right;
+
+	if (!bounding_box(self.left, &box_left) || !bounding_box(self.right, &box_right))
+		printf("No bounding box in bvh_node constructor.\n");
+	self.box = surrounding_box(box_left, box_right);
+
+
 	return (self);
 }
 
@@ -73,12 +116,12 @@ t_hittable_list	*hittable_list_alloc(void)
 	return (self);
 }
 
-t_bvh_node	*alloc_bvh_node(t_hittable_list *list)
+t_bvh_node	*alloc_bvh_node(t_hittable_list *s, t_hittable_list *e)
 {
 	t_bvh_node	*self;
 
 	self = calloc(1, sizeof(*self));
-	*self = new_bvh_node(list);
+	*self = new_bvh_node(s, e);
 	return (self);
 
 }
@@ -351,3 +394,14 @@ void	sort_hittable_list(t_hittable_list **start, t_hittable_list **end, t_compar
 	}
 }
 */
+
+size_t	span_of_hittable_list(t_hittable_list *start, t_hittable_list *end)
+{
+	size_t	span = 0;
+
+	for (t_hittable *i = start; i != end; i = i->next)
+	{
+		span++;
+	}
+	return (span);
+}

@@ -56,14 +56,15 @@ bool	bounding_box(const t_hittable *self, t_aabb *output_box);
 // new
 t_sphere	sphere_new(t_point cen, double r, t_material *m);
 t_xy_rect	xyrect_new(double x0, double x1, double y0, double y1, double k, t_material *m);
-t_bvh_node	new_bvh_node(t_hittable_list *list);
+t_bvh_node	new_bvh_node(t_hittable_list *s, t_hittable_list *e);
 
 // alloc
 t_sphere	*sphere_alloc(t_point cen, double r, t_material *m);
 t_xy_rect	*xyrect_alloc(double x0, double x1, double y0, double y1, double k, t_material *m);
-t_bvh_node	*alloc_bvh_node(t_hittable_list *list);
+t_bvh_node	*alloc_bvh_node(t_hittable_list *s, t_hittable_list *e);
 
 // hittable_list
 void	hittable_list_add(t_hittable_list *self, t_hittable *object);
+size_t	span_of_hittable_list(t_hittable_list *start, t_hittable_list *end);
 
 #endif
