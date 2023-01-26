@@ -41,6 +41,15 @@ t_mixed_material	new_mixed_material(t_texture *albedo, double fuzz, double lambe
 	return (self);
 }
 
+t_diffuse_light	new_diffuse_light(t_texture *emit)
+{
+	t_diffuse_light	self = {};
+
+	self.type = DIFFUSE_LIGHT;
+	self.emit = emit;
+	return (self);
+}
+
 t_lambertian	*alloc_lambertian(t_texture *albedo)
 {
 	t_lambertian	*self;
@@ -76,6 +85,16 @@ t_mixed_material	*alloc_mixed_material(t_texture *albedo, double fuzz, double la
 	*self = new_mixed_material(albedo, fuzz, lambertian_ratio);
 	return (self);
 }
+
+t_diffuse_light	*alloc_diffuse_light(t_texture *emit)
+{
+	t_diffuse_light	*self;
+
+	self = calloc(1, sizeof(*self));
+	*self = new_diffuse_light(emit);
+	return (self);
+}
+
 
 bool	lambertian_scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered)
 {
@@ -158,6 +177,13 @@ bool	scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec,
 		return (dielectric_scatter(self, r_in, rec, attenuation, scattered));
 	else if (self->type == MIXED_MATERIAL)
 		return (mixed_material_scatter(self, r_in, rec, attenuation, scattered));
-	return (0);
+	return (false);
 }
 
+t_color	material_emitted(t_material *self, double u, double v, const t_point *p)
+{
+	if (self->type == DIFFUSE_LIGHT)
+		return (texture_color_value(self->emit, u, v, p));
+	else
+		return (new_color(0, 0, 0));
+}

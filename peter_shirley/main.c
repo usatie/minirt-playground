@@ -23,19 +23,20 @@ t_color	ray_color(t_ray *r, const t_hittable_list *world, int depth)
 
 	if (depth <= 0)
 		return (new_color(0, 0, 0));
-	if (hit(world, r, 0.001, INFINITY, &rec))
-	{
-		t_ray	scattered;
-		t_color	attenuation;
-		
-		if (scatter(rec.mat_ptr, r, &rec, &attenuation, &scattered))
-			return (mul_vec3(attenuation, ray_color(&scattered, world, depth - 1)));
+	if (!hit(world, r, 0.001, INFINITY, &rec))
 		return (new_color(0, 0, 0));
-	}
-	t_vec3 unit_dir = unit_vec3(r->direction);
-	double t = 0.5* (unit_dir.y + 1.0);
-	// (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0)
-	return (add_vec3(scalar_mul_vec3((1.0 - t) , new_vec3(1, 1, 1)) , scalar_mul_vec3(t , new_vec3(0.5, 0.7, 1.0))));
+
+	t_color	emitted = material_emitted(rec.mat_ptr, rec.u, rec.v, &rec.p);
+	t_ray	scattered;
+	t_color	attenuation;
+	
+	if (!scatter(rec.mat_ptr, r, &rec, &attenuation, &scattered))
+		return (emitted);
+	return (add_vec3(emitted, mul_vec3(attenuation, ray_color(&scattered, world, depth - 1))));
+	// t_vec3 unit_dir = unit_vec3(r->direction);
+	// double t = 0.5* (unit_dir.y + 1.0);
+	// // (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0)
+	// return (add_vec3(scalar_mul_vec3((1.0 - t) , new_vec3(1, 1, 1)) , scalar_mul_vec3(t , new_vec3(0.5, 0.7, 1.0))));
 }
 
 double	random_double(void)
@@ -68,7 +69,7 @@ void	setup_world(t_camera *camera, t_hittable_list *world)
 	*camera = new_camera_default(lookfrom,
 							lookat,
 							vup,
-							20,
+							25,
 							ASPECT_RATIO, 
 							aperture,
 							dist_to_focus);
@@ -79,12 +80,14 @@ void	setup_world(t_camera *camera, t_hittable_list *world)
 	t_material	*metal_mat1;
 	t_material	*dielec_mat;
 	t_material	*mixed_mat;
+	t_material	*diffuse_light_mat;
 
 	diff_mat2 = alloc_lambertian(alloc_solid_color(0.1, 0.2, 0.5));
 	diff_mat1 = alloc_lambertian(alloc_solid_color(0.8, 0.8, 0.0));
 	metal_mat1 = alloc_metal(alloc_solid_color(0.8, 0.6, 0.2), 0);
 	dielec_mat = alloc_dielectric(1.5);
 	mixed_mat = alloc_mixed_material(alloc_solid_color(0.1, 0.2, 0.5), 0, 0.7);
+	diffuse_light_mat = alloc_diffuse_light(alloc_solid_color(20, 20, 20));
 	
 	t_sphere		*sphere1 = calloc(1, sizeof(t_sphere));
 	t_sphere		*sphere2 = calloc(1, sizeof(t_sphere));
@@ -92,6 +95,7 @@ void	setup_world(t_camera *camera, t_hittable_list *world)
 	t_sphere		*sphere4 = calloc(1, sizeof(t_sphere));
 	t_sphere		*sphere5 = calloc(1, sizeof(t_sphere));
 	t_sphere		*sphere6 = calloc(1, sizeof(t_sphere));
+	t_sphere		*sphere7 = calloc(1, sizeof(t_sphere));
 
 	*sphere1 = sphere_new(new_vec3(0,-100.5,-1), 100, diff_mat1);
 	*sphere2 = sphere_new(new_vec3(0,0,-1), 0.5, diff_mat2);
@@ -99,12 +103,14 @@ void	setup_world(t_camera *camera, t_hittable_list *world)
 	*sphere4 = sphere_new(new_vec3(-1,0,-1), 0.5, dielec_mat);
 	*sphere5 = sphere_new(new_vec3(-1,0,-1), -0.45, dielec_mat);
 	*sphere6 = sphere_new(new_vec3(1,0,-1), 0.5, mixed_mat);
+	*sphere7 = sphere_new(new_vec3(1, 1,-1), 0.5, diffuse_light_mat);
 	hittable_list_add(world, sphere1);
 	hittable_list_add(world, sphere2);
 	hittable_list_add(world, sphere3);
 	hittable_list_add(world, sphere4);
 	hittable_list_add(world, sphere5);
 	hittable_list_add(world, sphere6);
+	hittable_list_add(world, sphere7);
 }
 
 
@@ -228,7 +234,7 @@ void	setup_world4(t_camera *camera, t_hittable_list *world)
 int	main(void)
 {
 	t_env		e;
-	const int	samples_per_pixel = 100;
+	const int	samples_per_pixel = 1000;
 	const int	max_depth = 50;
 	
 	t_camera	camera;
