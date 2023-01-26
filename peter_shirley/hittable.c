@@ -44,7 +44,6 @@ t_hittable_list	hittable_list_new(void)
 t_bvh_node	new_bvh_node(t_hittable_list *s, t_hittable_list *e)
 {
 	t_bvh_node	self = {};
-
 	t_comparator	*comp[3] = {box_x_compare, box_y_compare, box_z_compare};
 
 	self.type = BVH_NODE;
@@ -75,16 +74,13 @@ t_bvh_node	new_bvh_node(t_hittable_list *s, t_hittable_list *e)
 		for (size_t i = 0; i < span / 2; i++)
 			mid = mid->next;
 		self.left = alloc_bvh_node(s, mid);
-		self.left = alloc_bvh_node(mid, e);
+		self.right = alloc_bvh_node(mid, e);
 	}
-
 	t_aabb	box_left, box_right;
 
 	if (!bounding_box(self.left, &box_left) || !bounding_box(self.right, &box_right))
-		printf("No bounding box in bvh_node constructor.\n");
+		dprintf(2, "No bounding box in bvh_node constructor.\n");
 	self.box = surrounding_box(box_left, box_right);
-
-
 	return (self);
 }
 
@@ -348,9 +344,9 @@ static void	swap_hittable_list(t_hittable_list *a, t_hittable_list *b)
 
 void	sort_hittable_list(t_hittable_list *s, t_hittable_list *e, t_comparator *comparator)
 {
-	for (t_hittable_list *i = s; 1; i = i->next) {
+	for (t_hittable_list *i = s; i; i = i->next) {
 		if (i == e) break;
-		for (t_hittable_list *j = i->next; 1; j = j->next) {
+		for (t_hittable_list *j = i->next; j; j = j->next) {
 			if (!comparator(i, j))
 				swap_hittable_list(i, j);
 			if (j == e) break;

@@ -17,11 +17,15 @@ double	degrees_to_radians(double degrees)
 t_color	ray_color(t_ray *r, const t_hittable_list *world, int depth)
 {
 	t_hit_record	rec;
+	t_vec3 unit_dir = unit_vec3(r->direction);
+	double t = 0.5* (unit_dir.y + 1.0);
+	// (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0)
+	t_vec3 background_color = (add_vec3(scalar_mul_vec3((1.0 - t) , new_vec3(1, 1, 1)) , scalar_mul_vec3(t , new_vec3(0.5, 0.7, 1.0))));
 
 	if (depth <= 0)
 		return (new_color(0, 0, 0));
 	if (!hit(world, r, 0.001, INFINITY, &rec))
-		return (new_color(0, 0, 0));
+		return (background_color);
 
 	t_color	emitted = material_emitted(rec.mat_ptr, rec.u, rec.v, &rec.p);
 	t_ray	scattered;
@@ -30,10 +34,6 @@ t_color	ray_color(t_ray *r, const t_hittable_list *world, int depth)
 	if (!scatter(rec.mat_ptr, r, &rec, &attenuation, &scattered))
 		return (emitted);
 	return (add_vec3(emitted, mul_vec3(attenuation, ray_color(&scattered, world, depth - 1))));
-	// t_vec3 unit_dir = unit_vec3(r->direction);
-	// double t = 0.5* (unit_dir.y + 1.0);
-	// // (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0)
-	// return (add_vec3(scalar_mul_vec3((1.0 - t) , new_vec3(1, 1, 1)) , scalar_mul_vec3(t , new_vec3(0.5, 0.7, 1.0))));
 }
 
 double	random_double(void)
@@ -249,18 +249,9 @@ int	main(void)
 	t_hittable_list	world = {};
 
 	world.type = HITTABLE_LIST;
-	setup_world(&camera, &world);
+	setup_world3(&camera, &world);
 
-	t_hittable *end;
-	for (t_hittable *h = world.next; h; h = h->next) {
-		end = h;
-	}
-	sort_hittable_list(world.next, end, box_x_compare);
-	for (t_hittable *h = world.next; h; h = h->next) {
-		t_aabb	box;
-		bounding_box(h, &box);
-		printf("h.x = %f\n", box.min.x);
-	}
+	//world = new_bvh_node(world.next, NULL);
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
 	{
 		int y = WIN_HEIGHT - j;
