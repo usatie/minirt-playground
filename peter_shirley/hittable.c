@@ -5,6 +5,7 @@ bool	box_x_compare(t_hittable *a, t_hittable *b);
 bool	box_y_compare(t_hittable *a, t_hittable *b);
 bool	box_z_compare(t_hittable *a, t_hittable *b);
 void	sort_hittable_list(t_hittable_list *s, t_hittable_list *e, t_comparator *comparator);
+void	get_sphere_uv(const t_vec3 *p, double *u, double *v);
 
 // new
 t_sphere	sphere_new(t_point cen, double r, t_material *m)
@@ -141,6 +142,8 @@ bool	sphere_hit(const t_sphere *self, const t_ray *r, double t_min, double t_max
 			t_vec3 outward_normal = scalar_div_vec3(sub_vec3(rec->p, self->center), self->radius);
 			set_face_normal(rec, r, &outward_normal);
 			rec->mat_ptr = self->mat_ptr;
+			t_vec3	tmp = scalar_div_vec3(sub_vec3(rec->p, self->center), self->radius);
+			get_sphere_uv(&tmp, &rec->u, &rec->v);
 			return (true);
 		}
 		temp = (-half_b + root) / a;

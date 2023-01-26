@@ -1,5 +1,61 @@
 #include "texture.h"
+#include "rtweekend.h"
 #include <stdlib.h>
+
+void	perlin_generate_perm(int *p)
+{
+	for (int i = 0; i < 256; i++)
+		p[i] = i;
+	
+	for (int i = 0; i < 256; i++)
+	{
+		int target = random_int_range(0, i);
+		int tmp = p[i];
+		p[i] = p[target];
+		p[target] = tmp;
+	}
+}
+
+double	perlin_noise(const t_perlin *self, const t_point *p)
+{
+	int	i = (int)(4 * p->x) & 255;
+	int	j = (int)(4 * p->y) & 255;
+	int	k = (int)(4 * p->z) & 255;
+	return (self->ranfloat[self->x[i] ^ self->y[j] ^ self->z[k]]);
+}
+
+t_perlin	new_perlin(void)
+{
+	t_perlin	self;
+
+	for (int i = 0; i < 256; i++)
+	{
+		self.ranfloat[i] = random_double();
+	}
+	perlin_generate_perm(self.x);
+	perlin_generate_perm(self.y);
+	perlin_generate_perm(self.z);
+	return (self);
+}
+
+t_noise_texture	new_noise_texture(void)
+{
+	t_noise_texture	self;
+
+	self.type = NOISE_TEXTURE;
+	self.noise = new_perlin();
+	return (self);
+}
+
+t_noise_texture	*alloc_noise_texture(void)
+{
+	t_noise_texture *self;
+
+	self = calloc(1, sizeof(*self));
+	*self = new_noise_texture();
+	return (self);
+}
+
 
 t_solid_color	new_solid_color(double r, double g, double b)
 {
@@ -36,7 +92,7 @@ t_checker_texture	*alloc_checker_texture(t_texture *t0, t_texture *t1)
 	return (self);
 }
 
-t_color	solid_color_value(t_solid_color *self, double u, double v, const t_vec3 *p)
+t_color	solid_color_value(const t_solid_color *self, double u, double v, const t_vec3 *p)
 {
 	(void)u;
 	(void)v;
@@ -44,9 +100,9 @@ t_color	solid_color_value(t_solid_color *self, double u, double v, const t_vec3 
 	return (self->color_val);
 }
 
-t_color	checker_texture_value(t_solid_color *self, double u, double v, const t_vec3 *p)
+t_color	checker_texture_value(const t_solid_color *self, double u, double v, const t_vec3 *p)
 {
-	const double	sines = sin(10 * p->x) * sin(10 * p->y) * sin(10 * p->z);
+	const double	sines = sin(pow(10 * p->x, 2)) * sin(10 * p->y) * sin(10 * p->z);
 
 	if (sines < 0)
 		return (texture_color_value(self->odd, u, v, p));
@@ -54,11 +110,18 @@ t_color	checker_texture_value(t_solid_color *self, double u, double v, const t_v
 		return (texture_color_value(self->even, u, v, p));
 }
 
-t_color	texture_color_value(t_texture *self, double u, double v, const t_vec3 *p)
+t_color	noise_texture_value(const t_noise_texture *self, double u, double v,const t_vec3 *p)
+{
+	return (scalar_mul_vec3(perlin_noise(&self->noise, p), new_color(1, 1, 1)));
+}
+
+t_color	texture_color_value(const t_texture *self, double u, double v, const t_vec3 *p)
 {
 	if (self->type == SOLID_COLOR)
 		return (solid_color_value(self, u, v, p));
 	else if (self->type == CHECKER_TEXTURE)
 		return (checker_texture_value(self, u, v, p));
+	else if (self->type == NOISE_TEXTURE)
+		return (noise_texture_value(self, u, v, p));
 	return (self->color_val);
 }

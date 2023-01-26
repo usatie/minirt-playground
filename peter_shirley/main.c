@@ -235,6 +235,29 @@ void	setup_world4(t_camera *camera, t_hittable_list *world)
 	hittable_list_add(world, sphere_alloc(new_point(0, 10, 0), 10, alloc_lambertian(checker)));
 }
 
+void	setup_world5(t_camera *camera, t_hittable_list *world)
+{
+	// camera
+	t_point	lookfrom = new_point(13, 2, 3);
+	t_point	lookat= new_point(0, 0, 0);
+	t_vec3	vup = new_vec3(0, 1, 0);
+	double	dist_to_focus = 10.0;
+	const double	aperture = 0.0;
+	*camera = new_camera_default(lookfrom,
+							lookat,
+							vup,
+							20,
+							ASPECT_RATIO, 
+							aperture,
+							dist_to_focus);
+
+	t_texture	*noise = alloc_noise_texture();
+
+	hittable_list_add(world, sphere_alloc(new_point(0, -1000, 0), 1000, alloc_lambertian(noise)));//alloc_solid_color(0.8, 0.8, 0.0))));
+	hittable_list_add(world, sphere_alloc(new_point(0, 2, 0), 2, alloc_lambertian(noise)));
+}
+
+
 int	main(void)
 {
 	t_env		e;
@@ -247,7 +270,7 @@ int	main(void)
 	t_hittable_list	world = {};
 
 	world.type = HITTABLE_LIST;
-	setup_world3(&camera, &world);
+	setup_world5(&camera, &world);
 
 	world = new_bvh_node(world.next, NULL);
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
