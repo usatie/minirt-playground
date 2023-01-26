@@ -111,7 +111,7 @@ void	setup_world(t_camera *camera, t_hittable_list *world)
 	hittable_list_add(world, sphere2);
 	hittable_list_add(world, sphere3);
 	hittable_list_add(world, sphere4);
-	hittable_list_add(world, sphere5);
+	//hittable_list_add(world, sphere5);
 	hittable_list_add(world, sphere6);
 	hittable_list_add(world, sphere7);
 	//hittable_list_add(world, rect);
@@ -235,8 +235,6 @@ void	setup_world4(t_camera *camera, t_hittable_list *world)
 	hittable_list_add(world, sphere_alloc(new_point(0, 10, 0), 10, alloc_lambertian(checker)));
 }
 
-bool	box_x_compare(t_hittable *a, t_hittable *b);
-void	sort_hittable_list(t_hittable_list *s, t_hittable_list *e, t_comparator *comparator);
 int	main(void)
 {
 	t_env		e;
@@ -251,7 +249,7 @@ int	main(void)
 	world.type = HITTABLE_LIST;
 	setup_world3(&camera, &world);
 
-	//world = new_bvh_node(world.next, NULL);
+	world = new_bvh_node(world.next, NULL);
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
 	{
 		int y = WIN_HEIGHT - j;

@@ -181,7 +181,7 @@ bool	bvh_node_hit(const t_hittable *self, const t_ray *r, double t_min, double t
 	if (!hit_aabb(&(self->box), r, t_min, t_max))
 		return (false);
 	bool	hit_left = hit(self->left, r, t_min, t_max, rec);
-	bool	hit_right = hit(self->right, r, t_min, t_max, rec);
+	bool	hit_right = hit(self->right, r, t_min, hit_left ? rec->t : t_max, rec);
 	return (hit_left || hit_right);
 }
 
