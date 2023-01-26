@@ -6,6 +6,7 @@ t_sphere	sphere_new(t_point cen, double r, t_material *m)
 {
 	t_sphere	sphere;
 
+	sphere.type = SPHERE;
 	sphere.center = cen;
 	sphere.radius = r;
 	sphere.mat_ptr = m;
@@ -72,3 +73,46 @@ void	get_sphere_uv(const t_vec3 *p, double *u, double *v)
 	*u = 1 - (phi + M_PI) / (2 * M_PI);
 	*v = (theta + M_PI_2) / M_PI;
 }
+
+t_xy_rect	xyrect_new(double x0, double x1, double y0, double y1, double k, t_material *m)
+{
+	t_xy_rect	self = {};
+
+	self.type = XY_RECT;
+	self.x0 = x0;
+	self.x1 = x1;
+	self.y0 = y0;
+	self.y1 = y1;
+	self.k = k;
+	self.mat_ptr = m;
+	return (self);
+}
+
+t_xy_rect	*xyrect_alloc(double x0, double x1, double y0, double y1, double k, t_material *m)
+{
+	t_xy_rect	*self;
+
+	self = calloc(1, sizeof(*self));
+	*self = xyrect_new(x0, x1, y0, y1, k, m);
+	return (self);
+}
+
+bool		xyrect_hit_single(const t_xy_rect *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec)
+{
+	double	t = (self->k - r->origin.z) / r->direction.z;
+	if (t < t_min || t > t_max)
+		return (false);
+	double	x = r->origin.x + t * r->direction.x;
+	double	y = r->origin.y + t * r->direction.y;
+	if (x < self->x0 || x > self->x1 || y < self->y0 || y > self->y1)
+		return (false);
+	rec->u = (x - self->x0) / (self->x1 - self->x0);
+	rec->v = (y - self->y0) / (self->y1 - self->y0);
+	rec->t = t;
+	t_vec3	outward_normal = new_vec3(0, 0, 1);
+	set_face_normal(rec, r, &outward_normal);
+	rec->mat_ptr = self->mat_ptr;
+	rec->p = ray_at(r, t);
+	return (true);
+}
+

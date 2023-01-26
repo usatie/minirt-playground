@@ -8,6 +8,12 @@ typedef struct s_hit_record	t_hit_record;
 typedef struct s_hittable	t_hittable;
 typedef struct s_material	t_material;
 
+enum e_hittable_type {
+	SPHERE,
+	XY_RECT,
+};
+typedef enum e_hittable_type	t_hittable_type;
+
 struct s_hit_record {
 	t_point		p;
 	t_vec3		normal;
@@ -19,12 +25,15 @@ struct s_hit_record {
 };
 
 struct s_hittable {
-	t_material	*mat_ptr;
+	t_hittable_type	type;
+	t_material		*mat_ptr;
 	// SPHERE
-	t_point		center;
-	double		radius;
+	t_point			center;
+	double			radius;
+	// XY_RECT
+	double			x0, x1, y0, y1, k;
 	//HITTABLE_LIST
-	t_hittable	*next;
+	t_hittable		*next;
 };
 
 bool	hit_single(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec);

@@ -69,7 +69,7 @@ void	setup_world(t_camera *camera, t_hittable_list *world)
 	*camera = new_camera_default(lookfrom,
 							lookat,
 							vup,
-							25,
+							80,
 							ASPECT_RATIO, 
 							aperture,
 							dist_to_focus);
@@ -96,6 +96,7 @@ void	setup_world(t_camera *camera, t_hittable_list *world)
 	t_sphere		*sphere5 = calloc(1, sizeof(t_sphere));
 	t_sphere		*sphere6 = calloc(1, sizeof(t_sphere));
 	t_sphere		*sphere7 = calloc(1, sizeof(t_sphere));
+	t_xy_rect		*rect = xyrect_alloc(-1, 1, 2, 3, -2, diffuse_light_mat);
 
 	*sphere1 = sphere_new(new_vec3(0,-100.5,-1), 100, diff_mat1);
 	*sphere2 = sphere_new(new_vec3(0,0,-1), 0.5, diff_mat2);
@@ -110,7 +111,8 @@ void	setup_world(t_camera *camera, t_hittable_list *world)
 	hittable_list_add(world, sphere4);
 	hittable_list_add(world, sphere5);
 	hittable_list_add(world, sphere6);
-	hittable_list_add(world, sphere7);
+	//hittable_list_add(world, sphere7);
+	hittable_list_add(world, rect);
 }
 
 
@@ -234,7 +236,7 @@ void	setup_world4(t_camera *camera, t_hittable_list *world)
 int	main(void)
 {
 	t_env		e;
-	const int	samples_per_pixel = 1000;
+	const int	samples_per_pixel = 100;
 	const int	max_depth = 50;
 	
 	t_camera	camera;
