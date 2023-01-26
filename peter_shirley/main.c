@@ -57,50 +57,80 @@ double	clamp(double x, double min, double max)
 	return (x);
 }
 
-void	setup_world(t_hittable_list *world)
+void	setup_world(t_camera *camera, t_hittable_list *world)
 {
-	t_material	*diff_mat1 = calloc(1, sizeof(t_material));
-	t_material	*diff_mat2 = calloc(1, sizeof(t_material));
-	t_material	*metal_mat1 = calloc(1, sizeof(t_material));
-	//t_material	*metal_mat2 = calloc(1, sizeof(t_material));
-	t_material	*dielec_mat = calloc(1, sizeof(t_material));
+	// camera
+	t_point	lookfrom = new_point(-2, 2, 3);
+	t_point	lookat= new_point(0, 0, 0);
+	t_vec3	vup = new_vec3(0, 1, 0);
+	double	dist_to_focus = 5.0;
+	const double	aperture = 0.05;
+	*camera = new_camera_default(lookfrom,
+							lookat,
+							vup,
+							20,
+							ASPECT_RATIO, 
+							aperture,
+							dist_to_focus);
 
-	*diff_mat2 = (t_material){LAMBERTIAN, alloc_solid_color(0.1, 0.2, 0.5), 0, 0};
-	*diff_mat1 = (t_material){LAMBERTIAN, alloc_solid_color(0.8, 0.8, 0.0), 0, 0};
-	*metal_mat1 = (t_material){METAL, alloc_solid_color(0.8, 0.6, 0.2), 0, 0};
-	//*metal_mat2 = (t_material){METAL, alloc_solid_color(0.8, 0.8, 0.8), 0, 0};
-	*dielec_mat = (t_material){DIELECTRIC, alloc_solid_color(1, 1, 1), 0, 1.5};
+	// geometries
+	t_material	*diff_mat1;
+	t_material	*diff_mat2;
+	t_material	*metal_mat1;
+	t_material	*dielec_mat;
+	t_material	*mixed_mat;
+
+	diff_mat2 = alloc_lambertian(alloc_solid_color(0.1, 0.2, 0.5));
+	diff_mat1 = alloc_lambertian(alloc_solid_color(0.8, 0.8, 0.0));
+	metal_mat1 = alloc_metal(alloc_solid_color(0.8, 0.6, 0.2), 0);
+	dielec_mat = alloc_dielectric(1.5);
+	mixed_mat = alloc_mixed_material(alloc_solid_color(0.1, 0.2, 0.5), 0, 0.7);
 	
 	t_sphere		*sphere1 = calloc(1, sizeof(t_sphere));
 	t_sphere		*sphere2 = calloc(1, sizeof(t_sphere));
 	t_sphere		*sphere3 = calloc(1, sizeof(t_sphere));
-	//t_sphere		*sphere4 = calloc(1, sizeof(t_sphere));
+	t_sphere		*sphere4 = calloc(1, sizeof(t_sphere));
 	t_sphere		*sphere5 = calloc(1, sizeof(t_sphere));
 	t_sphere		*sphere6 = calloc(1, sizeof(t_sphere));
 
 	*sphere1 = sphere_new(new_vec3(0,-100.5,-1), 100, diff_mat1);
 	*sphere2 = sphere_new(new_vec3(0,0,-1), 0.5, diff_mat2);
-	*sphere3 = sphere_new(new_vec3(1,0,-1), 0.5, metal_mat1);
-	//*sphere4 = sphere_new(new_vec3(-1,0,-1), 0.5, metal_mat2);
-	*sphere5 = sphere_new(new_vec3(-1,0,-1), 0.5, dielec_mat);
-	*sphere6 = sphere_new(new_vec3(-1,0,-1), -0.45, dielec_mat);
+	*sphere3 = sphere_new(new_vec3(2,0,-1), 0.5, metal_mat1);
+	*sphere4 = sphere_new(new_vec3(-1,0,-1), 0.5, dielec_mat);
+	*sphere5 = sphere_new(new_vec3(-1,0,-1), -0.45, dielec_mat);
+	*sphere6 = sphere_new(new_vec3(1,0,-1), 0.5, mixed_mat);
 	hittable_list_add(world, sphere1);
 	hittable_list_add(world, sphere2);
 	hittable_list_add(world, sphere3);
-	// hittable_list_add(world, &sphere4);
+	hittable_list_add(world, sphere4);
 	hittable_list_add(world, sphere5);
 	hittable_list_add(world, sphere6);
 }
 
 
-void	setup_world2(t_hittable_list *world)
+void	setup_world2(t_camera *camera, t_hittable_list *world)
 {
-	double R = cos(M_PI_4);
-	t_material	*diff_mat1 = calloc(1, sizeof(t_material));
-	t_material	*diff_mat2 = calloc(1, sizeof(t_material));
+	// camera
+	t_point	lookfrom = new_point(0, 0, 0);
+	t_point	lookat= new_point(0, 0, -1);
+	t_vec3	vup = new_vec3(0, 1, 0);
+	double	dist_to_focus = 1.0;
+	const double	aperture = 0.05;
+	*camera = new_camera_default(lookfrom,
+							lookat,
+							vup,
+							80,
+							ASPECT_RATIO, 
+							aperture,
+							dist_to_focus);
 
-	*diff_mat2 = (t_material){LAMBERTIAN, alloc_solid_color(0, 0, 1), 0, 0};
-	*diff_mat1 = (t_material){LAMBERTIAN, alloc_solid_color(1, 0, 0), 0, 0};
+	// geometries
+	double R = cos(M_PI_4);
+	t_material	*diff_mat1;
+	t_material	*diff_mat2;
+
+	diff_mat2 = alloc_lambertian(alloc_solid_color(0, 0, 1));
+	diff_mat1 = alloc_lambertian(alloc_solid_color(1, 0, 0));
 	
 	t_sphere		*sphere1 = calloc(1, sizeof(t_sphere));
 	t_sphere		*sphere2 = calloc(1, sizeof(t_sphere));
@@ -111,8 +141,22 @@ void	setup_world2(t_hittable_list *world)
 	hittable_list_add(world, sphere2);
 }
 
-void	setup_world3(t_hittable_list *world)
+void	setup_world3(t_camera *camera, t_hittable_list *world)
 {
+	// camera
+	t_point	lookfrom = new_point(13, 2, 3);
+	t_point	lookat= new_point(0, 0, 0);
+	t_vec3	vup = new_vec3(0, 1, 0);
+	double	dist_to_focus = 10.0;
+	const double	aperture = 0.05;
+	*camera = new_camera_default(lookfrom,
+							lookat,
+							vup,
+							20,
+							ASPECT_RATIO, 
+							aperture,
+							dist_to_focus);
+
 	t_texture	*checker = alloc_checker_texture(
 			alloc_solid_color(0.2, 0.3, 0.1),
 			alloc_solid_color(0.9, 0.9, 0.9)
@@ -156,8 +200,22 @@ void	setup_world3(t_hittable_list *world)
 	hittable_list_add(world, sphere_alloc(new_point(4, 1, 0), 1.0, material3));
 }
 
-void	setup_world4(t_hittable_list *world)
+void	setup_world4(t_camera *camera, t_hittable_list *world)
 {
+	// camera
+	t_point	lookfrom = new_point(13, 2, 3);
+	t_point	lookat= new_point(0, 0, 0);
+	t_vec3	vup = new_vec3(0, 1, 0);
+	double	dist_to_focus = 10.0;
+	const double	aperture = 0.05;
+	*camera = new_camera_default(lookfrom,
+							lookat,
+							vup,
+							20,
+							ASPECT_RATIO, 
+							aperture,
+							dist_to_focus);
+
 	t_texture	*checker = alloc_checker_texture(
 			alloc_solid_color(0.2, 0.3, 0.1),
 			alloc_solid_color(0.9, 0.9, 0.9)
@@ -172,24 +230,13 @@ int	main(void)
 	t_env		e;
 	const int	samples_per_pixel = 100;
 	const int	max_depth = 50;
-	t_point	lookfrom = new_point(13, 2, 3);
-	t_point	lookat= new_point(0, 0, 0);
-	t_vec3	vup = new_vec3(0, 1, 0);
-	double	dist_to_focus = 10.0;
-	const double	aperture = 0.05;
 	
-	t_camera	camera = new_camera_default(lookfrom,
-											lookat,
-											vup,
-											20,
-											ASPECT_RATIO, 
-											aperture,
-											dist_to_focus);
+	t_camera	camera;
 	e.mlx_ptr = mlx_init();
 	e.screen = init_screen(e.mlx_ptr);
 	t_hittable_list	world = {};
 
-	setup_world(&world);
+	setup_world(&camera, &world);
 
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
 	{

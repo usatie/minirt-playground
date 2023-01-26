@@ -30,6 +30,17 @@ t_dielectric	new_dielectric(double ref_idx)
 	return (self);
 }
 
+t_mixed_material	new_mixed_material(t_texture *albedo, double fuzz, double lambertian_ratio)
+{
+	t_mixed_material	self = {};
+
+	self.type = MIXED_MATERIAL;
+	self.albedo = albedo;
+	self.fuzz = fuzz;
+	self.lambertian_ratio = lambertian_ratio;
+	return (self);
+}
+
 t_lambertian	*alloc_lambertian(t_texture *albedo)
 {
 	t_lambertian	*self;
@@ -57,6 +68,15 @@ t_dielectric	*alloc_dielectric(double ref_idx)
 	return (self);
 }
 
+t_mixed_material	*alloc_mixed_material(t_texture *albedo, double fuzz, double lambertian_ratio)
+{
+	t_mixed_material	*self;
+
+	self = calloc(1, sizeof(*self));
+	*self = new_mixed_material(albedo, fuzz, lambertian_ratio);
+	return (self);
+}
+
 bool	lambertian_scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered)
 {
 	t_vec3	scatter_direction;
@@ -76,6 +96,17 @@ bool	metal_scatter(const t_material *self, const t_ray *r_in, const t_hit_record
 	*scattered = new_ray(rec->p, add_vec3(reflected, scalar_mul_vec3(self->fuzz, random_in_unit_sphere())));
 	*attenuation = texture_color_value(self->albedo, rec->u, rec->v, &(rec->p));
 	return (dot_vec3(scattered->direction, rec->normal) > 0);
+}
+
+bool	mixed_material_scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered)
+{
+	double	probability;
+
+	probability = random_double();
+	if (probability < self->lambertian_ratio)
+		return (lambertian_scatter(self, r_in, rec, attenuation, scattered));
+	else
+		return (metal_scatter(self, r_in, rec, attenuation, scattered));
 }
 
 double	schlick(double cosine, double ref_idx)
@@ -125,6 +156,8 @@ bool	scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec,
 		return (metal_scatter(self, r_in, rec, attenuation, scattered));
 	else if (self->type == DIELECTRIC)
 		return (dielectric_scatter(self, r_in, rec, attenuation, scattered));
+	else if (self->type == MIXED_MATERIAL)
+		return (mixed_material_scatter(self, r_in, rec, attenuation, scattered));
 	return (0);
 }
 
