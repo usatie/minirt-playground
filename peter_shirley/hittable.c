@@ -24,7 +24,7 @@ bool	hittable_list_hit(const t_hittable_list *self, const t_ray *r, double t_min
 	bool			hit_anything = false;
 	double			closest_so_far = t_max;
 
-	for (const t_hittable *object = self; object; object = object->next)
+	for (const t_hittable *object = self->next; object; object = object->next)
 	{
 		if (hit(object, r, t_min, closest_so_far, &temp_rec)) {
 			hit_anything = true;
