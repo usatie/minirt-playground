@@ -3,6 +3,7 @@
 
 # include <stdbool.h>
 # include "ray.h"
+# include "aabb.h"
 
 typedef struct s_hit_record	t_hit_record;
 typedef struct s_hittable	t_hittable;
@@ -36,6 +37,7 @@ struct s_hittable {
 	t_hittable		*next;
 };
 
+bool	bounding_box(const t_hittable *self, t_aabb *output_box);
 bool	hit_single(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec);
 void	set_face_normal(t_hit_record *self, const t_ray *r, const t_vec3 *outward_normal);
 
