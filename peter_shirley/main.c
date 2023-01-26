@@ -2,9 +2,6 @@
 #include "color.h"
 #include "mlx.h"
 
-#include "vec3.h"
-#include "ray.h"
-#include "sphere.h"
 #include "camera.h"
 #include "material.h"
 
