@@ -228,3 +228,59 @@ void	get_sphere_uv(const t_vec3 *p, double *u, double *v)
 	*u = 1 - (phi + M_PI) / (2 * M_PI);
 	*v = (theta + M_PI_2) / M_PI;
 }
+
+bool	box_compare(t_hittable)
+
+bool	box_x_compare(t_hittable *a, t_hittable *b)
+{
+	t_aabb	box_a;
+	t_aabb	box_b;
+
+	if (!bounding_box(a, &box_a) || !bounding_box(b, &box_b))
+		printf("no bounding box in bvh_node constructor\n");
+	return (box_a.min.x < box_b.min.x);
+}
+
+bool	box_y_compare(t_hittable *a, t_hittable *b)
+{
+	t_aabb	box_a;
+	t_aabb	box_b;
+
+	if (!bounding_box(a, &box_a) || !bounding_box(b, &box_b))
+		printf("no bounding box in bvh_node constructor\n");
+	return (box_a.min.y < box_b.min.y);
+}
+
+bool	box_z_compare(t_hittable *a, t_hittable *b)
+{
+	t_aabb	box_a;
+	t_aabb	box_b;
+
+	if (!bounding_box(a, &box_a) || !bounding_box(b, &box_b))
+		printf("no bounding box in bvh_node constructor\n");
+	return (box_a.min.z < box_b.min.z);
+}
+
+typedef bool	t_comparator(t_hittable *a, t_hittable *b);
+
+
+void	sort_hittable_list(t_hittable_list **start, t_hittable_list **end, t_comparator *comparator)
+{
+	t_hittable_list	*s;
+	t_hittable_list	*c;
+	t_hittable_list	*tmp;
+	t_hittable_list	*e;
+
+	s = *start;
+	c = (*start)->next;
+
+	while (s != *end)
+	{
+		while (c != *end)
+		{
+			if (!comparator(s, c))
+
+
+		}
+	}
+}

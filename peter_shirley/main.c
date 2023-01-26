@@ -46,6 +46,11 @@ double	random_double_range(double min, double max)
 	return (min + ((max - min) * random_double()));
 }
 
+int	random_int_range(int min, int max)
+{
+	return ( min + (rand() % (max - min + 1)));
+}
+
 double	clamp(double x, double min, double max)
 {
 	if (x < min)
@@ -66,7 +71,7 @@ void	setup_world(t_camera *camera, t_hittable_list *world)
 	*camera = new_camera_default(lookfrom,
 							lookat,
 							vup,
-							80,
+							40,
 							ASPECT_RATIO, 
 							aperture,
 							dist_to_focus);
@@ -108,8 +113,8 @@ void	setup_world(t_camera *camera, t_hittable_list *world)
 	hittable_list_add(world, sphere4);
 	hittable_list_add(world, sphere5);
 	hittable_list_add(world, sphere6);
-	//hittable_list_add(world, sphere7);
-	hittable_list_add(world, rect);
+	hittable_list_add(world, sphere7);
+	//hittable_list_add(world, rect);
 }
 
 
