@@ -403,7 +403,7 @@ void	setup_world7(t_camera *camera, t_hittable_list *world)
 int	main(void)
 {
 	t_env		e;
-	const int	samples_per_pixel = 100;
+	const int	samples_per_pixel = 1000;
 	const int	max_depth = 50;
 	
 	t_camera	camera;

@@ -186,7 +186,7 @@ t_const_medium	const_medium_new(t_hittable *b, double d, t_texture *a)
 
 	self.type = CONST_MEDIUM;
 	self.boundary = b;
-	self. neg_inv_density = d;
+	self. neg_inv_density = -1.0 / d;
 	self.phase_function = alloc_isotropic(a);
 	return (self);
 }
@@ -472,7 +472,10 @@ bool		const_medium_hit(const t_const_medium *self, const t_ray *r, double t_min,
 	rec->t = rec1.t + hit_distance / ray_len;
 	rec->p = ray_at(r, rec->t);
 
+	rec->normal = new_vec3(1, 0, 0);
+	rec->front_face = true;
 	rec->mat_ptr = self->phase_function;
+
 	return (true);
 
 }

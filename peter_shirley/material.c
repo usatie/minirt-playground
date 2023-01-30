@@ -201,7 +201,7 @@ bool	scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec,
 		return (dielectric_scatter(self, r_in, rec, attenuation, scattered));
 	else if (self->type == MIXED_MATERIAL)
 		return (mixed_material_scatter(self, r_in, rec, attenuation, scattered));
-	else if (self->type == CONST_MEDIUM)
+	else if (self->type == ISOTROPIC)
 		return (isotropic_scatter(self, r_in, rec, attenuation, scattered));
 	return (false);
 }
