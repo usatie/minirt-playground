@@ -269,7 +269,7 @@ void	setup_world6(t_camera *camera, t_hittable_list *world)
 	*camera = new_camera_default(lookfrom,
 							lookat,
 							vup,
-							30,
+							60,
 							ASPECT_RATIO, 
 							aperture,
 							dist_to_focus);
@@ -279,18 +279,21 @@ void	setup_world6(t_camera *camera, t_hittable_list *world)
 	t_material	*diff_light;
 	t_sphere	*sphere1;
 	t_sphere	*sphere2;
-	t_xy_rect	*rect;
+	t_xy_rect	*rect1;
+	t_xy_rect	*rect2;
 
 	pertext = alloc_noise_texture();
 	sphere1 = sphere_alloc(new_point(0, -1000, 0), 1000, alloc_lambertian(pertext));
 	sphere2 = sphere_alloc(new_point(0, 2, 0), 2, alloc_lambertian(pertext));
 
 	diff_light = alloc_diffuse_light(alloc_solid_color(4, 4, 4));
-	rect = xyrect_alloc(3, 5, 1, 3, -2, diff_light);
+	rect1 = xyrect_alloc(3, 5, 1, 3, -2, diff_light);
+	rect2 = xzrect_alloc(-1, 1, 2, 3, 5, diff_light);
 
 	hittable_list_add(world, sphere1);
 	hittable_list_add(world, sphere2);
-	hittable_list_add(world, rect);
+	hittable_list_add(world, rect1);
+	hittable_list_add(world, rect2);
 }
 
 int	main(void)

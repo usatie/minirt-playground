@@ -34,6 +34,33 @@ t_xy_rect	xyrect_new(double x0, double x1, double y0, double y1, double k, t_mat
 	return (self);
 }
 
+t_yz_rect	yzrect_new(double y0, double y1, double z0, double z1, double k, t_material *m)
+{
+	t_yz_rect	self = {};
+
+	self.type = YZ_RECT;
+	self.y0 = y0;
+	self.y1 = y1;
+	self.z0 = z0;
+	self.z1 = z1;
+	self.k = k;
+	self.mat_ptr = m;
+	return (self);
+}
+
+t_xz_rect	xzrect_new(double x0, double x1, double z0, double z1, double k, t_material *m)
+{
+	t_xz_rect	self = {};
+
+	self.type = XZ_RECT;
+	self.x0 = x0;
+	self.x1 = x1;
+	self.z0 = z0;
+	self.z1 = z1;
+	self.k = k;
+	self.mat_ptr = m;
+	return (self);
+}
 t_hittable_list	hittable_list_new(void)
 {
 	t_hittable_list	self = {};
@@ -101,6 +128,26 @@ t_xy_rect	*xyrect_alloc(double x0, double x1, double y0, double y1, double k, t_
 
 	self = calloc(1, sizeof(*self));
 	*self = xyrect_new(x0, x1, y0, y1, k, m);
+	return (self);
+}
+
+
+t_yz_rect	*yzrect_alloc(double y0, double y1, double z0, double z1, double k, t_material *m)
+{
+	t_xy_rect	*self;
+
+	self = calloc(1, sizeof(*self));
+	*self = yzrect_new(y0, y1, z0, z1, k, m);
+	return (self);
+}
+
+
+t_xz_rect	*xzrect_alloc(double x0, double x1, double z0, double z1, double k, t_material *m)
+{
+	t_xz_rect	*self;
+
+	self = calloc(1, sizeof(*self));
+	*self = xzrect_new(x0, x1, z0, z1, k, m);
 	return (self);
 }
 
@@ -179,6 +226,45 @@ bool	xyrect_hit(const t_xy_rect *self, const t_ray *r, double t_min, double t_ma
 	return (true);
 }
 
+bool	yzrect_hit(const t_xy_rect *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec)
+{
+	double	t = (self->k - r->origin.x) / r->direction.x;
+	if (t < t_min || t > t_max)
+		return (false);
+	double	z = r->origin.z + t * r->direction.z;
+	double	y = r->origin.y + t * r->direction.y;
+	if (z < self->z0 || z > self->z1 || y < self->y0 || y > self->y1)
+		return (false);
+	rec->u = (z - self->z0) / (self->z1 - self->z0);
+	rec->v = (y - self->y0) / (self->y1 - self->y0);
+	rec->t = t;
+	t_vec3	outward_normal = new_vec3(1, 0, 0);
+	set_face_normal(rec, r, &outward_normal);
+	rec->mat_ptr = self->mat_ptr;
+	rec->p = ray_at(r, t);
+	return (true);
+}
+
+bool	xzrect_hit(const t_xy_rect *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec)
+{
+	double	t = (self->k - r->origin.y) / r->direction.y;
+	if (t < t_min || t > t_max)
+		return (false);
+	double	x = r->origin.x + t * r->direction.x;
+	double	z = r->origin.z + t * r->direction.z;
+	if (x < self->x0 || x > self->x1 || z < self->z0 || z > self->z1)
+		return (false);
+	rec->u = (x - self->x0) / (self->x1 - self->x0);
+	rec->v = (z - self->z0) / (self->z1 - self->z0);
+	rec->t = t;
+	t_vec3	outward_normal = new_vec3(0, 1, 0);
+	set_face_normal(rec, r, &outward_normal);
+	rec->mat_ptr = self->mat_ptr;
+	rec->p = ray_at(r, t);
+	return (true);
+}
+
+
 bool	bvh_node_hit(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec)
 {
 	if (!hit_aabb(&(self->box), r, t_min, t_max))
@@ -211,6 +297,10 @@ bool	hit(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_h
 		return (sphere_hit(self, r, t_min, t_max, rec));
 	else if (self->type == XY_RECT)
 		return (xyrect_hit(self, r, t_min, t_max, rec));
+	else if (self->type == YZ_RECT)
+		return (yzrect_hit(self, r, t_min, t_max, rec));
+	else if (self->type == XZ_RECT)
+		return (xzrect_hit(self, r, t_min, t_max, rec));
 	else if (self->type == BVH_NODE)
 		return (bvh_node_hit(self, r, t_min, t_max, rec));
 	else if (self->type == HITTABLE_LIST)
@@ -239,6 +329,26 @@ bool	xyrect_bounding_box(const t_hittable *self, t_aabb *output_box)
 	return (true);
 }
 
+bool	yzrect_bounding_box(const t_hittable *self, t_aabb *output_box)
+{
+	t_vec3	a, b;
+
+	a = new_point(self->k - AABB_MIN_WIDTH, self->y0, self->z0);
+	b = new_point(self->k + AABB_MIN_WIDTH, self->y1, self->z1);
+	*output_box = new_aabb(&a, &b);
+	return (true);
+}
+
+bool	xzrect_bounding_box(const t_hittable *self, t_aabb *output_box)
+{
+	t_vec3	a, b;
+
+	a = new_point(self->x0, self->k - AABB_MIN_WIDTH,  self->z0);
+	b = new_point(self->x1, self->k + AABB_MIN_WIDTH, self->z1);
+	*output_box = new_aabb(&a, &b);
+	return (true);
+}
+
 bool	bvh_node_bounding_box(const t_hittable *self, t_aabb *output_box)
 {
 	*output_box = self->box;
@@ -251,6 +361,10 @@ bool	bounding_box(const t_hittable *self, t_aabb *output_box)
 		return (sphere_bounding_box(self, output_box));
 	else if (self->type == XY_RECT)
 		return (xyrect_bounding_box(self, output_box));
+	else if (self->type == YZ_RECT)
+		return (yzrect_bounding_box(self, output_box));
+	else if (self->type == XZ_RECT)
+		return (xzrect_bounding_box(self, output_box));
 	else if (self->type == BVH_NODE)
 		return (bvh_node_bounding_box(self, output_box));
 	else
