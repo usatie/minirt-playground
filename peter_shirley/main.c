@@ -400,10 +400,99 @@ void	setup_world7(t_camera *camera, t_hittable_list *world)
 	*/
 }
 
+void	setup_world8(t_camera *camera, t_hittable_list *world)
+{
+	// camera
+	t_point	lookfrom = new_point(278, 278, -800);
+	t_point	lookat= new_point(278, 278, 0);
+	t_vec3	vup = new_vec3(0, 1, 0);
+	double	dist_to_focus = 10.0;
+	const double	aperture = 0.0;
+	const double	vfov = 40.0;
+	*camera = new_camera_default(lookfrom,
+							lookat,
+							vup,
+							vfov,
+							ASPECT_RATIO, 
+							aperture,
+							dist_to_focus);
+
+	// geometries
+	t_hittable_list	boxes1 = {};
+	t_material		*ground = alloc_lambertian(alloc_solid_color(0.48, 0.83, 0.53));
+	const int	boxes_per_side = 20;
+	for (int i = 0; i < boxes_per_side; i++) {
+		for (int j = 0; j < boxes_per_side; j++) {
+			double	w = 100.0;
+			double	x0 = -1000.0 + i*w;
+			double	z0 = -1000.0 + j*w;
+			double	y0 = 0.0;
+			double	x1 = x0 + w;
+			double	y1 = random_double_range(1, 101);
+			double	z1 = z0 + w;
+			t_vec3	p0 = new_point(x0, y0, z0);
+			t_vec3	p1 = new_point(x1, y1, z1);
+			hittable_list_add(&boxes1, box_alloc(&p0, &p1, ground));
+		}
+	}
+
+	//t_hittable_list	*objects = hittable_list_alloc();
+
+	// ground boxes
+	hittable_list_add(world, alloc_bvh_node(boxes1.next, NULL));
+
+	// light
+	t_material	*light = alloc_diffuse_light(alloc_solid_color(7, 7, 7));
+	hittable_list_add(world, xzrect_alloc(123, 423, 147, 412, 554, light));
+
+	// moving sphere
+	t_point	center1 = new_point(400, 400, 200);
+	t_point	center2 = add_vec3(center1, new_vec3(30, 0, 0));
+	t_material	*moving_sphere_material = alloc_lambertian(alloc_solid_color(0.7, 0.3, 0.1));
+	hittable_list_add(world, sphere_alloc(center2, 50, moving_sphere_material));
+
+	// glass sphere
+	hittable_list_add(world, sphere_alloc(new_point(260, 150, 45), 50, alloc_dielectric(1.5)));
+	// metal sphere
+	hittable_list_add(world, sphere_alloc(new_point(0, 150, 145), 50, alloc_metal(alloc_solid_color(0.8, 0.8, 0.9), 10.0)));
+
+	// Blue smoke in glass sphere
+	t_sphere	*boundary = sphere_alloc(new_point(360, 150, 145), 70, alloc_dielectric(1.5));
+	hittable_list_add(world, boundary);
+	hittable_list_add(world, const_medium_alloc(boundary, 0.2, alloc_solid_color(0.2, 0.4, 0.9)));
+
+	// White smoke in the room
+	boundary = sphere_alloc(new_point(0, 0, 0), 5000, alloc_dielectric(1.5));
+	hittable_list_add(world, const_medium_alloc(boundary, 0.0001, alloc_solid_color(1, 1, 1)));
+
+	// earth sphere
+	t_material	*emat = alloc_lambertian(alloc_solid_color(0, 0, 1));
+	hittable_list_add(world, sphere_alloc(new_point(400, 200, 400), 100, emat));
+
+	// noise sphere
+	t_texture	*pertext = alloc_noise_texture();
+	hittable_list_add(world, sphere_alloc(new_point(220, 280, 300), 80, alloc_lambertian(pertext)));
+
+	// takagi
+    t_hittable_list    *boxes2 = hittable_list_alloc();
+    t_material    *white = alloc_lambertian(alloc_solid_color(.73, .73, .73));
+    int ns = 1000;
+    for (int j = 0; j < ns; j++) {
+        hittable_list_add(boxes2, sphere_alloc(random_range_vec3(0, 165), 10, white));
+    }
+	t_vec3	offset = new_vec3(-100, 270, 395);
+	hittable_list_add(
+		world,
+		translate_alloc(rotate_y_alloc(
+			alloc_bvh_node(boxes2, NULL), 15), 
+			&offset
+		)
+	);
+}
 int	main(void)
 {
 	t_env		e;
-	const int	samples_per_pixel = 1000;
+	const int	samples_per_pixel = 100;
 	const int	max_depth = 50;
 	
 	t_camera	camera;
@@ -412,7 +501,7 @@ int	main(void)
 	t_hittable_list	world = {};
 
 	world.type = HITTABLE_LIST;
-	setup_world7(&camera, &world);
+	setup_world8(&camera, &world);
 
 	world = new_bvh_node(world.next, NULL);
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)

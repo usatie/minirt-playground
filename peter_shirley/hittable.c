@@ -186,7 +186,7 @@ t_const_medium	const_medium_new(t_hittable *b, double d, t_texture *a)
 
 	self.type = CONST_MEDIUM;
 	self.boundary = b;
-	self. neg_inv_density = -1.0 / d;
+	self.neg_inv_density = -1.0 / d;
 	self.phase_function = alloc_isotropic(a);
 	return (self);
 }
@@ -200,9 +200,6 @@ t_sphere	*sphere_alloc(t_point cen, double r, t_material *m)
 	*self = sphere_new(cen, r, m);
 	return (self);
 }
-
-
-
 
 t_xy_rect	*xyrect_alloc(double x0, double x1, double y0, double y1, double k, t_material *m)
 {
