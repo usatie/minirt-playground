@@ -296,6 +296,33 @@ void	setup_world6(t_camera *camera, t_hittable_list *world)
 	hittable_list_add(world, rect2);
 }
 
+// cornel_box
+t_hittable_list	cornel_box(void)
+{
+	t_hittable_list	objects = {};
+
+	t_material	*red = alloc_lambertian(alloc_solid_color(.65, .05, .05));
+	t_material	*white = alloc_lambertian(alloc_solid_color(.73, .73, .73));
+	t_material	*green = alloc_lambertian(alloc_solid_color(.12, .45, .15));
+	t_material	*light = alloc_diffuse_light(alloc_solid_color(15, 15, 15));
+
+	hittable_list_add(&objects, yzrect_alloc(0, 555, 0, 555, 555, green));
+	hittable_list_add(&objects, yzrect_alloc(0, 555, 0, 555, 0, red));
+	hittable_list_add(&objects, xzrect_alloc(213, 343, 227, 332, 554, light));
+	hittable_list_add(&objects, xzrect_alloc(0, 555, 0, 555, 0, white));
+	hittable_list_add(&objects, xzrect_alloc(0, 555, 0, 555, 555, white));
+	hittable_list_add(&objects, xyrect_alloc(0, 555, 0, 555, 555, white));
+	t_vec3	p0, p1;
+
+	p0 = new_point(130, 0, 65);
+	p1 = new_point(295, 165, 230);
+	hittable_list_add(&objects, box_alloc(&p0, &p1, white));
+	p0 = new_point(265, 0, 295);
+	p1 = new_point(430, 330, 460);
+	hittable_list_add(&objects, box_alloc(&p0, &p1, white));
+	return (objects);
+}
+
 void	setup_world7(t_camera *camera, t_hittable_list *world)
 {
 	// camera
@@ -325,7 +352,7 @@ void	setup_world7(t_camera *camera, t_hittable_list *world)
 int	main(void)
 {
 	t_env		e;
-	const int	samples_per_pixel = 100;
+	const int	samples_per_pixel = 300;
 	const int	max_depth = 50;
 	
 	t_camera	camera;

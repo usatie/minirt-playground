@@ -1,8 +1,8 @@
 #ifndef RTWEEKEND_H
 # define RTWEEKEND_H
 
-# define ASPECT_RATIO (16.0 / 9.0)
-# define WIN_WIDTH 300
+# define ASPECT_RATIO 1.0
+# define WIN_WIDTH 200
 # define WIN_HEIGHT (int)(WIN_WIDTH / ASPECT_RATIO)
 
 # include <stdbool.h>

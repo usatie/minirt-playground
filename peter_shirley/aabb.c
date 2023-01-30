@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "aabb.h"
 
-t_aabb	new_aabb(t_point *a, t_point *b)
+t_aabb	new_aabb(const t_point *a, const t_point *b)
 {
 	t_aabb	self;
 
@@ -10,7 +10,7 @@ t_aabb	new_aabb(t_point *a, t_point *b)
 	return (self);
 }
 
-t_aabb	*alloc_aabb(t_point *a, t_point *b)
+t_aabb	*alloc_aabb(const t_point *a, const t_point *b)
 {
 	t_aabb	*self;
 

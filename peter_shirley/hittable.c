@@ -7,26 +7,6 @@ bool	box_z_compare(t_hittable *a, t_hittable *b);
 void	sort_hittable_list(t_hittable_list *s, t_hittable_list *e, t_comparator *comparator);
 void	get_sphere_uv(const t_vec3 *p, double *u, double *v);
 
-// cornel_box
-#include "material.h"
-t_hittable_list	cornel_box(void)
-{
-	t_hittable_list	objects = {};
-
-	t_material	*red = alloc_lambertian(alloc_solid_color(.65, .05, .05));
-	t_material	*white = alloc_lambertian(alloc_solid_color(.73, .73, .73));
-	t_material	*green = alloc_lambertian(alloc_solid_color(.12, .45, .15));
-	t_material	*light = alloc_diffuse_light(alloc_solid_color(15, 15, 15));
-
-	hittable_list_add(&objects, yzrect_alloc(0, 555, 0, 555, 555, green));
-	hittable_list_add(&objects, yzrect_alloc(0, 555, 0, 555, 0, red));
-	hittable_list_add(&objects, xzrect_alloc(213, 343, 227, 332, 554, light));
-	hittable_list_add(&objects, xzrect_alloc(0, 555, 0, 555, 0, white));
-	hittable_list_add(&objects, xzrect_alloc(0, 555, 0, 555, 555, white));
-	hittable_list_add(&objects, xyrect_alloc(0, 555, 0, 555, 555, white));
-	return (objects);
-}
-
 // new
 t_sphere	sphere_new(t_point cen, double r, t_material *m)
 {
@@ -81,6 +61,27 @@ t_xz_rect	xzrect_new(double x0, double x1, double z0, double z1, double k, t_mat
 	self.mat_ptr = m;
 	return (self);
 }
+
+t_box		box_new(const t_point *p0, const t_point *p1, t_material *ptr)
+{
+	t_box	self = {};
+
+	self.type = BOX;
+	self.box_min = *p0;
+	self.box_max = *p1;
+	self.sides = hittable_list_alloc();
+
+	hittable_list_add(self.sides, xyrect_alloc(p0->x, p1->x, p0->y, p1->y, p1->z, ptr));
+	hittable_list_add(self.sides, xyrect_alloc(p0->x, p1->x, p0->y, p1->y, p0->z, ptr));
+
+	hittable_list_add(self.sides, xzrect_alloc(p0->x, p1->x, p0->z, p1->z, p1->y, ptr));
+	hittable_list_add(self.sides, xzrect_alloc(p0->x, p1->x, p0->z, p1->z, p0->y, ptr));
+
+	hittable_list_add(self.sides, yzrect_alloc(p0->y, p1->y, p0->z, p1->z, p1->x, ptr));
+	hittable_list_add(self.sides, yzrect_alloc(p0->y, p1->y, p0->z, p1->z, p0->x, ptr));
+	return (self);
+}
+
 t_hittable_list	hittable_list_new(void)
 {
 	t_hittable_list	self = {};
@@ -168,6 +169,15 @@ t_xz_rect	*xzrect_alloc(double x0, double x1, double z0, double z1, double k, t_
 
 	self = calloc(1, sizeof(*self));
 	*self = xzrect_new(x0, x1, z0, z1, k, m);
+	return (self);
+}
+
+t_box		*box_alloc(const t_point *p0, const t_point *p1, t_material *m)
+{
+	t_box	*self;
+
+	self = calloc(1, sizeof(*self));
+	*self = box_new(p0, p1, m);
 	return (self);
 }
 
@@ -284,6 +294,10 @@ bool	xzrect_hit(const t_xy_rect *self, const t_ray *r, double t_min, double t_ma
 	return (true);
 }
 
+bool	box_hit(const t_xy_rect *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec)
+{
+	return (hit(self->sides, r, t_min, t_max, rec));
+}
 
 bool	bvh_node_hit(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec)
 {
@@ -321,6 +335,8 @@ bool	hit(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_h
 		return (yzrect_hit(self, r, t_min, t_max, rec));
 	else if (self->type == XZ_RECT)
 		return (xzrect_hit(self, r, t_min, t_max, rec));
+	else if (self->type == BOX)
+		return (box_hit(self, r, t_min, t_max, rec));
 	else if (self->type == BVH_NODE)
 		return (bvh_node_hit(self, r, t_min, t_max, rec));
 	else if (self->type == HITTABLE_LIST)
@@ -369,6 +385,12 @@ bool	xzrect_bounding_box(const t_hittable *self, t_aabb *output_box)
 	return (true);
 }
 
+bool	box_bounding_box(const t_hittable *self, t_aabb *output_box)
+{
+	*output_box = new_aabb(&self->box_min, &self->box_max);
+	return (true);
+}
+
 bool	bvh_node_bounding_box(const t_hittable *self, t_aabb *output_box)
 {
 	*output_box = self->box;
@@ -385,6 +407,8 @@ bool	bounding_box(const t_hittable *self, t_aabb *output_box)
 		return (yzrect_bounding_box(self, output_box));
 	else if (self->type == XZ_RECT)
 		return (xzrect_bounding_box(self, output_box));
+	else if (self->type == BOX)
+		return (box_bounding_box(self, output_box));
 	else if (self->type == BVH_NODE)
 		return (bvh_node_bounding_box(self, output_box));
 	else
