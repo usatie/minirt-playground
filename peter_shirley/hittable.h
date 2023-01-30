@@ -17,6 +17,7 @@ typedef t_hittable	t_box;
 typedef t_hittable t_hittable_list;
 typedef t_hittable	t_bvh_node;
 typedef t_hittable	t_translate;
+typedef t_hittable	t_rotate_y;
 typedef bool	t_comparator(t_hittable *a, t_hittable *b);
 
 enum e_hittable_type {
@@ -28,6 +29,7 @@ enum e_hittable_type {
 	HITTABLE_LIST,
 	BVH_NODE,
 	TRANSLATE,
+	ROTATE_Y,
 };
 typedef enum e_hittable_type	t_hittable_type;
 
@@ -58,10 +60,17 @@ struct s_hittable {
 	// BVH_NODE
 	t_hittable		*left;
 	t_hittable		*right;
+	// BVH_NODE, ROTATE_*
 	t_aabb			box;
-	//instance translate
+
+	// TRANSLATE, ROTATE_*
 	t_hittable		*ptr;
+	// TRANSLATE
 	t_vec3			offset;
+	// ROTATE
+	double			sin_theta;
+	double			cos_theta;
+	bool			hasbox;
 };
 
 void	set_face_normal(t_hit_record *self, const t_ray *r, const t_vec3 *outward_normal);
@@ -72,17 +81,19 @@ bool	bounding_box(const t_hittable *self, t_aabb *output_box);
 t_sphere	sphere_new(t_point cen, double r, t_material *m);
 t_xy_rect	xyrect_new(double x0, double x1, double y0, double y1, double k, t_material *m);
 t_bvh_node	new_bvh_node(t_hittable_list *s, t_hittable_list *e);
+t_rotate_y	rotate_y_new(t_hittable *p, double angle);
 
 // alloc
-t_sphere	*sphere_alloc(t_point cen, double r, t_material *m);
-t_xy_rect	*xyrect_alloc(double x0, double x1, double y0, double y1, double k, t_material *m);
-t_bvh_node	*alloc_bvh_node(t_hittable_list *s, t_hittable_list *e);
-t_yz_rect	*yzrect_alloc(double y0, double y1, double z0, double z1, double k, t_material *m);
-t_xz_rect	*xzrect_alloc(double x0, double x1, double z0, double z1, double k, t_material *m);
+t_sphere		*sphere_alloc(t_point cen, double r, t_material *m);
+t_xy_rect		*xyrect_alloc(double x0, double x1, double y0, double y1, double k, t_material *m);
+t_bvh_node		*alloc_bvh_node(t_hittable_list *s, t_hittable_list *e);
+t_yz_rect		*yzrect_alloc(double y0, double y1, double z0, double z1, double k, t_material *m);
+t_xz_rect		*xzrect_alloc(double x0, double x1, double z0, double z1, double k, t_material *m);
 t_hittable_list	*hittable_list_alloc(void);
-t_box		box_new(const t_point *p0, const t_point *p1, t_material *m);
-t_box		*box_alloc(const t_point *p0, const t_point *p1, t_material *m);
+t_box			box_new(const t_point *p0, const t_point *p1, t_material *m);
+t_box			*box_alloc(const t_point *p0, const t_point *p1, t_material *m);
 t_translate		*translate_alloc(t_hittable *p, const t_vec3 *displacement);
+t_rotate_y		*rotate_y_alloc(t_hittable *p, double angle);
 
 // hittable_list
 void	hittable_list_add(t_hittable_list *self, t_hittable *object);

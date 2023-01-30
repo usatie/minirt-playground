@@ -310,17 +310,27 @@ t_hittable_list	cornel_box(void)
 	hittable_list_add(&objects, xzrect_alloc(0, 555, 0, 555, 0, white));
 	hittable_list_add(&objects, xzrect_alloc(0, 555, 0, 555, 555, white));
 	hittable_list_add(&objects, xyrect_alloc(0, 555, 0, 555, 555, white));
-	t_vec3	p0, p1;
 
-	p0 = new_point(130, 0, 65);
-	p1 = new_point(295, 165, 230);
-	hittable_list_add(&objects, box_alloc(&p0, &p1, white));
-	p0 = new_point(265, 0, 295);
-	p1 = new_point(430, 330, 460);
-	t_hittable *box1 = box_alloc(&p0, &p1, white);
-	t_vec3	offset = new_vec3(130, 0, 65);
+	t_vec3	p0, p1, offset;
+	t_hittable	*box1, *box2;
+
+	// box1
+	p0 = new_point(0, 0, 0);
+	p1 = new_point(165, 330, 165);
+	box1 = box_alloc(&p0, &p1, white);
+	box1 = rotate_y_alloc(box1, 15);
+	offset = new_vec3(265, 0, 295);
 	box1 = translate_alloc(box1, &offset);
 	hittable_list_add(&objects, box1);
+
+	// box2
+	p0 = new_point(0, 0, 0);
+	p1 = new_point(165, 165, 165);
+	box2 = box_alloc(&p0, &p1, white);
+	box2 = rotate_y_alloc(box2, -18);
+	offset = new_vec3(130, 0, 65);
+	box2 = translate_alloc(box2, &offset);
+	hittable_list_add(&objects, box2);
 	return (objects);
 }
 
@@ -353,7 +363,7 @@ void	setup_world7(t_camera *camera, t_hittable_list *world)
 int	main(void)
 {
 	t_env		e;
-	const int	samples_per_pixel = 300;
+	const int	samples_per_pixel = 100;
 	const int	max_depth = 50;
 	
 	t_camera	camera;

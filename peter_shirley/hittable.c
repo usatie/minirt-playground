@@ -143,6 +143,42 @@ t_translate	translate_new(t_hittable *p, const t_vec3 *displacement)
 	return (self);
 }
 
+t_rotate_y		rotate_y_new(t_hittable *p, double angle)
+{
+	t_xz_rect	self = {};
+	double		radians = degrees_to_radians(angle);
+
+	self.type = ROTATE_Y;
+	self.ptr = p;
+	self.sin_theta = sin(radians);
+	self.cos_theta = cos(radians);
+	self.hasbox = bounding_box(self.ptr, &self.box);
+
+	t_vec3	min = new_point(INFINITY, INFINITY, INFINITY);
+	t_vec3	max = new_point(-INFINITY, -INFINITY, -INFINITY);
+	for (int i = 0; i < 2; i++) {
+		for (int j = 0; j < 2; j++) {
+			for (int k = 0; k < 2; k++) {
+				double	x = i * self.box.max.x + (1-i) * self.box.min.x;
+				double	y = j * self.box.max.x + (1-j) * self.box.min.x;
+				double	z = k * self.box.max.x + (1-k) * self.box.min.x;
+				double	newx = self.cos_theta * x + self.sin_theta * z;
+				double	newz = -self.sin_theta * x + self.cos_theta * z;
+
+				t_vec3	tester = new_point(newx, y, newz);
+				min.x = fmin(min.x, tester.x);
+				max.x = fmax(max.x, tester.x);
+				min.y = fmin(min.y, tester.y);
+				max.y = fmax(max.y, tester.y);
+				min.z = fmin(min.z, tester.z);
+				max.z = fmax(max.z, tester.z);
+			}
+		}
+	}
+	self.box = new_aabb(&min, &max);
+	return (self);
+}
+
 // alloc
 t_sphere	*sphere_alloc(t_point cen, double r, t_material *m)
 {
@@ -215,6 +251,15 @@ t_translate		*translate_alloc(t_hittable *p, const t_vec3 *displacement)
 
 	self = calloc(1, sizeof(*self));
 	*self = translate_new(p, displacement);
+	return (self);
+}
+
+t_rotate_y		*rotate_y_alloc(t_hittable *p, double angle)
+{
+	t_rotate_y	*self;
+
+	self = calloc(1, sizeof(*self));
+	*self = rotate_y_new(p, angle);
 	return (self);
 }
 
@@ -353,6 +398,30 @@ bool		translate_hit(const t_translate *self, const t_ray *r, double t_min, doubl
 	return (true);
 }
 
+bool	rotate_y_hit(const t_translate *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec)
+{
+	t_point	origin = r->origin;
+	t_vec3	direction = r->direction;
+	origin.x = self->cos_theta * r->origin.x - self->sin_theta * r->origin.z;
+	origin.z = self->sin_theta * r->origin.x + self->cos_theta * r->origin.z;
+	direction.x = self->cos_theta * r->direction.x - self->sin_theta * r->direction.z;
+	direction.z = self->sin_theta * r->direction.x + self->cos_theta * r->direction.z;
+	t_ray	rotated_r = new_ray(origin, direction);
+	if (!hit(self->ptr, &rotated_r, t_min, t_max, rec))
+		return (false);
+
+	t_point	p = rec->p;
+	t_vec3	normal = rec->normal;
+	p.x = self->cos_theta * rec->p.x + self->sin_theta * rec->p.z;
+	p.z = -self->sin_theta * rec->p.x + self->cos_theta * rec->p.z;
+	normal.x = self->cos_theta * rec->normal.x + self->sin_theta * rec->normal.z;
+	normal.z = -self->sin_theta * rec->normal.x + self->cos_theta * rec->normal.z;
+
+	rec->p = p;
+	set_face_normal(rec, &rotated_r, &normal);
+	return (true);
+}
+
 bool	hit(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec)
 {
 	if (self->type == SPHERE)
@@ -371,6 +440,8 @@ bool	hit(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_h
 		return (hittable_list_hit(self, r, t_min, t_max, rec));
 	else if (self->type == TRANSLATE)
 		return (translate_hit(self, r, t_min, t_max, rec));
+	else if (self->type == ROTATE_Y)
+		return (rotate_y_hit(self, r, t_min, t_max, rec));
 	else
 		return (false);
 }
@@ -437,6 +508,12 @@ bool	translate_bounding_box(const t_hittable *self, t_aabb *output_box)
 	return (true);
 }
 
+bool	rotate_y_bounding_box(const t_hittable *self, t_aabb *output_box)
+{
+	*output_box = self->box;
+	return (self->hasbox);
+}
+
 bool	bounding_box(const t_hittable *self, t_aabb *output_box)
 {
 	if (self->type == SPHERE)
@@ -453,6 +530,8 @@ bool	bounding_box(const t_hittable *self, t_aabb *output_box)
 		return (bvh_node_bounding_box(self, output_box));
 	else if (self->type == TRANSLATE)
 		return (translate_bounding_box(self, output_box));
+	else if (self->type == ROTATE_Y)
+		return (rotate_y_bounding_box(self, output_box));
 	else
 		return (false);
 }
