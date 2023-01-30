@@ -8,6 +8,7 @@
 typedef struct s_hit_record	t_hit_record;
 typedef struct s_hittable	t_hittable;
 typedef struct s_material	t_material;
+typedef struct s_texture	t_texture;
 
 typedef t_hittable	t_sphere;
 typedef t_hittable	t_xy_rect;
@@ -18,6 +19,7 @@ typedef t_hittable t_hittable_list;
 typedef t_hittable	t_bvh_node;
 typedef t_hittable	t_translate;
 typedef t_hittable	t_rotate_y;
+typedef t_hittable	t_const_medium;
 typedef bool	t_comparator(t_hittable *a, t_hittable *b);
 
 enum e_hittable_type {
@@ -30,6 +32,7 @@ enum e_hittable_type {
 	BVH_NODE,
 	TRANSLATE,
 	ROTATE_Y,
+	CONST_MEDIUM,
 };
 typedef enum e_hittable_type	t_hittable_type;
 
@@ -71,6 +74,10 @@ struct s_hittable {
 	double			sin_theta;
 	double			cos_theta;
 	bool			hasbox;
+	//constant_medium
+	t_hittable		*boundary;
+	t_material		*phase_function;
+	double			neg_inv_density;
 };
 
 void	set_face_normal(t_hit_record *self, const t_ray *r, const t_vec3 *outward_normal);
@@ -94,6 +101,7 @@ t_box			box_new(const t_point *p0, const t_point *p1, t_material *m);
 t_box			*box_alloc(const t_point *p0, const t_point *p1, t_material *m);
 t_translate		*translate_alloc(t_hittable *p, const t_vec3 *displacement);
 t_rotate_y		*rotate_y_alloc(t_hittable *p, double angle);
+t_const_medium	*const_medium_alloc(t_hittable *b, double d, t_texture *a);
 
 // hittable_list
 void	hittable_list_add(t_hittable_list *self, t_hittable *object);

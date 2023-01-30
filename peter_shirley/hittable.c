@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "hittable.h"
+#include "material.h"
 
 bool	box_x_compare(t_hittable *a, t_hittable *b);
 bool	box_y_compare(t_hittable *a, t_hittable *b);
@@ -135,7 +136,7 @@ t_bvh_node	new_bvh_node(t_hittable_list *s, t_hittable_list *e)
 
 t_translate	translate_new(t_hittable *p, const t_vec3 *displacement)
 {
-	t_xz_rect	self = {};
+	t_translate	self = {};
 
 	self.type = TRANSLATE;
 	self.ptr = p;
@@ -145,7 +146,7 @@ t_translate	translate_new(t_hittable *p, const t_vec3 *displacement)
 
 t_rotate_y		rotate_y_new(t_hittable *p, double angle)
 {
-	t_xz_rect	self = {};
+	t_rotate_y	self = {};
 	double		radians = degrees_to_radians(angle);
 
 	self.type = ROTATE_Y;
@@ -179,6 +180,17 @@ t_rotate_y		rotate_y_new(t_hittable *p, double angle)
 	return (self);
 }
 
+t_const_medium	const_medium_new(t_hittable *b, double d, t_texture *a)
+{
+	t_const_medium	self = {};
+
+	self.type = CONST_MEDIUM;
+	self.boundary = b;
+	self. neg_inv_density = d;
+	self.phase_function = alloc_isotropic(a);
+	return (self);
+}
+
 // alloc
 t_sphere	*sphere_alloc(t_point cen, double r, t_material *m)
 {
@@ -188,6 +200,9 @@ t_sphere	*sphere_alloc(t_point cen, double r, t_material *m)
 	*self = sphere_new(cen, r, m);
 	return (self);
 }
+
+
+
 
 t_xy_rect	*xyrect_alloc(double x0, double x1, double y0, double y1, double k, t_material *m)
 {
@@ -260,6 +275,15 @@ t_rotate_y		*rotate_y_alloc(t_hittable *p, double angle)
 
 	self = calloc(1, sizeof(*self));
 	*self = rotate_y_new(p, angle);
+	return (self);
+}
+
+t_const_medium	*const_medium_alloc(t_hittable *b, double d, t_texture *a)
+{
+	t_const_medium	*self;
+
+	self = calloc(1, sizeof(*self));
+	*self = const_medium_new(b, d, a);
 	return (self);
 }
 
@@ -422,6 +446,37 @@ bool	rotate_y_hit(const t_translate *self, const t_ray *r, double t_min, double 
 	return (true);
 }
 
+bool		const_medium_hit(const t_const_medium *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec)
+{
+	t_hit_record rec1, rec2;
+
+	if (!hit(self->boundary, r, -INFINITY, INFINITY, &rec1))
+		return (false);
+	if (!hit(self->boundary, r, rec1.t + 0.0001, INFINITY, &rec2))
+		return (false);
+
+	if (rec1.t < t_min) rec1.t = t_min;
+	if (rec2.t > t_max) rec2.t = t_max;
+
+	if (rec1.t >= rec2.t)
+		return (false);
+	if (rec1.t < 0)
+		rec1.t = 0;
+	const double ray_len = length_vec3(r->direction);
+	const double distance_inside_boundary = (rec2.t - rec1.t) * ray_len;
+	const double hit_distance = self->neg_inv_density * log(random_double());
+
+	if (hit_distance > distance_inside_boundary)
+		return (false);
+	
+	rec->t = rec1.t + hit_distance / ray_len;
+	rec->p = ray_at(r, rec->t);
+
+	rec->mat_ptr = self->phase_function;
+	return (true);
+
+}
+
 bool	hit(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec)
 {
 	if (self->type == SPHERE)
@@ -442,6 +497,8 @@ bool	hit(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_h
 		return (translate_hit(self, r, t_min, t_max, rec));
 	else if (self->type == ROTATE_Y)
 		return (rotate_y_hit(self, r, t_min, t_max, rec));
+	else if (self->type == CONST_MEDIUM)
+		return (const_medium_hit(self, r, t_min, t_max, rec));
 	else
 		return (false);
 }
@@ -514,6 +571,11 @@ bool	rotate_y_bounding_box(const t_hittable *self, t_aabb *output_box)
 	return (self->hasbox);
 }
 
+bool	const_medium_bounding_box(const t_hittable *self, t_aabb *output_box)
+{
+	return (bounding_box(self->boundary, output_box));
+}
+
 bool	bounding_box(const t_hittable *self, t_aabb *output_box)
 {
 	if (self->type == SPHERE)
@@ -532,6 +594,8 @@ bool	bounding_box(const t_hittable *self, t_aabb *output_box)
 		return (translate_bounding_box(self, output_box));
 	else if (self->type == ROTATE_Y)
 		return (rotate_y_bounding_box(self, output_box));
+	else if (self->type == CONST_MEDIUM)
+		return (const_medium_bounding_box(self, output_box));
 	else
 		return (false);
 }

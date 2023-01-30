@@ -295,7 +295,7 @@ void	setup_world6(t_camera *camera, t_hittable_list *world)
 }
 
 // cornel_box
-t_hittable_list	cornel_box(void)
+t_hittable_list	cornel_box1(void)
 {
 	t_hittable_list	objects = {};
 
@@ -334,6 +334,46 @@ t_hittable_list	cornel_box(void)
 	return (objects);
 }
 
+t_hittable_list	cornel_box2(void)
+{
+	t_hittable_list	objects = {};
+
+	t_material	*red = alloc_lambertian(alloc_solid_color(.65, .05, .05));
+	t_material	*white = alloc_lambertian(alloc_solid_color(.73, .73, .73));
+	t_material	*green = alloc_lambertian(alloc_solid_color(.12, .45, .15));
+	t_material	*light = alloc_diffuse_light(alloc_solid_color(7, 7, 7));
+
+	hittable_list_add(&objects, yzrect_alloc(0, 555, 0, 555, 555, green));
+	hittable_list_add(&objects, yzrect_alloc(0, 555, 0, 555, 0, red));
+	hittable_list_add(&objects, xzrect_alloc(113, 443, 127, 432, 554, light));
+	hittable_list_add(&objects, xzrect_alloc(0, 555, 0, 555, 0, white));
+	hittable_list_add(&objects, xzrect_alloc(0, 555, 0, 555, 555, white));
+	hittable_list_add(&objects, xyrect_alloc(0, 555, 0, 555, 555, white));
+
+	t_vec3	p0, p1, offset;
+	t_hittable	*box1, *box2;
+
+	// box1
+	p0 = new_point(0, 0, 0);
+	p1 = new_point(165, 330, 165);
+	box1 = box_alloc(&p0, &p1, white);
+	box1 = rotate_y_alloc(box1, 15);
+	offset = new_vec3(265, 0, 295);
+	box1 = translate_alloc(box1, &offset);
+	hittable_list_add(&objects, const_medium_alloc(box1, 0.01, alloc_solid_color(0, 0, 0)));
+
+	// box2
+	p0 = new_point(0, 0, 0);
+	p1 = new_point(165, 165, 165);
+	box2 = box_alloc(&p0, &p1, white);
+	box2 = rotate_y_alloc(box2, -18);
+	offset = new_vec3(130, 0, 65);
+	box2 = translate_alloc(box2, &offset);
+	hittable_list_add(&objects, const_medium_alloc(box2, 0.01, alloc_solid_color(1, 1, 1)));
+	return (objects);
+}
+
+
 void	setup_world7(t_camera *camera, t_hittable_list *world)
 {
 	// camera
@@ -352,7 +392,7 @@ void	setup_world7(t_camera *camera, t_hittable_list *world)
 							dist_to_focus);
 
 	// geometries
-	*world = cornel_box();
+	*world = cornel_box2();
 	/*
 	t_material	*green = alloc_lambertian(alloc_solid_color(.12, .45, .15));
 	hittable_list_add(world, sphere_alloc(new_point(200, 200, 200), 100, green));

@@ -50,6 +50,15 @@ t_diffuse_light	new_diffuse_light(t_texture *emit)
 	return (self);
 }
 
+t_isotropic	new_isotropic(t_texture *albedo)
+{
+	t_isotropic	self = {};
+
+	self.type = ISOTROPIC;
+	self.albedo = albedo;
+	return (self);
+}
+
 t_lambertian	*alloc_lambertian(t_texture *albedo)
 {
 	t_lambertian	*self;
@@ -92,6 +101,15 @@ t_diffuse_light	*alloc_diffuse_light(t_texture *emit)
 
 	self = calloc(1, sizeof(*self));
 	*self = new_diffuse_light(emit);
+	return (self);
+}
+
+t_isotropic	*alloc_isotropic(t_texture *albedo)
+{
+	t_isotropic	*self;
+
+	self = calloc(1, sizeof(*self));
+	*self = new_isotropic(albedo);
 	return (self);
 }
 
@@ -166,6 +184,12 @@ bool	dielectric_scatter(const t_material *self, const t_ray *r_in, const t_hit_r
 	return (true);
 }
 
+bool	isotropic_scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered)
+{
+	*scattered = new_ray(rec->p, random_in_unit_sphere());
+	*attenuation = texture_color_value(self->albedo, rec->u, rec->v, &(rec->p));
+	return (true);
+}
 
 bool	scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec, t_color *attenuation, t_ray *scattered)
 {
@@ -177,6 +201,8 @@ bool	scatter(const t_material *self, const t_ray *r_in, const t_hit_record *rec,
 		return (dielectric_scatter(self, r_in, rec, attenuation, scattered));
 	else if (self->type == MIXED_MATERIAL)
 		return (mixed_material_scatter(self, r_in, rec, attenuation, scattered));
+	else if (self->type == CONST_MEDIUM)
+		return (isotropic_scatter(self, r_in, rec, attenuation, scattered));
 	return (false);
 }
 
