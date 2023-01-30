@@ -1,10 +1,7 @@
 #ifndef TEXTURE_H
 #define TEXTURE_H
 #include "rtweekend.h"
-
-typedef	struct s_perlin t_perlin;
-
-
+#include "perlin.h"
 
 typedef	struct s_texture t_texture;
 typedef	t_texture t_solid_color;
@@ -17,13 +14,6 @@ enum	e_texture_type {
 	NOISE_TEXTURE,
 };
 typedef enum e_texture_type	t_texture_type;
-
-struct s_perlin {
-	double	ranfloat[256];
-	int		x[256];
-	int		y[256];
-	int		z[256];
-};
 
 struct s_texture {
 	t_texture_type	type;
