@@ -11,7 +11,7 @@ void	get_sphere_uv(const t_vec3 *p, double *u, double *v);
 // new
 t_sphere	sphere_new(t_point cen, double r, t_material *m)
 {
-	t_sphere	self = {};
+	t_sphere	self = {0};
 
 	self.type = SPHERE;
 	self.center = cen;
@@ -101,30 +101,42 @@ t_bvh_node	new_bvh_node(t_hittable_list *s, t_hittable_list *e)
 	size_t	span = span_of_hittable_list(s, e);
 	if (span == 1)
 	{
+		printf("hello1\n");
 		self.left = s;
 		self.right = s;
 	}
 	else if (span == 2)
 	{
+		printf("hello2\n");
+		printf("s = %p, s->next = %p, axis = %d\n", s, s->next, axis);
+		printf("s->next->next = %p\n", s->next->next);
 		if (comp[axis](s, s->next))
 		{
+			printf("1\n");
 			self.left = s;
 			self.right = s->next;
 		}
 		else
 		{
+			printf("2\n");
 			self.left = s->next;
 			self.right = s;	
 		}
 	}
 	else
 	{
+		printf("1\n");
 		sort_hittable_list(s, e, comp[axis]);
+		printf("2\n");
 		t_hittable_list *mid = s;
 		for (size_t i = 0; i < span / 2; i++)
 			mid = mid->next;
+		printf("3\n");
 		self.left = alloc_bvh_node(s, mid);
+		printf("4\n");
+		printf("mid = %p, e = %p\n", mid, e);
 		self.right = alloc_bvh_node(mid, e);
+		printf("5\n");
 	}
 	t_aabb	box_left, box_right;
 
@@ -506,6 +518,7 @@ bool	hit(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_h
 // bounding_box
 bool	sphere_bounding_box(const t_hittable *self, t_aabb *output_box)
 {
+	printf("sphere_bounding_box\n");
 	t_vec3	a = sub_vec3(self->center, new_vec3(self->radius, self->radius, self->radius));
 	t_vec3	b = add_vec3(self->center, new_vec3(self->radius, self->radius, self->radius));
 	*output_box = new_aabb(&a, &b);
@@ -573,7 +586,24 @@ bool	rotate_y_bounding_box(const t_hittable *self, t_aabb *output_box)
 
 bool	const_medium_bounding_box(const t_hittable *self, t_aabb *output_box)
 {
+	printf("const_medium_bounding_box\n");
+	printf("self = %p, self->boundary = %p\n", self, self->boundary);
+	printf("self->boundary->type = %d\n", self->boundary->type);
 	return (bounding_box(self->boundary, output_box));
+}
+
+bool	hittable_list_bounding_box(const t_hittable *self, t_aabb *output_box)
+{
+	if (self->next == NULL)
+		return (false);
+	t_aabb	temp_box;
+	bool	first_box = true;
+	for (t_hittable *object = self->next; object; object = object->next) {
+		if (!bounding_box(object, &temp_box)) return false;
+		*output_box = first_box ? temp_box : surrounding_box(*output_box, temp_box);
+		first_box = false;
+	}
+	return (true);
 }
 
 bool	bounding_box(const t_hittable *self, t_aabb *output_box)
@@ -596,6 +626,8 @@ bool	bounding_box(const t_hittable *self, t_aabb *output_box)
 		return (rotate_y_bounding_box(self, output_box));
 	else if (self->type == CONST_MEDIUM)
 		return (const_medium_bounding_box(self, output_box));
+	else if (self->type == HITTABLE_LIST)
+		return (hittable_list_bounding_box(self, output_box));
 	else
 		return (false);
 }
@@ -652,8 +684,11 @@ bool	box_z_compare(t_hittable *a, t_hittable *b)
 	t_aabb	box_a;
 	t_aabb	box_b;
 
+	printf("box_z_compare!\n");
+	printf("a->type = %d, b->type = %d!\n", a->type, b->type);
 	if (!bounding_box(a, &box_a) || !bounding_box(b, &box_b))
 		printf("no bounding box in bvh_node constructor\n");
+	printf("finish\n");
 	return (box_a.min.z < box_b.min.z);
 }
 
