@@ -7,6 +7,26 @@ bool	box_z_compare(t_hittable *a, t_hittable *b);
 void	sort_hittable_list(t_hittable_list *s, t_hittable_list *e, t_comparator *comparator);
 void	get_sphere_uv(const t_vec3 *p, double *u, double *v);
 
+// cornel_box
+#include "material.h"
+t_hittable_list	cornel_box(void)
+{
+	t_hittable_list	objects = {};
+
+	t_material	*red = alloc_lambertian(alloc_solid_color(.65, .05, .05));
+	t_material	*white = alloc_lambertian(alloc_solid_color(.73, .73, .73));
+	t_material	*green = alloc_lambertian(alloc_solid_color(.12, .45, .15));
+	t_material	*light = alloc_diffuse_light(alloc_solid_color(15, 15, 15));
+
+	hittable_list_add(&objects, yzrect_alloc(0, 555, 0, 555, 555, green));
+	hittable_list_add(&objects, yzrect_alloc(0, 555, 0, 555, 0, red));
+	hittable_list_add(&objects, xzrect_alloc(213, 343, 227, 332, 554, light));
+	hittable_list_add(&objects, xzrect_alloc(0, 555, 0, 555, 0, white));
+	hittable_list_add(&objects, xzrect_alloc(0, 555, 0, 555, 555, white));
+	hittable_list_add(&objects, xyrect_alloc(0, 555, 0, 555, 555, white));
+	return (objects);
+}
+
 // new
 t_sphere	sphere_new(t_point cen, double r, t_material *m)
 {

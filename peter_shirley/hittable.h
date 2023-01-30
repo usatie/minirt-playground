@@ -71,5 +71,6 @@ t_xz_rect	*xzrect_alloc(double x0, double x1, double z0, double z1, double k, t_
 // hittable_list
 void	hittable_list_add(t_hittable_list *self, t_hittable *object);
 size_t	span_of_hittable_list(t_hittable_list *start, t_hittable_list *end);
+t_hittable_list	cornel_box(void);
 
 #endif

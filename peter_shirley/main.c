@@ -296,6 +296,32 @@ void	setup_world6(t_camera *camera, t_hittable_list *world)
 	hittable_list_add(world, rect2);
 }
 
+void	setup_world7(t_camera *camera, t_hittable_list *world)
+{
+	// camera
+	t_point	lookfrom = new_point(278, 278, -800);
+	t_point	lookat= new_point(278, 278, 0);
+	t_vec3	vup = new_vec3(0, 1, 0);
+	double	dist_to_focus = 10.0;
+	const double	aperture = 0.0;
+	const double	vfov = 40.0;
+	*camera = new_camera_default(lookfrom,
+							lookat,
+							vup,
+							vfov,
+							ASPECT_RATIO, 
+							aperture,
+							dist_to_focus);
+
+	// geometries
+	*world = cornel_box();
+	/*
+	t_material	*green = alloc_lambertian(alloc_solid_color(.12, .45, .15));
+	hittable_list_add(world, sphere_alloc(new_point(200, 200, 200), 100, green));
+	hittable_list_add_list(world, cornel_box());
+	*/
+}
+
 int	main(void)
 {
 	t_env		e;
@@ -308,7 +334,7 @@ int	main(void)
 	t_hittable_list	world = {};
 
 	world.type = HITTABLE_LIST;
-	setup_world6(&camera, &world);
+	setup_world7(&camera, &world);
 
 	world = new_bvh_node(world.next, NULL);
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
