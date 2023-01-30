@@ -17,10 +17,11 @@ double	degrees_to_radians(double degrees)
 t_color	ray_color(t_ray *r, const t_hittable_list *world, int depth)
 {
 	t_hit_record	rec;
-	t_vec3 unit_dir = unit_vec3(r->direction);
-	double t = 0.5* (unit_dir.y + 1.0);
+	//t_vec3 unit_dir = unit_vec3(r->direction);
+	//double t = 0.5* (unit_dir.y + 1.0);
 	// (1.0-t)*color(1.0, 1.0, 1.0) + t*color(0.5, 0.7, 1.0)
-	t_vec3 background_color = (add_vec3(scalar_mul_vec3((1.0 - t) , new_vec3(1, 1, 1)) , scalar_mul_vec3(t , new_vec3(0.5, 0.7, 1.0))));
+	//t_vec3 background_color = (add_vec3(scalar_mul_vec3((1.0 - t) , new_vec3(1, 1, 1)) , scalar_mul_vec3(t , new_vec3(0.5, 0.7, 1.0))));
+	t_vec3	background_color = new_color(0, 0, 0);
 
 	if (depth <= 0)
 		return (new_color(0, 0, 0));
@@ -114,7 +115,7 @@ void	setup_world(t_camera *camera, t_hittable_list *world)
 	//hittable_list_add(world, sphere5);
 	hittable_list_add(world, sphere6);
 	hittable_list_add(world, sphere7);
-	//hittable_list_add(world, rect);
+	hittable_list_add(world, rect);
 }
 
 
@@ -257,6 +258,40 @@ void	setup_world5(t_camera *camera, t_hittable_list *world)
 	hittable_list_add(world, sphere_alloc(new_point(0, 2, 0), 2, alloc_lambertian(noise)));
 }
 
+void	setup_world6(t_camera *camera, t_hittable_list *world)
+{
+	// camera
+	t_point	lookfrom = new_point(13, 2, 3);
+	t_point	lookat= new_point(0, 1, 0);
+	t_vec3	vup = new_vec3(0, 1, 0);
+	double	dist_to_focus = 10.0;
+	const double	aperture = 0.0;
+	*camera = new_camera_default(lookfrom,
+							lookat,
+							vup,
+							30,
+							ASPECT_RATIO, 
+							aperture,
+							dist_to_focus);
+
+	// geometries
+	t_texture	*pertext;
+	t_material	*diff_light;
+	t_sphere	*sphere1;
+	t_sphere	*sphere2;
+	t_xy_rect	*rect;
+
+	pertext = alloc_noise_texture();
+	sphere1 = sphere_alloc(new_point(0, -1000, 0), 1000, alloc_lambertian(pertext));
+	sphere2 = sphere_alloc(new_point(0, 2, 0), 2, alloc_lambertian(pertext));
+
+	diff_light = alloc_diffuse_light(alloc_solid_color(4, 4, 4));
+	rect = xyrect_alloc(3, 5, 1, 3, -2, diff_light);
+
+	hittable_list_add(world, sphere1);
+	hittable_list_add(world, sphere2);
+	hittable_list_add(world, rect);
+}
 
 int	main(void)
 {
@@ -270,7 +305,7 @@ int	main(void)
 	t_hittable_list	world = {};
 
 	world.type = HITTABLE_LIST;
-	setup_world5(&camera, &world);
+	setup_world6(&camera, &world);
 
 	world = new_bvh_node(world.next, NULL);
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)

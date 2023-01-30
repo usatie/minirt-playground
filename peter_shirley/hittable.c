@@ -228,6 +228,17 @@ bool	sphere_bounding_box(const t_hittable *self, t_aabb *output_box)
 	return (true);
 }
 
+#define AABB_MIN_WIDTH 0.0001
+bool	xyrect_bounding_box(const t_hittable *self, t_aabb *output_box)
+{
+	t_vec3	a, b;
+
+	a = new_point(self->x0, self->y0, self->k - AABB_MIN_WIDTH);
+	b = new_point(self->x1, self->y1, self->k + AABB_MIN_WIDTH);
+	*output_box = new_aabb(&a, &b);
+	return (true);
+}
+
 bool	bvh_node_bounding_box(const t_hittable *self, t_aabb *output_box)
 {
 	*output_box = self->box;
@@ -238,6 +249,8 @@ bool	bounding_box(const t_hittable *self, t_aabb *output_box)
 {
 	if (self->type == SPHERE)
 		return (sphere_bounding_box(self, output_box));
+	else if (self->type == XY_RECT)
+		return (xyrect_bounding_box(self, output_box));
 	else if (self->type == BVH_NODE)
 		return (bvh_node_bounding_box(self, output_box));
 	else
