@@ -16,6 +16,7 @@ typedef t_hittable	t_xz_rect;
 typedef t_hittable	t_box;
 typedef t_hittable t_hittable_list;
 typedef t_hittable	t_bvh_node;
+typedef t_hittable	t_translate;
 typedef bool	t_comparator(t_hittable *a, t_hittable *b);
 
 enum e_hittable_type {
@@ -26,6 +27,7 @@ enum e_hittable_type {
 	BOX,
 	HITTABLE_LIST,
 	BVH_NODE,
+	TRANSLATE,
 };
 typedef enum e_hittable_type	t_hittable_type;
 
@@ -57,6 +59,9 @@ struct s_hittable {
 	t_hittable		*left;
 	t_hittable		*right;
 	t_aabb			box;
+	//instance translate
+	t_hittable		*ptr;
+	t_vec3			offset;
 };
 
 void	set_face_normal(t_hit_record *self, const t_ray *r, const t_vec3 *outward_normal);
@@ -77,6 +82,8 @@ t_xz_rect	*xzrect_alloc(double x0, double x1, double z0, double z1, double k, t_
 t_hittable_list	*hittable_list_alloc(void);
 t_box		box_new(const t_point *p0, const t_point *p1, t_material *m);
 t_box		*box_alloc(const t_point *p0, const t_point *p1, t_material *m);
+t_translate		*translate_alloc(t_hittable *p, const t_vec3 *displacement);
+
 // hittable_list
 void	hittable_list_add(t_hittable_list *self, t_hittable *object);
 size_t	span_of_hittable_list(t_hittable_list *start, t_hittable_list *end);

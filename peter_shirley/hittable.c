@@ -133,6 +133,16 @@ t_bvh_node	new_bvh_node(t_hittable_list *s, t_hittable_list *e)
 	return (self);
 }
 
+t_translate	translate_new(t_hittable *p, const t_vec3 *displacement)
+{
+	t_xz_rect	self = {};
+
+	self.type = TRANSLATE;
+	self.ptr = p;
+	self.offset = *displacement;
+	return (self);
+}
+
 // alloc
 t_sphere	*sphere_alloc(t_point cen, double r, t_material *m)
 {
@@ -197,7 +207,15 @@ t_bvh_node	*alloc_bvh_node(t_hittable_list *s, t_hittable_list *e)
 	self = calloc(1, sizeof(*self));
 	*self = new_bvh_node(s, e);
 	return (self);
+}
 
+t_translate		*translate_alloc(t_hittable *p, const t_vec3 *displacement)
+{
+	t_translate	*self;
+
+	self = calloc(1, sizeof(*self));
+	*self = translate_new(p, displacement);
+	return (self);
 }
 
 // hit
@@ -325,6 +343,16 @@ bool	hittable_list_hit(const t_hittable_list *self, const t_ray *r, double t_min
 	return hit_anything;
 }
 
+bool		translate_hit(const t_translate *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec)
+{
+	t_ray moved_r = new_ray(sub_vec3(r->origin, self->offset), r->direction);
+	if (!hit(self->ptr, &moved_r, t_min, t_max, rec))
+		return (false);
+	rec->p = add_vec3(rec->p, self->offset);
+	set_face_normal(rec, &moved_r, &rec->normal);
+	return (true);
+}
+
 bool	hit(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_hit_record *rec)
 {
 	if (self->type == SPHERE)
@@ -341,6 +369,8 @@ bool	hit(const t_hittable *self, const t_ray *r, double t_min, double t_max, t_h
 		return (bvh_node_hit(self, r, t_min, t_max, rec));
 	else if (self->type == HITTABLE_LIST)
 		return (hittable_list_hit(self, r, t_min, t_max, rec));
+	else if (self->type == TRANSLATE)
+		return (translate_hit(self, r, t_min, t_max, rec));
 	else
 		return (false);
 }
@@ -397,6 +427,16 @@ bool	bvh_node_bounding_box(const t_hittable *self, t_aabb *output_box)
 	return (true);
 }
 
+bool	translate_bounding_box(const t_hittable *self, t_aabb *output_box)
+{
+	if (!bounding_box(self->ptr, output_box))
+		return (false);
+	t_point	p0 = add_vec3(output_box->min, self->offset);
+	t_point	p1 = add_vec3(output_box->max, self->offset);
+	*output_box = new_aabb(&p0, &p1);
+	return (true);
+}
+
 bool	bounding_box(const t_hittable *self, t_aabb *output_box)
 {
 	if (self->type == SPHERE)
@@ -411,6 +451,8 @@ bool	bounding_box(const t_hittable *self, t_aabb *output_box)
 		return (box_bounding_box(self, output_box));
 	else if (self->type == BVH_NODE)
 		return (bvh_node_bounding_box(self, output_box));
+	else if (self->type == TRANSLATE)
+		return (translate_bounding_box(self, output_box));
 	else
 		return (false);
 }

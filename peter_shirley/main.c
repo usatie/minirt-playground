@@ -27,11 +27,9 @@ t_color	ray_color(t_ray *r, const t_hittable_list *world, int depth)
 		return (new_color(0, 0, 0));
 	if (!hit(world, r, 0.001, INFINITY, &rec))
 		return (background_color);
-
 	t_color	emitted = material_emitted(rec.mat_ptr, rec.u, rec.v, &rec.p);
 	t_ray	scattered;
 	t_color	attenuation;
-	
 	if (!scatter(rec.mat_ptr, r, &rec, &attenuation, &scattered))
 		return (emitted);
 	return (add_vec3(emitted, mul_vec3(attenuation, ray_color(&scattered, world, depth - 1))));
@@ -319,7 +317,10 @@ t_hittable_list	cornel_box(void)
 	hittable_list_add(&objects, box_alloc(&p0, &p1, white));
 	p0 = new_point(265, 0, 295);
 	p1 = new_point(430, 330, 460);
-	hittable_list_add(&objects, box_alloc(&p0, &p1, white));
+	t_hittable *box1 = box_alloc(&p0, &p1, white);
+	t_vec3	offset = new_vec3(130, 0, 65);
+	box1 = translate_alloc(box1, &offset);
+	hittable_list_add(&objects, box1);
 	return (objects);
 }
 
