@@ -60,6 +60,7 @@ struct s_hittable {
 	t_hittable_list	*sides;
 	//HITTABLE_LIST
 	t_hittable		*next;
+	t_hittable		*pre;
 	// BVH_NODE
 	t_hittable		*left;
 	t_hittable		*right;
@@ -107,5 +108,10 @@ t_const_medium	*const_medium_alloc(t_hittable *b, double d, t_texture *a);
 void	hittable_list_add(t_hittable_list *self, t_hittable *object);
 size_t	span_of_hittable_list(t_hittable_list *start, t_hittable_list *end);
 t_hittable_list	cornel_box(void);
+void	sort_hittable_list(t_hittable_list *s, t_hittable_list *e, t_comparator *comparator);
+
+bool	box_x_compare(t_hittable *a, t_hittable *b);
+bool	box_y_compare(t_hittable *a, t_hittable *b);
+bool	box_z_compare(t_hittable *a, t_hittable *b);
 
 #endif

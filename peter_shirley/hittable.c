@@ -112,20 +112,20 @@ t_bvh_node	new_bvh_node(t_hittable_list *s, t_hittable_list *e)
 		printf("s->next->next = %p\n", s->next->next);
 		if (comp[axis](s, s->next))
 		{
-			printf("1\n");
+			printf("1 span=2\n");
 			self.left = s;
 			self.right = s->next;
 		}
 		else
 		{
-			printf("2\n");
+			printf("2 span=2\n");
 			self.left = s->next;
 			self.right = s;	
 		}
 	}
 	else
 	{
-		printf("1\n");
+		printf("1 else\n");
 		sort_hittable_list(s, e, comp[axis]);
 		printf("2\n");
 		t_hittable_list *mid = s;
@@ -638,6 +638,7 @@ void	hittable_list_add(t_hittable_list *self, t_hittable *object)
 	while (self->next)
 		self = self->next;
 	self->next = object;
+	object->pre = self;
 }
 
 // set_face_normal
@@ -664,6 +665,7 @@ bool	box_x_compare(t_hittable *a, t_hittable *b)
 	t_aabb	box_a;
 	t_aabb	box_b;
 
+	printf("box_x_compare!\n");
 	if (!bounding_box(a, &box_a) || !bounding_box(b, &box_b))
 		printf("no bounding box in bvh_node constructor\n");
 	return (box_a.min.x < box_b.min.x);
@@ -674,6 +676,7 @@ bool	box_y_compare(t_hittable *a, t_hittable *b)
 	t_aabb	box_a;
 	t_aabb	box_b;
 
+	printf("box_y_compare!\n");
 	if (!bounding_box(a, &box_a) || !bounding_box(b, &box_b))
 		printf("no bounding box in bvh_node constructor\n");
 	return (box_a.min.y < box_b.min.y);
@@ -720,6 +723,43 @@ typedef struct s_list {
 // tmp = a->val;
 // a->val = c->val;
 // c->val = tmp;
+
+static void	swap_hittable_list_x(t_hittable_list *a, t_hittable_list *b)
+{
+	t_hittable_list	*pre_a = a->pre;
+	t_hittable_list	*pre_b = b->pre;
+	t_hittable_list	*a_next;
+	t_hittable_list	*b_next;
+	t_hittable_list	*tmp;
+
+	// a = b
+	b_next = NULL;
+	if (pre_a != NULL)
+	{
+		pre_a->next = b;
+		if (b)
+		{
+			b->pre = pre_a;
+			b_next = b->next;
+			b->next = a->next;
+			if (b->next)
+				b->next->pre = b;
+		}
+	}
+	if (pre_b != NULL)
+	{
+		pre_b->next = a;
+		if (a)
+		{
+			a->pre = pre_b;
+			a->next = b_next;
+			if (a->next)
+				a->next->pre = a;
+		}
+	}
+}
+
+
 static void	swap_hittable_list(t_hittable_list *a, t_hittable_list *b)
 {
 	t_hittable_list	tmp = *a;
@@ -741,8 +781,17 @@ void	sort_hittable_list(t_hittable_list *s, t_hittable_list *e, t_comparator *co
 	for (t_hittable_list *i = s; i; i = i->next) {
 		if (i == e) break;
 		for (t_hittable_list *j = i->next; j; j = j->next) {
+			printf("sort_hittable i->type = %d, j->type = %d\n", i->type, j->type);
 			if (!comparator(i, j))
-				swap_hittable_list(i, j);
+			{
+				printf("before swap i %p j %p j->next %p\n", i, j, j->next);
+				swap_hittable_list_x(i, j);
+				t_hittable_list *tmp;
+				tmp = i;
+				i = j;
+				j = tmp;
+				printf("after  swap i %p j %p j->next %p\n", i, j, j->next);
+			}
 			if (j == e) break;
 		}
 	}
