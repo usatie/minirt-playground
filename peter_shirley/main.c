@@ -441,11 +441,11 @@ void	setup_world8(t_camera *camera, t_hittable_list *world)
 
 	// ground boxes
 	hittable_list_add(world, alloc_bvh_node(boxes1.next, NULL));
-	*/
+
 	// light
 	t_material	*light = alloc_diffuse_light(alloc_solid_color(7, 7, 7));
 	hittable_list_add(world, xzrect_alloc(123, 423, 147, 412, 554, light));
-	/**/
+
 	// moving sphere
 	t_point	center1 = new_point(400, 400, 200);
 	t_point	center2 = add_vec3(center1, new_vec3(30, 0, 0));
@@ -454,20 +454,22 @@ void	setup_world8(t_camera *camera, t_hittable_list *world)
 
 	// glass sphere
 	hittable_list_add(world, sphere_alloc(new_point(260, 150, 45), 50, alloc_dielectric(1.5)));
-	
+	*/
 	// metal sphere
 	hittable_list_add(world, sphere_alloc(new_point(0, 150, 145), 50, alloc_metal(alloc_solid_color(0.8, 0.8, 0.9), 10.0)));
-	
+
 	// Blue smoke in glass sphere
 	t_sphere	*boundary = sphere_alloc(new_point(360, 150, 145), 70, alloc_dielectric(1.5));
 	t_const_medium *const_med = const_medium_alloc(boundary, 0.2, alloc_solid_color(0.2, 0.4, 0.9));
 	printf("boundary = %p, boundary->boundary = %p\n", boundary, boundary->boundary);
 	printf("const_med = %p, const_med->boundary = %p\n", const_med, const_med->boundary);
-	//hittable_list_add(world, boundary);
+	hittable_list_add(world, boundary);
 	hittable_list_add(world, const_med);
 	for (t_hittable *obj = world->next; obj; obj = obj->next) {
-		printf("obj = %p, obj->type = %d obj->pre = %p\n", obj, obj->type, obj->pre);
+		printf("obj = %p, obj->type = %d\n", obj, obj->type);
 	}
+	exit(1);
+
 	/*
 	// White smoke in the room
 	boundary = sphere_alloc(new_point(0, 0, 0), 5000, alloc_dielectric(1.5));
@@ -511,26 +513,11 @@ int	main(void)
 
 	world.type = HITTABLE_LIST;
 	setup_world8(&camera, &world);
-	for (t_hittable *h = world.next; h; h = h->next) {
-		t_aabb	box;
-		bounding_box(h, &box);
-		printf("before obj %p, pre %p, next %p, h.x = %f\n", h, h->pre, h->next, box.min.x);
-	}
-	t_hittable *end;
-	for (t_hittable *h = world.next; h; h = h->next) {
-		end = h;
-	}
-	sort_hittable_list(world.next, end, box_x_compare);
-	for (t_hittable *h = world.next; h; h = h->next) {
-		t_aabb	box;
-		bounding_box(h, &box);
-		printf("obj %p, pre %p, next %p, h.x = %f\n", h, h->pre, h->next, box.min.x);
-	}
-	exit(1);
+
 	// これ AND (青い煙 and 青い煙の周りのガラス球)が組み合わさるとSegmentation Faultする
-	printf("Hello1\n");
-	world = new_bvh_node(world.next, end);
-	printf("Hello2\n");
+	printf("hello1\n");
+	world = new_bvh_node(world.next, NULL);
+	printf("hello2\n");
 	for (int j = WIN_HEIGHT - 1; j >=0;  --j)
 	{
 		int y = WIN_HEIGHT - j;
