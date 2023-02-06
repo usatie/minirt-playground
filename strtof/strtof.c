@@ -26,26 +26,26 @@ FLOAT	ft_strtof(char *str, char **rest)
 	dec = 1.0 / 10;
 	while (isdigit(*str) || *str == '.')
 	{
-		if (dot == false)
-		{
-			if (*str == '.')
-				dot = true;
-			else if (isdigit(*str))
-				ret = ret * 10 + (*str - '0');
-			str++;
-		}
-		else if (dot == true)
+		if (dot)
 		{
 			if (*str == '.')
 				break ;
 			ret += dec * (*str - '0');
 			dec /= 10;
-			str++;
 		}
+		else
+		{
+			if (*str == '.')
+				dot = true;
+			else if (isdigit(*str))
+				ret = ret * 10 + (*str - '0');
+		}
+		str++;
 	}
 	*rest = str;
 	return (ret * sign);
 }
+
 
 int main(int argc, char **argv)
 {
