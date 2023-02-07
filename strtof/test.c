@@ -1,0 +1,79 @@
+#include <stdlib.h>
+#include <unistd.h>
+#include <stdio.h>
+#include <errno.h>
+
+float	ft_strtof(const char *str, char **rest);
+
+void	test(const char *s)
+{
+	char	*expected_ptr, *actual_ptr;
+	float	expected, actual;
+	int		expected_errno, actual_errno;
+
+	errno = 0;
+	expected = strtof(s, &expected_ptr);
+	expected_errno = errno;
+
+	errno = 0;
+	actual = ft_strtof(s, &actual_ptr);
+	actual_errno = errno;
+
+	printf("[%s]: ", s);
+	if (actual == expected && actual_ptr == expected_ptr && actual_errno == expected_errno)
+		printf("\e[32mOK\e[m\n");
+	else
+		printf("\e[31mNG\e[m\n");
+
+	if (actual != expected)
+		printf("  Expected return balue = %.100f but got %.100f\n", expected, actual);
+	if (actual_ptr != expected_ptr)
+		printf("  Expected end_ptr = [%s] but got [%s]\n", expected_ptr, actual_ptr);
+	if (actual_errno != expected_errno)
+		printf("  Expected errno = [%d] but got [%d]\n", expected_errno, actual_errno);
+}
+
+int	main(void)
+{
+	// normal
+	test("42");
+	test("4.2");
+	test("42.0");
+
+	// zero
+	test("0");
+	test("0.0");
+	test(".0");
+	
+	// negative
+	test("42");
+	test("-4.2");
+	test("-42.0");
+
+	// mutilple values
+	test("42 42");
+	test("4.2\t4.2");
+	test("42.0\n42.0");
+
+	// 1/7
+	test("0.1428571428571428492126926812488818541169166564941406250");
+	// very small
+	test("0.00000000000000000000000000000000000000000000140129846432481707092372958328991613128026194187651577175706828388979108268586060148663818836212158203125");
+
+	// overflow
+	test("9999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999999");
+	test("1111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111");
+	test("2222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222222");
+	
+	// underflow
+	test(".00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001");
+	test(".00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000009");
+	test(".00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005");
+	
+	// others
+	test("42hello");
+	test("42.34.56");
+	test("42. ");
+	test(".42.42");
+	test(".42,aa");
+}

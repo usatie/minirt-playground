@@ -46,7 +46,7 @@ FLOAT	ft_strtof(char *str, char **rest)
 	return (ret * sign);
 }
 
-
+/*
 int main(int argc, char **argv)
 {
 	extern int  errno;
@@ -59,4 +59,4 @@ int main(int argc, char **argv)
 	printf("std :%s\n", copy);
 	return (0);
 }
-
+*/
